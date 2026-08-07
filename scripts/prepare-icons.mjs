@@ -1,22 +1,52 @@
 import { mkdir, readFile, rm, stat } from 'node:fs/promises'
 import path from 'node:path'
+import { gunzipSync } from 'node:zlib'
 import sharp from 'sharp'
 
 const ROOT = process.cwd()
 const ATLAS_PATH = path.join(ROOT, 'src', 'data', 'sprite.b64')
+const CATALOG_PATH = path.join(ROOT, 'src', 'data', 'catalog.gz.b64')
 const MANIFEST_PATH = path.join(ROOT, 'scripts', 'icon-manifest.json')
 const OUTPUT_ROOT = path.join(ROOT, 'public', 'assets', 'icons')
 const TILE_SIZE = 48
 const COLUMNS = 10
 
-const [atlasText, manifestText] = await Promise.all([
+const slug = (value) => value
+  .toLowerCase()
+  .replace(/\+1/g, '')
+  .replace(/[’']/g, '')
+  .replace(/&/g, ' and ')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
+
+const iconRelativePath = (category, name) => {
+  let filename = slug(name)
+  if (category === 'tools' && !filename.startsWith('duergar-mercenarys-')) {
+    filename = `duergar-mercenarys-${filename}`
+  }
+  return `${category}/${filename}.png`
+}
+
+const [atlasText, catalogText, manifestText] = await Promise.all([
   readFile(ATLAS_PATH, 'utf8'),
+  readFile(CATALOG_PATH, 'utf8'),
   readFile(MANIFEST_PATH, 'utf8'),
 ])
 
 const manifest = JSON.parse(manifestText)
 if (!Array.isArray(manifest) || manifest.length !== 90) {
   throw new Error(`Expected 90 verified icon entries, got ${Array.isArray(manifest) ? manifest.length : 'invalid manifest'}`)
+}
+
+const catalog = JSON.parse(gunzipSync(Buffer.from(catalogText.replace(/\s+/g, ''), 'base64')).toString('utf8'))
+const manifestSet = new Set(manifest)
+const expectedPaths = [
+  ...(catalog.items ?? []).map((item) => iconRelativePath(item.kind === 'Profession Tool' ? 'tools' : 'gear', item.name)),
+  ...(catalog.materials ?? []).map((material) => iconRelativePath('materials', material.name)),
+]
+const missingMappings = [...new Set(expectedPaths.filter((relativePath) => !manifestSet.has(relativePath)))]
+if (missingMappings.length) {
+  throw new Error(`Verified icon manifest is missing catalog mappings:\n${missingMappings.join('\n')}`)
 }
 
 const atlas = Buffer.from(atlasText.replace(/\s+/g, ''), 'base64')
@@ -49,3 +79,4 @@ for (const relativePath of manifest) {
 }
 
 console.log(`Prepared ${manifest.length} individually named verified icons in public/assets/icons`)
+console.log(`Verified ${expectedPaths.length} catalog icon references against the generated files`)
