@@ -59,15 +59,24 @@ function Sprite({
       className="sprite atlas-icon"
       role="img"
       aria-label={alt}
-      style={{
-        width: size,
-        height: size,
-        backgroundImage: `url(${spriteDataUri})`,
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: `${columns * size}px ${rows * size}px`,
-        backgroundPosition: `${-col * size}px ${-row * size}px`,
-      }}
-    />
+      style={{ width: size, height: size, position: 'relative', overflow: 'hidden' }}
+    >
+      <img
+        src={spriteDataUri}
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        style={{
+          position: 'absolute',
+          width: columns * size,
+          height: rows * size,
+          maxWidth: 'none',
+          left: -col * size,
+          top: -row * size,
+          pointerEvents: 'none',
+        }}
+      />
+    </span>
   )
 }
 
