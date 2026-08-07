@@ -1,27 +1,80 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { gunzipSync } from 'node:zlib'
 
 const ROOT = process.cwd()
-const SOURCE = path.join(ROOT, 'src', 'data', 'sprite.b64')
-const MANIFEST = path.join(ROOT, 'scripts', 'icon-manifest.json')
-const OUTPUT_DIR = path.join(ROOT, 'public', 'assets', 'icons')
-const OUTPUT = path.join(OUTPUT_DIR, 'verified-atlas.webp')
+const SOURCE = path.join(ROOT, 'src', 'data', 'catalog.gz.b64')
+const OUTPUT_ROOT = path.join(ROOT, 'public', 'assets', 'icons')
+const EXPECTED_ITEMS = 61
+const EXPECTED_MATERIALS = 29
+const EXPECTED_TOTAL = EXPECTED_ITEMS + EXPECTED_MATERIALS
 
-const [encoded, manifestText] = await Promise.all([
-  readFile(SOURCE, 'utf8'),
-  readFile(MANIFEST, 'utf8'),
+const slug = (name) => name
+  .toLowerCase()
+  .replace(/\+1/g, '')
+  .replace(/[’']/g, '')
+  .replace(/&/g, 'and')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
+
+const encodedCatalog = (await readFile(SOURCE, 'utf8')).replace(/\s+/g, '')
+const catalog = JSON.parse(gunzipSync(Buffer.from(encodedCatalog, 'base64')).toString('utf8'))
+const items = catalog.items ?? []
+const materials = catalog.materials ?? []
+
+if (items.length !== EXPECTED_ITEMS || materials.length !== EXPECTED_MATERIALS) {
+  throw new Error(`Icon audit expected ${EXPECTED_ITEMS} craftables and ${EXPECTED_MATERIALS} materials, got ${items.length} and ${materials.length}`)
+}
+
+await rm(OUTPUT_ROOT, { recursive: true, force: true })
+await Promise.all([
+  mkdir(path.join(OUTPUT_ROOT, 'gear'), { recursive: true }),
+  mkdir(path.join(OUTPUT_ROOT, 'materials'), { recursive: true }),
+  mkdir(path.join(OUTPUT_ROOT, 'tools'), { recursive: true }),
 ])
 
-const manifest = JSON.parse(manifestText)
-if (!Array.isArray(manifest) || manifest.length !== 90) {
-  throw new Error(`Expected 90 verified icons, got ${Array.isArray(manifest) ? manifest.length : 'invalid manifest'}`)
+const written = new Set()
+
+const writeIcon = async (entity, category) => {
+  const source = entity.icon
+  const match = typeof source === 'string'
+    ? /^data:image\/webp;base64,([A-Za-z0-9+/=\s]+)$/.exec(source)
+    : null
+
+  if (!match) {
+    throw new Error(`Missing embedded WebP icon for ${entity.name}`)
+  }
+
+  const fileName = `${slug(entity.name)}.webp`
+  const relativePath = `${category}/${fileName}`
+  if (written.has(relativePath)) {
+    throw new Error(`Duplicate icon path: ${relativePath}`)
+  }
+
+  const bytes = Buffer.from(match[1].replace(/\s+/g, ''), 'base64')
+  if (
+    bytes.length < 100 ||
+    bytes.toString('ascii', 0, 4) !== 'RIFF' ||
+    bytes.toString('ascii', 8, 12) !== 'WEBP'
+  ) {
+    throw new Error(`Invalid WebP payload for ${entity.name}`)
+  }
+
+  await writeFile(path.join(OUTPUT_ROOT, relativePath), bytes)
+  written.add(relativePath)
 }
 
-const atlas = Buffer.from(encoded.replace(/\s+/g, ''), 'base64')
-if (atlas.length < 1000 || atlas.toString('ascii', 0, 4) !== 'RIFF' || atlas.toString('ascii', 8, 12) !== 'WEBP') {
-  throw new Error('Verified icon atlas is not a valid WebP payload')
+for (const item of items) {
+  await writeIcon(item, item.kind === 'Profession Tool' ? 'tools' : 'gear')
+}
+for (const material of materials) {
+  await writeIcon(material, 'materials')
 }
 
-await mkdir(OUTPUT_DIR, { recursive: true })
-await writeFile(OUTPUT, atlas)
-console.log(`Prepared normal static verified atlas (${atlas.length} bytes) for ${manifest.length} named catalog icons`)
+if (written.size !== EXPECTED_TOTAL) {
+  throw new Error(`Icon audit expected ${EXPECTED_TOTAL} files, wrote ${written.size}`)
+}
+
+const gearCount = items.filter((item) => item.kind !== 'Profession Tool').length
+const toolCount = items.filter((item) => item.kind === 'Profession Tool').length
+console.log(`Direct icon audit passed: ${gearCount} gear/accessory + ${toolCount} tools + ${materials.length} materials = ${written.size}/${EXPECTED_TOTAL} static WebP files`)
