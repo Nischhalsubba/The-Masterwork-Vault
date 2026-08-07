@@ -1,7 +1,7 @@
 {
   "name": "the-masterwork-vault",
   "private": true,
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -21,7 +21,6 @@
     "@types/react-dom": "latest",
     "@types/three": "latest",
     "@vitejs/plugin-react": "6.0.4",
-    "sharp": "0.35.3",
     "typescript": "7.0.2",
     "vite": "8.1.5"
   }
