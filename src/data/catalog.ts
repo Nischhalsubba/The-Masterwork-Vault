@@ -25,7 +25,7 @@ for (const material of catalog.materials ?? []) {
 
 catalog.meta.sprite = {
   ...(catalog.meta.sprite ?? {}),
-  tileSize: 70,
+  tileSize: 48,
   columns: 10,
   count: verifiedIconCount,
 }
