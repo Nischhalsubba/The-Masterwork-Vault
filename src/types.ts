@@ -22,6 +22,7 @@ export interface ItemEntry {
   slot?: string | null
   categories: string[]
   profession?: string | null
+  icon?: string | null
   iconIndex?: number | null
   bind?: string | null
   levelRequirement?: number | null
@@ -54,6 +55,7 @@ export interface RecipeEntry {
 
 export interface MaterialEntry {
   name: string
+  icon?: string | null
   iconIndex?: number | null
   craftable: boolean
   outputQuantity?: number | null
