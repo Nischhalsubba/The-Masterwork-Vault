@@ -93,7 +93,13 @@ const VERIFIED_ICON_INDEX: Record<string, number> = {
   'materials/unknown-godsteel': 89,
 }
 
-const slug = (value: string) => value.toLowerCase().replace(/\+1/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+const slug = (value: string) => value
+  .toLowerCase()
+  .replace(/\+1/g, '')
+  .replace(/[’']/g, '')
+  .replace(/&/g, ' and ')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
 
 export function verifiedIconIndex(name: string, category: VerifiedIconCategory): number | undefined {
   return VERIFIED_ICON_INDEX[`${category}/${slug(name)}`]
