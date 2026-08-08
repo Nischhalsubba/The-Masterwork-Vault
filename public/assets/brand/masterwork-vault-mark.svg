@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
   <title id="title">The Masterwork Vault mark</title>
-  <desc id="desc">A black rounded-square vault mark with a white forged V and a blue forge spark.</desc>
-  <rect x="8" y="8" width="112" height="112" rx="28" fill="#111113"/>
-  <rect x="9.5" y="9.5" width="109" height="109" rx="26.5" fill="none" stroke="#3A3A3C" stroke-width="3"/>
+  <desc id="desc">A dark rounded-square vault mark with a white forged V and a blue forge spark.</desc>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="#1D1D1F"/>
+  <rect x="9.5" y="9.5" width="109" height="109" rx="26.5" fill="none" stroke="#6E6E73" stroke-width="3"/>
   <circle cx="64" cy="65" r="39" fill="none" stroke="#FFFFFF" stroke-opacity=".12" stroke-width="3"/>
   <path d="M33 39h16l15 32 15-32h16L72 85H56L33 39Z" fill="#FFFFFF"/>
   <path d="M43 88h42l-5 9H48Z" fill="#FFFFFF" opacity=".96"/>
