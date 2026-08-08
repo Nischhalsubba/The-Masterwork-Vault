@@ -14,6 +14,7 @@ import './stats-drawer.css'
 import './mobile-native.css'
 import './mobile-browser-fixes.css'
 import './native-app-polish.css'
+import './native-overlay-fixes.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
