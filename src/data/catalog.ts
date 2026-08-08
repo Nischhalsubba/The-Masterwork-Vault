@@ -1,5 +1,6 @@
 import compressedCatalog from './catalog.gz.b64?raw'
 import iconData from './iconData'
+import { verifiedIconCount, verifiedIconIndex } from './verifiedIconIndex'
 import {
   recoveredDirectRecipes,
   recoveredIcons,
@@ -58,19 +59,26 @@ const mappedIcon = (
   const key = slug(name)
   const recovered = recoveredIcons[`${category}/${key}`]
   const original = iconData[`${category}/${key}`] ?? iconByName.get(key) ?? fallback ?? null
-  return asRenderableUrl((preferRecovered && recovered) ? recovered : original ?? recovered ?? null)
+  return {
+    recovered,
+    url: asRenderableUrl((preferRecovered && recovered) ? recovered : original ?? recovered ?? null),
+  }
 }
 
-// Keep the known-working weapon path unchanged. Use the newly recovered ZIP artwork
-// first for materials, accessories and profession tools. Armor has no standalone icon
-// artwork in the supplied screenshots, so it continues to use the existing catalog map.
+// Every catalog entry gets a verified atlas tile as a deterministic fallback. Working weapon
+// art stays on the direct path. Recovered ZIP art stays primary for materials/tools/accessories.
+// Armor and non-recovered accessories use the verified atlas directly so a malformed old image
+// cannot render as broken alt text or a corrupted thumbnail.
 let itemIconCount = 0
 for (const item of catalog.items ?? []) {
   const category = item.kind === 'Profession Tool' ? 'tools' : 'gear'
   const preferRecovered = item.kind !== 'Weapon'
-  item.icon = mappedIcon(category, item.name, item.icon, preferRecovered)
-  item.iconIndex = null
-  if (item.icon) itemIconCount += 1
+  const mapped = mappedIcon(category, item.name, item.icon, preferRecovered)
+  const atlasIndex = verifiedIconIndex(item.name, category)
+  item.icon = mapped.url
+  item.iconIndex = atlasIndex ?? null
+  if (item.kind !== 'Weapon' && !mapped.recovered && atlasIndex !== undefined) item.icon = null
+  if (item.icon || item.iconIndex != null) itemIconCount += 1
 }
 
 // Final-ZIP direct recipes are unambiguous for the five recovered accessories and seven
@@ -106,11 +114,16 @@ for (const spec of recoveredMaterialSpecs) {
     catalog.materials.push(material)
     materialByName.set(norm(spec.name), material)
   }
-  material.icon = mappedIcon('materials', spec.name, material.icon, true)
-  material.iconIndex = null
+  material.icon = mappedIcon('materials', spec.name, material.icon, true).url
+  material.iconIndex = verifiedIconIndex(spec.name, 'materials') ?? null
   material.craftable = spec.craftable
   material.outputQuantity = spec.outputQuantity ?? material.outputQuantity ?? null
   material.sourceStatus = 'final-zip'
+}
+
+// Give any pre-existing material not touched above the same atlas fallback.
+for (const material of catalog.materials ?? []) {
+  if (material.iconIndex == null) material.iconIndex = verifiedIconIndex(material.name, 'materials') ?? null
 }
 
 // Replace the twelve component recipes with the values visible in the final ZIP screenshots.
@@ -146,7 +159,14 @@ for (const recipe of catalog.recipes ?? []) {
 }
 for (const material of catalog.materials ?? []) material.usedBy.sort((a: string, b: string) => a.localeCompare(b))
 
-const materialIconCount = (catalog.materials ?? []).filter((material: any) => Boolean(material.icon)).length
-console.info(`Icon audit: ${itemIconCount}/${catalog.items?.length ?? 0} craftables and ${materialIconCount}/${catalog.materials?.length ?? 0} materials mapped`)
+catalog.meta.sprite = {
+  ...(catalog.meta.sprite ?? {}),
+  tileSize: 48,
+  columns: 10,
+  count: verifiedIconCount,
+}
+
+const materialIconCount = (catalog.materials ?? []).filter((material: any) => Boolean(material.icon) || material.iconIndex != null).length
+console.info(`Displayable icon audit: ${itemIconCount}/${catalog.items?.length ?? 0} craftables and ${materialIconCount}/${catalog.materials?.length ?? 0} materials`)
 
 export default catalog
