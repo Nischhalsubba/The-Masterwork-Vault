@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { BookOpen, Boxes, CircleHelp, Gem, Hammer, Minus, Plus, Search, Shield, Sparkles, Sword } from 'lucide-react'
 import catalogJson from './data/catalog'
+import spriteDataUri from './data/sprite'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
 import { calculateCraftingPlan } from './lib/crafting'
 import { AmbientVault } from './components/AmbientVault'
@@ -9,24 +10,67 @@ import { AmbientVault } from './components/AmbientVault'
 const catalog = catalogJson as CatalogData
 const norm = (s: string) => s.toLowerCase().replace(/\+1/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ')
 const byMaterial = new Map(catalog.materials.map((m) => [norm(m.name), m]))
+const iconIndexByName = new Map<string, number>()
+for (const item of catalog.items) if (item.iconIndex != null) iconIndexByName.set(norm(item.name), item.iconIndex)
+for (const material of catalog.materials) if (material.iconIndex != null) iconIndexByName.set(norm(material.name), material.iconIndex)
 const asset = (p: string) => `${import.meta.env.BASE_URL}${p}`
 
 function Icon({ src, alt, size = 48 }: { src?: string | null; alt: string; size?: number }) {
-  if (!src) {
+  const [directFailed, setDirectFailed] = useState(false)
+  const index = iconIndexByName.get(norm(alt))
+
+  useEffect(() => {
+    setDirectFailed(false)
+  }, [src, index])
+
+  if (src && !directFailed) {
+    return (
+      <img
+        className="sprite thumb"
+        src={src}
+        alt={alt}
+        width={size}
+        height={size}
+        loading="lazy"
+        decoding="async"
+        style={{ width: size, height: size, objectFit: 'cover' }}
+        onError={() => setDirectFailed(true)}
+      />
+    )
+  }
+
+  if (index == null) {
     return <span className="sprite fallback" style={{ width: size, height: size }} role="img" aria-label={`${alt}, image unavailable`} />
   }
 
+  const columns = catalog.meta.sprite.columns || 10
+  const rows = Math.ceil(catalog.meta.sprite.count / columns)
+  const col = index % columns
+  const row = Math.floor(index / columns)
+
   return (
-    <img
-      className="sprite thumb"
-      src={src}
-      alt={alt}
-      width={size}
-      height={size}
-      loading="lazy"
-      decoding="async"
-      style={{ width: size, height: size, objectFit: 'cover' }}
-    />
+    <span
+      className="sprite atlas-icon"
+      role="img"
+      aria-label={alt}
+      style={{ width: size, height: size, position: 'relative', overflow: 'hidden' }}
+    >
+      <img
+        src={spriteDataUri}
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        style={{
+          position: 'absolute',
+          width: columns * size,
+          height: rows * size,
+          maxWidth: 'none',
+          left: -col * size,
+          top: -row * size,
+          pointerEvents: 'none',
+        }}
+      />
+    </span>
   )
 }
 
