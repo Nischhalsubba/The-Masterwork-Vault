@@ -1,4 +1,4 @@
-/* Compact item stats: keep recipe information primary and reveal stats on demand. */
+/* Screen-level item details drawer: keep the catalog inspector compact and reveal secondary data on demand. */
 
 .detail-controls {
   display: flex;
@@ -55,11 +55,10 @@
 }
 
 .stats-drawer-layer {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 100;
   overflow: hidden;
-  border-radius: inherit;
   pointer-events: none;
   visibility: hidden;
 }
@@ -75,11 +74,11 @@
   width: 100%;
   height: 100%;
   border: 0;
-  border-radius: inherit;
-  background: rgba(29, 29, 31, .16);
+  border-radius: 0;
+  background: rgba(29, 29, 31, .28);
   opacity: 0;
   cursor: pointer;
-  transition: opacity 200ms var(--ease);
+  transition: opacity 180ms var(--ease);
 }
 
 .stats-drawer-layer.open .stats-drawer-scrim {
@@ -88,42 +87,52 @@
 
 .stats-drawer {
   position: absolute;
+  z-index: 1;
   top: 0;
   right: 0;
-  width: min(88%, 430px);
-  height: 100%;
-  min-height: 100%;
+  width: min(92vw, 520px);
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 18px;
+  gap: 18px;
+  padding: 20px 20px 28px;
   border-left: 1px solid var(--separator);
-  background: rgba(251, 251, 253, .98);
-  box-shadow: -18px 0 40px rgba(0, 0, 0, .11);
+  background: rgba(251, 251, 253, .99);
+  box-shadow: -22px 0 52px rgba(0, 0, 0, .16);
   overflow-y: auto;
   overscroll-behavior: contain;
-  transform: translateX(102%);
-  transition: transform 220ms var(--ease);
+  scrollbar-gutter: stable;
+  transform: translate3d(102%, 0, 0);
+  will-change: transform;
+  transition: transform 240ms var(--ease);
 }
 
 .stats-drawer-layer.open .stats-drawer {
-  transform: translateX(0);
+  transform: translate3d(0, 0, 0);
 }
 
 .stats-drawer-head {
+  position: sticky;
+  top: -20px;
+  z-index: 2;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  padding-bottom: 12px;
+  margin: -20px -20px 0;
+  padding: 20px 20px 14px;
   border-bottom: 1px solid var(--separator);
+  background: rgba(251, 251, 253, .96);
+  backdrop-filter: saturate(180%) blur(18px);
 }
 
 .stats-drawer-head > div {
   min-width: 0;
 }
 
-.stats-drawer-head small {
+.stats-drawer-head small,
+.stats-drawer-section-head small {
   display: block;
   margin-bottom: 4px;
   color: var(--label-secondary);
@@ -136,9 +145,9 @@
 
 .stats-drawer-head h3 {
   margin: 0;
-  font-size: 19px;
+  font-size: 21px;
   line-height: 1.2;
-  letter-spacing: -.02em;
+  letter-spacing: -.025em;
   overflow-wrap: anywhere;
 }
 
@@ -172,6 +181,18 @@
   transform: scale(.985);
 }
 
+.stats-drawer-section {
+  display: grid;
+  gap: 10px;
+}
+
+.stats-drawer-section-head h4 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: -.012em;
+}
+
 .stats-drawer-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -202,19 +223,41 @@
   overflow-wrap: anywhere;
 }
 
+.stats-drawer-empty {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--separator);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--label-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .stats-drawer-note {
-  margin: auto 0 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--separator);
+  margin: 0;
   color: var(--label-secondary);
   font-size: 11px;
   line-height: 1.5;
 }
 
-@media (max-width: 1180px) {
-  .catalog .split > .detail {
-    position: relative;
-  }
+.stats-drawer-evidence {
+  padding-top: 2px;
+}
+
+.stats-drawer-evidence .item-evidence-card {
+  margin: 0;
+  border-radius: 14px;
+  box-shadow: none;
+  background: var(--surface);
+}
+
+.stats-drawer-evidence .item-evidence-card summary {
+  min-height: 50px;
+}
+
+.stats-drawer-evidence .evidence-body {
+  padding: 12px;
 }
 
 @media (max-width: 680px) {
@@ -234,8 +277,14 @@
 
   .stats-drawer {
     width: 100%;
-    padding: 14px;
+    padding: 16px 14px 24px;
     border-left: 0;
+  }
+
+  .stats-drawer-head {
+    top: -16px;
+    margin: -16px -14px 0;
+    padding: 16px 14px 12px;
   }
 }
 
