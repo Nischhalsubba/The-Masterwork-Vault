@@ -5,35 +5,11 @@ const stream = new Blob([bytes.buffer as ArrayBuffer]).stream().pipeThrough(new 
 const text = await new Response(stream).text()
 const catalog = JSON.parse(text)
 
-const slug = (name: string) => name
-  .toLowerCase()
-  .replace(/\+1/g, '')
-  .replace(/[’']/g, '')
-  .replace(/&/g, 'and')
-  .replace(/[^a-z0-9]+/g, '-')
-  .replace(/^-+|-+$/g, '')
-
-const iconUrl = (category: 'gear' | 'materials' | 'tools', name: string) =>
-  `${import.meta.env.BASE_URL}assets/icons/${category}/${slug(name)}.webp`
-
-for (const item of catalog.items ?? []) {
-  const category = item.kind === 'Profession Tool' ? 'tools' : 'gear'
-  item.icon = iconUrl(category, item.name)
-  item.iconIndex = null
-}
-
-for (const material of catalog.materials ?? []) {
-  material.icon = iconUrl('materials', material.name)
-  material.iconIndex = null
-}
-
-// The UI keeps legacy metadata for type compatibility, but no catalog entry can
-// reach the old atlas path. Every rendered icon uses its own static URL above.
-catalog.meta.sprite = {
-  path: '',
-  tileSize: 0,
-  columns: 0,
-  count: 0,
-}
+// Each catalog item and material already contains its own verified icon as a
+// small data:image/webp;base64 URL. Keep that value untouched and render it
+// directly with <img>. There is no sprite, icon index, generated asset, or
+// secondary image lookup in the runtime path.
+for (const item of catalog.items ?? []) item.iconIndex = null
+for (const material of catalog.materials ?? []) material.iconIndex = null
 
 export default catalog
