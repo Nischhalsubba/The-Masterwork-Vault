@@ -123,10 +123,10 @@ Long item names and metadata wrap when needed. Text is never compressed to prese
 ## Crafting workbench
 The Plan view is a workbench with six focused subviews instead of separate top-level navigation destinations:
 - Overview: selected craftables, inventory-aware shortages, shared-batch optimization and savings.
-- Craft tree: expandable per-item dependency trees with exact units, craft count, yield and leftovers. This tree explains each selected item independently; cross-plan optimization remains an Overview concern.
+- Craft tree: expandable per-item dependency trees with exact units, craft count, yield and leftovers. Every material node has an explicit Inspect action that opens the Materials inspector focused on that material. This tree explains each selected item independently; cross-plan optimization remains an Overview concern.
 - Craftable now: evaluates final craftables and craftable intermediate materials against the locally stored inventory. Owned intermediate materials are consumed before their recipes are expanded.
 - Checklist: shopping/farming list containing only the optimized raw-material shortage after inventory is applied.
-- Professions: final crafts plus required intermediate batches grouped by recorded profession. Missing profession data must be labeled `Unspecified profession`, never inferred.
+- Professions: shows an inventory-aware dependency-ordered crafting sequence first, then groups those same numbered steps by recorded profession. A step that consumes another active craftable must appear later than that dependency. Missing profession data must be labeled `Unspecified profession`, never inferred.
 - Saved: local saved plans and shareable links. Share links contain item IDs and quantities only; inventory is not encoded or shared.
 
 ### Quantity semantics - locked
@@ -144,10 +144,11 @@ These labels and operations are data semantics, not presentation choices:
 
 ### Recipe evidence and reverse lookup
 - Every craftable material may expose its exact one-craft inputs, explicit output quantity, source status and evidence record.
-- Screenshot-backed verification is shown only when the recipe quantity is explicit and the source is `final-zip` or `latest-user-screenshot`.
-- Supplemental data must be visibly labeled as supplemental and must not masquerade as screenshot-verified.
+- Every final gear, weapon, accessory and profession-tool detail exposes its recorded direct ingredient quantities, source state, source record and available evidence lines.
+- Screenshot-backed verification is shown only when the underlying source state supports that claim; supplemental records remain visibly supplemental.
 - Soul Bead keeps the later screenshot resolution in evidence rather than hiding the older conflicting record.
 - Material reverse lookup is built from the canonical `usedBy` graph and separates final craftables from crafted-material consumers.
+- Material reverse lookup also shows the material's total optimized demand across the current Plan before inventory is applied. For craftable materials it shows required units, craft count, produced units and leftovers; for raw materials it shows the optimized raw-unit requirement.
 
 ### Persistence
 - Inventory storage key: `masterwork-vault.inventory.v1`.
