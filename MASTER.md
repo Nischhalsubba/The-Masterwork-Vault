@@ -120,6 +120,41 @@ Long item names and metadata wrap when needed. Text is never compressed to prese
 - No text truncation for class names
 - Converts to horizontal scrolling navigation before it can make the content split cramped
 
+## Crafting workbench
+The Plan view is a workbench with six focused subviews instead of separate top-level navigation destinations:
+- Overview: selected craftables, inventory-aware shortages, shared-batch optimization and savings.
+- Craft tree: expandable per-item dependency trees with exact units, craft count, yield and leftovers. This tree explains each selected item independently; cross-plan optimization remains an Overview concern.
+- Craftable now: evaluates final craftables and craftable intermediate materials against the locally stored inventory. Owned intermediate materials are consumed before their recipes are expanded.
+- Checklist: shopping/farming list containing only the optimized raw-material shortage after inventory is applied.
+- Professions: final crafts plus required intermediate batches grouped by recorded profession. Missing profession data must be labeled `Unspecified profession`, never inferred.
+- Saved: local saved plans and shareable links. Share links contain item IDs and quantities only; inventory is not encoded or shared.
+
+### Quantity semantics - locked
+These labels and operations are data semantics, not presentation choices:
+- `required` / `Need` means units of that material demanded by the parent recipe or current plan.
+- `outputQuantity` / `yield` means units produced by exactly one craft.
+- `crafts required = ceil(units still needed / yield per craft)`.
+- Every input amount is a per-craft amount and is multiplied by `crafts required` exactly once.
+- `produced = crafts required * yield per craft`.
+- `leftover = produced - units still needed`.
+- Shared-plan optimization aggregates demand for an intermediate material before applying the ceiling operation, allowing one produced batch to satisfy demand from multiple selected items.
+- Inventory is consumed before new crafts are scheduled. Inventory of a crafted intermediate suppresses the raw-material demand that would otherwise be needed to make those owned units.
+- Raw inventory is consumed only after all required intermediate recipes have been expanded.
+- All quantities are non-negative whole units. Fractional craft/material quantities are invalid.
+
+### Recipe evidence and reverse lookup
+- Every craftable material may expose its exact one-craft inputs, explicit output quantity, source status and evidence record.
+- Screenshot-backed verification is shown only when the recipe quantity is explicit and the source is `final-zip` or `latest-user-screenshot`.
+- Supplemental data must be visibly labeled as supplemental and must not masquerade as screenshot-verified.
+- Soul Bead keeps the later screenshot resolution in evidence rather than hiding the older conflicting record.
+- Material reverse lookup is built from the canonical `usedBy` graph and separates final craftables from crafted-material consumers.
+
+### Persistence
+- Inventory storage key: `masterwork-vault.inventory.v1`.
+- Saved-plan storage key: `masterwork-vault.saved-plans.v1`.
+- Both are browser-local only; no account or remote persistence is implied.
+- Shared plan query payloads are validated against current catalog item IDs and positive integer quantities before being loaded.
+
 ## Motion tokens
 - Fast: 160ms
 - Standard: 240ms
@@ -131,11 +166,11 @@ Long item names and metadata wrap when needed. Text is never compressed to prese
 ## Responsive acceptance targets
 The interface must remain usable and visually balanced at 375, 768, 1024, 1280, 1440, and 1728 CSS pixels. At each width:
 - no horizontal page overflow
-- no clipped sidebar, filter, title, or recipe text
+- no clipped sidebar, filter, title, recipe, tree-node, or workbench-tab text
 - primary controls remain >=44px
 - selected item detail remains discoverable
 - long item names wrap instead of shrinking
 - search/filter controls reflow before becoming cramped
 
 ## Asset and data safety
-The redesign must not change catalog data, recipes, item/material image URLs, exact PNG overrides, sprite indices, direct-image-first behavior, or atlas fallback behavior. UI layout may adapt around these assets; the asset pipeline itself is locked.
+The redesign and workbench must not change catalog data, recipes, item/material image URLs, exact PNG overrides, sprite indices, direct-image-first behavior, or atlas fallback behavior. UI layout and calculations may consume these records; the source asset/data pipeline itself is locked.
