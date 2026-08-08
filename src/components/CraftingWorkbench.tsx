@@ -8,7 +8,6 @@ import {
   ChevronRight,
   ClipboardCheck,
   Copy,
-  ExternalLink,
   FolderOpen,
   Gem,
   GitBranch,
@@ -38,7 +37,6 @@ import {
 const catalog = catalogJson as CatalogData
 const norm = (s: string) => s.toLowerCase().replace(/\+1/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ')
 const byMaterial = new Map(catalog.materials.map((material) => [norm(material.name), material]))
-const byItemName = new Map(catalog.items.map((item) => [norm(item.name), item]))
 const recipeByName = new Map(catalog.recipes.map((recipe) => [norm(recipe.name), recipe]))
 const iconIndexByName = new Map<string, number>()
 for (const item of catalog.items) if (item.iconIndex != null) iconIndexByName.set(norm(item.name), item.iconIndex)
@@ -252,6 +250,22 @@ function selectedEntries(selected: Map<string, number>): PlanSelection[] {
     .filter((entry): entry is PlanSelection => Boolean(entry.item && entry.quantity > 0))
 }
 
+function materialRecipeSelection(material: MaterialEntry, recipe: RecipeEntry): PlanSelection {
+  const pseudoItem: ItemEntry = {
+    id: `__material_ready__${norm(material.name)}`,
+    name: material.name,
+    kind: 'Material',
+    classes: ['All'],
+    categories: [],
+    profession: material.profession || recipe.profession,
+    variants: [],
+    materials: recipe.materials.map((row) => ({ ...row })),
+    sourceStatus: recipe.sourceStatus,
+    provenance: { recipe: recipe.evidence[0] || null, evidence: [...recipe.evidence] },
+  }
+  return { item: pseudoItem, quantity: 1 }
+}
+
 export function CraftingWorkbench({ selected, setSelected }: { selected: Map<string, number>; setSelected: (next: Map<string, number>) => void }) {
   const [tab, setTab] = useState<'overview' | 'tree' | 'ready' | 'checklist' | 'professions' | 'saved'>('overview')
   const [inventory, setInventoryState] = useState<InventoryRecord>(() => loadJson(INVENTORY_KEY, {}))
@@ -292,8 +306,22 @@ export function CraftingWorkbench({ selected, setSelected }: { selected: Map<str
     return { item, plan, missingUnits, ready: plan.missingRaw.length === 0 }
   }).sort((a, b) => Number(b.ready) - Number(a.ready) || a.missingUnits - b.missingUnits || a.item.name.localeCompare(b.item.name)), [inventoryKey])
 
+  const materialReadiness = useMemo(() => catalog.materials
+    .filter((material) => material.craftable)
+    .map((material) => {
+      const recipe = recipeByName.get(norm(material.name))
+      if (!recipe) return null
+      const plan = calculateInventoryAwarePlan([materialRecipeSelection(material, recipe)], catalog.recipes, inventory)
+      const missingUnits = plan.missingRaw.reduce((sum, row) => sum + row.required, 0)
+      return { material, recipe, plan, missingUnits, ready: plan.missingRaw.length === 0 }
+    })
+    .filter((row): row is NonNullable<typeof row> => Boolean(row))
+    .sort((a, b) => Number(b.ready) - Number(a.ready) || a.missingUnits - b.missingUnits || a.material.name.localeCompare(b.material.name)), [inventoryKey])
+
   const readyItems = readiness.filter((row) => row.ready)
   const nearItems = readiness.filter((row) => !row.ready).slice(0, 12)
+  const readyMaterials = materialReadiness.filter((row) => row.ready)
+  const nearMaterials = materialReadiness.filter((row) => !row.ready).slice(0, 8)
 
   const changeQuantity = (id: string, quantity: number) => {
     const next = new Map(selected)
@@ -418,12 +446,19 @@ export function CraftingWorkbench({ selected, setSelected }: { selected: Map<str
         <div className="workbench-grid inventory-ready-grid enter">
           <InventoryEditor inventory={inventory} setInventory={setInventory} />
           <section className="panel ready-panel">
-            <div className="section-head workbench-section-head"><div><small>INVENTORY CHECK</small><h2>What can I craft now?</h2></div><span className="ready-count"><PackageCheck size={15} />{readyItems.length} ready</span></div>
-            {readyItems.length === 0 ? <EmptyState title="Nothing is fully craftable yet" body="Enter the materials you own. Intermediate materials in inventory are consumed before the planner expands their recipes." /> : (
+            <div className="section-head workbench-section-head"><div><small>INVENTORY CHECK</small><h2>What can I craft now?</h2></div><span className="ready-count"><PackageCheck size={15} />{readyItems.length + readyMaterials.length} ready</span></div>
+            <h3>Final craftables</h3>
+            {readyItems.length === 0 ? <EmptyState title="No final craftable is fully covered yet" body="Enter the materials you own. Intermediate materials in inventory are consumed before the planner expands their recipes." /> : (
               <div className="ready-list">{readyItems.map(({ item }) => <div className="ready-card" key={item.id}><Icon src={item.icon} alt={item.name} size={44} /><div className="grow"><strong>{item.name}</strong><small>{item.profession || item.kind}</small></div><span><Check size={14} />Ready</span><button onClick={() => changeQuantity(item.id, Math.max(1, selected.get(item.id) || 0) + (selected.has(item.id) ? 1 : 0))}>{selected.has(item.id) ? '+1 to plan' : 'Add to plan'}</button></div>)}</div>
             )}
-            <h3 className="subhead">Closest to craftable</h3>
+            <h3 className="subhead">Closest final craftables</h3>
             <div className="near-ready-list">{nearItems.map(({ item, plan, missingUnits }) => <div className="near-ready-row" key={item.id}><Icon src={item.icon} alt={item.name} size={38} /><div className="grow"><strong>{item.name}</strong><small>{plan.missingRaw.slice(0, 3).map((row) => `${row.name} ×${row.required}`).join(' · ')}</small></div><b>{missingUnits} units short</b></div>)}</div>
+
+            <h3 className="subhead">Craftable materials</h3>
+            {readyMaterials.length > 0 && <div className="ready-list">{readyMaterials.map(({ material, recipe }) => <div className="ready-card ready-material-card" key={material.name}><Icon src={material.icon} alt={material.name} size={44} /><div className="grow"><strong>{material.name}</strong><small>{material.profession || recipe.profession || 'Crafted material'} · produces ×{recipe.outputQuantity}</small></div><span><Check size={14} />Ready</span></div>)}</div>}
+            {readyMaterials.length === 0 && <p className="quiet-note">No intermediate material batch is fully covered yet.</p>}
+            <h3 className="subhead">Closest craftable materials</h3>
+            <div className="near-ready-list">{nearMaterials.map(({ material, plan, missingUnits }) => <div className="near-ready-row" key={material.name}><Icon src={material.icon} alt={material.name} size={38} /><div className="grow"><strong>{material.name}</strong><small>{plan.missingRaw.slice(0, 3).map((row) => `${row.name} ×${row.required}`).join(' · ')}</small></div><b>{missingUnits} units short</b></div>)}</div>
           </section>
         </div>
       )}
@@ -492,8 +527,9 @@ export function MaterialsWorkbench({ onOpenItem }: { onOpenItem: (item: ItemEntr
 
   if (!material) return <EmptyState title="No material selected" body="Search the material catalog." />
 
-  const finalUses = material.usedBy.map((target) => byItemName.get(norm(target))).filter((item): item is ItemEntry => Boolean(item))
-  const materialUses = material.usedBy.map((target) => byMaterial.get(norm(target))).filter((row): row is MaterialEntry => Boolean(row))
+  const usedByKeys = new Set(material.usedBy.map(norm))
+  const finalUses = catalog.items.filter((item) => usedByKeys.has(norm(item.name)))
+  const materialUses = catalog.materials.filter((row) => usedByKeys.has(norm(row.name)))
   const screenshotBacked = Boolean(recipe?.quantityExplicit && (recipe.sourceStatus.includes('final-zip') || recipe.sourceStatus === 'latest-user-screenshot'))
 
   return (
@@ -524,7 +560,7 @@ export function MaterialsWorkbench({ onOpenItem }: { onOpenItem: (item: ItemEntr
         <div className="reverse-lookup">
           <div className="section-head workbench-section-head"><div><small>REVERSE LOOKUP</small><h3>Where this material is used</h3></div><span className="quiet-note">{material.usedBy.length} relationships</span></div>
           <div className="reverse-grid">
-            <section><h4>Final craftables</h4>{finalUses.length ? <div className="reverse-list">{finalUses.map((item) => <button onClick={() => onOpenItem(item)} key={item.id}><Icon src={item.icon} alt={item.name} size={34} /><span><strong>{item.name}</strong><small>{item.profession || item.kind}</small></span><ExternalLink size={14} /></button>)}</div> : <p className="quiet-note">No final craftable directly uses this material.</p>}</section>
+            <section><h4>Final craftables</h4>{finalUses.length ? <div className="reverse-list">{finalUses.map((item) => <button onClick={() => onOpenItem(item)} key={item.id}><Icon src={item.icon} alt={item.name} size={34} /><span><strong>{item.name}</strong><small>{item.profession || item.kind}</small></span><ChevronRight size={14} /></button>)}</div> : <p className="quiet-note">No final craftable directly uses this material.</p>}</section>
             <section><h4>Crafted materials</h4>{materialUses.length ? <div className="reverse-list">{materialUses.map((row) => <button onClick={() => openMaterial(row.name)} key={row.name}><Icon src={row.icon} alt={row.name} size={34} /><span><strong>{row.name}</strong><small>{row.profession || 'Crafted material'}</small></span><ChevronRight size={14} /></button>)}</div> : <p className="quiet-note">No intermediate material directly uses this material.</p>}</section>
           </div>
         </div>
