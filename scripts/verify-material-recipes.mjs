@@ -105,6 +105,74 @@ function visit(name) {
 }
 for (const name of expectedNames) visit(name)
 
+function expectedDepth(name, memo = new Map(), stack = new Set()) {
+  if (memo.has(name)) return memo.get(name)
+  if (stack.has(name) || !expected[name]) return 0
+  stack.add(name)
+  const depth = 1 + Math.max(0, ...Object.keys(expected[name].inputs).map((input) => expectedDepth(input, memo, stack)))
+  stack.delete(name)
+  memo.set(name, depth)
+  return depth
+}
+
+function expandVerifiedDemand(initial) {
+  const demand = new Map()
+  const add = (name, quantity) => demand.set(name, (demand.get(name) || 0) + quantity)
+  for (const [name, quantity] of initial) add(name, quantity)
+  const processed = new Set()
+  const depthMemo = new Map()
+
+  while (true) {
+    const candidates = [...demand.entries()]
+      .filter(([name]) => expected[name] && !processed.has(name))
+      .sort((a, b) => expectedDepth(b[0], depthMemo) - expectedDepth(a[0], depthMemo))
+    if (!candidates.length) break
+    const [name, quantity] = candidates[0]
+    const recipe = expected[name]
+    const crafts = Math.ceil(quantity / recipe.output)
+    demand.delete(name)
+    processed.add(name)
+    for (const [input, perCraft] of Object.entries(recipe.inputs)) add(input, perCraft * crafts)
+  }
+  return Object.fromEntries([...demand.entries()].sort(([a], [b]) => a.localeCompare(b)))
+}
+
+function assertRaw(label, actual, truth) {
+  const actualKeys = Object.keys(actual).sort()
+  const truthKeys = Object.keys(truth).sort()
+  if (JSON.stringify(actualKeys) !== JSON.stringify(truthKeys)) {
+    problems.push(`${label}: raw-material set mismatch`)
+    return
+  }
+  for (const [name, quantity] of Object.entries(truth)) {
+    if (actual[name] !== quantity) problems.push(`${label}: ${name} ${actual[name]} != verified ${quantity}`)
+  }
+}
+
+// Hand-checked nested expansion. Three Soul Beads require two Soul Bead crafts because the
+// recipe yields two. The numbers below include Lolthbead, Unknown Godsteel and Marilithsilk
+// recursion all the way to non-craftable materials.
+assertRaw('Soul Bead x3 nested expansion', expandVerifiedDemand([['Soul Bead', 3]]), {
+  'Abyssal Crystal': 2,
+  'Calcified Webbing': 6,
+  'Druegarsteel Scrap': 36,
+  'Faerzress Rock': 6,
+  "Fallen God's Ore": 15,
+  'Luminescent Darklake Water': 9,
+  'Menzoberranzan Faerzress Crystal': 24,
+  'Perfect Marilith Hair': 24,
+})
+
+// Shared batching check: two independent demands of one Soul Bead should be combined into the
+// same single craft (yield two). Therefore the combined raw requirement equals one isolated
+// one-Soul-Bead demand, rather than twice that demand.
+const soulOne = expandVerifiedDemand([['Soul Bead', 1]])
+const soulTwoCombined = expandVerifiedDemand([['Soul Bead', 2]])
+assertRaw('Soul Bead shared batch', soulTwoCombined, soulOne)
+for (const [name, quantity] of Object.entries(soulOne)) {
+  if (quantity <= 0) problems.push(`Soul Bead shared batch: invalid ${name} quantity`)
+}
+
 if (problems.length) {
   console.error('\nCritical material recipe verification FAILED:\n')
   for (const problem of problems) console.error(`- ${problem}`)
@@ -112,4 +180,4 @@ if (problems.length) {
   process.exit(1)
 }
 
-console.log(`Critical material recipe verification passed: ${expectedNames.length}/${expectedNames.length} recipes, exact yields and per-craft inputs, batch math checked for quantities 1-20.`)
+console.log(`Critical material recipe verification passed: ${expectedNames.length}/${expectedNames.length} recipes, exact yields and per-craft inputs, batch math checked for quantities 1-20, nested Soul Bead expansion and shared batching verified.`)
