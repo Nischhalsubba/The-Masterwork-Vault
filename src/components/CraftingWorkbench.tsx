@@ -26,9 +26,11 @@ import spriteDataUri from '../data/sprite'
 import type { CatalogData, ItemEntry, MaterialEntry, RecipeEntry } from '../types'
 import {
   buildCraftingTrees,
+  buildDependencyCraftSequence,
   calculateCraftingPlan,
   calculateInventoryAwarePlan,
   calculateNaiveRawRequirements,
+  type CraftSequenceStep,
   type CraftTreeNode,
   type InventoryRecord,
   type PlanSelection,
@@ -68,6 +70,12 @@ function cleanInventory(value: InventoryRecord): InventoryRecord {
     if (amount > 0) next[material.name] = amount
   }
   return next
+}
+
+function sourceState(value: string) {
+  if (value === 'latest-user-screenshot' || value.includes('final-zip')) return 'Screenshot-backed'
+  if (value === 'spreadsheet-supplemental') return 'Supplemental'
+  return 'Catalog record'
 }
 
 function Icon({ src, alt, size = 44 }: { src?: string | null; alt: string; size?: number }) {
@@ -142,6 +150,31 @@ function VerificationBadge({ recipe }: { recipe?: RecipeEntry }) {
   )
 }
 
+export function ItemRecipeEvidence({ item }: { item: ItemEntry }) {
+  const evidence = item.provenance.evidence ?? []
+  const sourceRecord = item.provenance.recipe || item.provenance.gameData || 'Catalog source record'
+  const state = sourceState(item.sourceStatus)
+
+  return (
+    <details className="evidence-card item-evidence-card" open>
+      <summary><span><BadgeCheck size={17} />Recipe verification & evidence</span><ChevronRight size={16} /></summary>
+      <div className="evidence-body">
+        <div className="evidence-grid">
+          <div><span>Recipe state</span><strong>{state}</strong></div>
+          <div><span>Direct inputs</span><strong>{item.materials.length}</strong></div>
+          <div><span>Source status</span><strong>{item.sourceStatus}</strong></div>
+          <div><span>Source record</span><strong>{sourceRecord}</strong></div>
+        </div>
+        <div className="evidence-inputs">
+          <strong>Recorded direct recipe</strong>
+          {item.materials.map((row) => <span key={row.name}><b>{row.name}</b><em>×{row.required}</em></span>)}
+        </div>
+        {evidence.length ? <ul>{evidence.map((line) => <li key={line}>{line}</li>)}</ul> : <p>No item-specific evidence lines are attached beyond the catalog source record.</p>}
+      </div>
+    </details>
+  )
+}
+
 function InventoryInput({ material, inventory, setInventory }: { material: MaterialEntry; inventory: InventoryRecord; setInventory: (next: InventoryRecord) => void }) {
   const amount = inventory[material.name] ?? 0
   return (
@@ -194,7 +227,7 @@ function EmptyState({ title, body }: { title: string; body: string }) {
   return <div className="empty-inline workbench-empty"><Boxes size={30} /><h3>{title}</h3><p>{body}</p></div>
 }
 
-function TreeNode({ node, depth = 0 }: { node: CraftTreeNode; depth?: number }) {
+function TreeNode({ node, depth = 0, onOpenMaterial }: { node: CraftTreeNode; depth?: number; onOpenMaterial?: (name: string) => void }) {
   const [open, setOpen] = useState(depth < 1)
   const hasChildren = node.children.length > 0
   const material = node.kind === 'material' ? byMaterial.get(norm(node.name)) : undefined
@@ -220,8 +253,13 @@ function TreeNode({ node, depth = 0 }: { node: CraftTreeNode; depth?: number }) 
           </small>
         </div>
         <div className="tree-quantity"><span>{node.kind === 'item' ? 'Qty' : 'Need'}</span><strong>×{node.required}</strong></div>
+        {node.kind === 'material' && onOpenMaterial && (
+          <button className="tree-inspect" onClick={() => onOpenMaterial(node.name)} aria-label={`Inspect ${node.name} in Materials`}>
+            Inspect <ChevronRight size={14} aria-hidden="true" />
+          </button>
+        )}
       </div>
-      {open && hasChildren && <div className="craft-tree-children">{node.children.map((child, index) => <TreeNode node={child} depth={depth + 1} key={`${child.id}:${index}`} />)}</div>}
+      {open && hasChildren && <div className="craft-tree-children">{node.children.map((child, index) => <TreeNode node={child} depth={depth + 1} onOpenMaterial={onOpenMaterial} key={`${child.id}:${index}`} />)}</div>}
     </div>
   )
 }
@@ -266,7 +304,7 @@ function materialRecipeSelection(material: MaterialEntry, recipe: RecipeEntry): 
   return { item: pseudoItem, quantity: 1 }
 }
 
-export function CraftingWorkbench({ selected, setSelected }: { selected: Map<string, number>; setSelected: (next: Map<string, number>) => void }) {
+export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { selected: Map<string, number>; setSelected: (next: Map<string, number>) => void; onOpenMaterial?: (name: string) => void }) {
   const [tab, setTab] = useState<'overview' | 'tree' | 'ready' | 'checklist' | 'professions' | 'saved'>('overview')
   const [inventory, setInventoryState] = useState<InventoryRecord>(() => loadJson(INVENTORY_KEY, {}))
   const [savedPlans, setSavedPlans] = useState<SavedPlan[]>(() => loadJson(SAVED_PLANS_KEY, []))
@@ -290,6 +328,7 @@ export function CraftingWorkbench({ selected, setSelected }: { selected: Map<str
   const inventoryPlan = useMemo(() => calculateInventoryAwarePlan(entries, catalog.recipes, inventory), [selectionKey, inventoryKey])
   const naiveRaw = useMemo(() => calculateNaiveRawRequirements(entries, catalog.recipes), [selectionKey])
   const trees = useMemo(() => buildCraftingTrees(entries, catalog.recipes), [selectionKey])
+  const sequence = useMemo(() => buildDependencyCraftSequence(entries, inventoryPlan.batches, catalog.recipes), [selectionKey, inventoryKey])
 
   useEffect(() => setChecklist({}), [selectionKey])
 
@@ -368,15 +407,17 @@ export function CraftingWorkbench({ selected, setSelected }: { selected: Map<str
   }
 
   const professionGroups = useMemo(() => {
-    const groups = new Map<string, Array<{ name: string; crafts: number; note: string; final: boolean }>>()
-    const add = (profession: string | null | undefined, row: { name: string; crafts: number; note: string; final: boolean }) => {
-      const key = profession || 'Unspecified profession'
-      groups.set(key, [...(groups.get(key) || []), row])
+    const groups = new Map<string, CraftSequenceStep[]>()
+    for (const step of sequence) {
+      const key = step.profession || 'Unspecified profession'
+      groups.set(key, [...(groups.get(key) || []), step])
     }
-    for (const { item, quantity } of entries) add(item.profession, { name: item.name, crafts: quantity, note: 'Final craft', final: true })
-    for (const batch of inventoryPlan.batches) add(batch.profession, { name: batch.name, crafts: batch.crafts, note: `produce ${batch.produced}${batch.leftover ? ` · ${batch.leftover} leftover` : ''}`, final: false })
-    return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
-  }, [selectionKey, inventoryKey])
+    return [...groups.entries()].sort(([professionA, rowsA], [professionB, rowsB]) => {
+      const firstA = Math.min(...rowsA.map((row) => row.order))
+      const firstB = Math.min(...rowsB.map((row) => row.order))
+      return firstA - firstB || professionA.localeCompare(professionB)
+    })
+  }, [sequence])
 
   const shoppingRows = inventoryPlan.availability.filter((row) => row.missing > 0)
   const checkedCount = shoppingRows.filter((row) => checklist[row.name]).length
@@ -437,8 +478,8 @@ export function CraftingWorkbench({ selected, setSelected }: { selected: Map<str
 
       {tab === 'tree' && (
         <section className="panel tree-panel enter">
-          <div className="section-head workbench-section-head"><div><small>DEPENDENCY GRAPH</small><h2>Interactive crafting tree</h2></div><span className="quiet-note">Per-item tree · shared optimization remains in Overview</span></div>
-          {!trees.length ? <EmptyState title="No tree to show" body="Add one or more craftables to the plan first." /> : <div className="craft-tree">{trees.map((tree) => <TreeNode node={tree} key={tree.id} />)}</div>}
+          <div className="section-head workbench-section-head"><div><small>DEPENDENCY GRAPH</small><h2>Interactive crafting tree</h2></div><span className="quiet-note">Expand dependencies or inspect any material in Materials</span></div>
+          {!trees.length ? <EmptyState title="No tree to show" body="Add one or more craftables to the plan first." /> : <div className="craft-tree">{trees.map((tree) => <TreeNode node={tree} onOpenMaterial={onOpenMaterial} key={tree.id} />)}</div>}
         </section>
       )}
 
@@ -474,8 +515,22 @@ export function CraftingWorkbench({ selected, setSelected }: { selected: Map<str
 
       {tab === 'professions' && (
         <section className="panel professions-panel enter">
-          <div className="section-head workbench-section-head"><div><small>CRAFT ORDER</small><h2>Profession dashboard</h2></div><span className="quiet-note">Inventory-aware intermediate batches</span></div>
-          {!entries.length ? <EmptyState title="No profession work queued" body="Add craftables to generate the profession sequence." /> : <div className="profession-grid">{professionGroups.map(([profession, rows]) => <section className="profession-card" key={profession}><div className="profession-card-head"><Hammer size={18} /><div><strong>{profession}</strong><small>{rows.reduce((sum, row) => sum + row.crafts, 0)} craft actions</small></div></div>{rows.map((row) => <div className="profession-step" key={`${profession}:${row.name}:${row.final}`}><div><strong>{row.name}</strong><small>{row.note}</small></div><b>×{row.crafts}</b></div>)}</section>)}</div>}
+          <div className="section-head workbench-section-head"><div><small>DEPENDENCY-ORDERED CRAFTING</small><h2>Profession dashboard</h2></div><span className="quiet-note">Earlier steps must be completed before later dependent crafts</span></div>
+          {!entries.length ? <EmptyState title="No profession work queued" body="Add craftables to generate the profession sequence." /> : (
+            <>
+              <div className="craft-sequence-list" aria-label="Dependency ordered crafting sequence">
+                {sequence.map((step) => (
+                  <div className={`craft-sequence-step ${step.final ? 'final' : ''}`} key={`${step.order}:${step.name}`}>
+                    <span className="sequence-number">{step.order}</span>
+                    <div className="grow"><strong>{step.name}</strong><small>{step.profession || 'Unspecified profession'} · Stage {step.stage}{step.final ? ' · final craft' : ` · need ${step.needed} · produce ${step.produced}${step.leftover ? ` · ${step.leftover} leftover` : ''}`}</small></div>
+                    <b>×{step.crafts}</b>
+                  </div>
+                ))}
+              </div>
+              <h3 className="subhead">Grouped by profession</h3>
+              <div className="profession-grid">{professionGroups.map(([profession, rows]) => <section className="profession-card" key={profession}><div className="profession-card-head"><Hammer size={18} /><div><strong>{profession}</strong><small>{rows.reduce((sum, row) => sum + row.crafts, 0)} craft actions · first at step {Math.min(...rows.map((row) => row.order))}</small></div></div>{rows.map((row) => <div className="profession-step" key={`${profession}:${row.order}:${row.name}`}><span className="profession-order">Step {row.order}</span><div className="grow"><strong>{row.name}</strong><small>{row.final ? 'Final craft' : `Stage ${row.stage} · produce ${row.produced}${row.leftover ? ` · ${row.leftover} leftover` : ''}`}</small></div><b>×{row.crafts}</b></div>)}</section>)}</div>
+            </>
+          )}
         </section>
       )}
 
@@ -497,7 +552,7 @@ export function CraftingWorkbench({ selected, setSelected }: { selected: Map<str
   )
 }
 
-export function MaterialsWorkbench({ onOpenItem }: { onOpenItem: (item: ItemEntry) => void }) {
+export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }: { onOpenItem: (item: ItemEntry) => void; selected: Map<string, number>; initialMaterialName?: string }) {
   const [query, setQuery] = useState('')
   const [name, setName] = useState(catalog.materials[0]?.name || '')
   const [history, setHistory] = useState<string[]>([])
@@ -509,9 +564,20 @@ export function MaterialsWorkbench({ onOpenItem }: { onOpenItem: (item: ItemEntr
     window.localStorage.setItem(INVENTORY_KEY, JSON.stringify(clean))
   }
 
+  useEffect(() => {
+    if (!initialMaterialName) return
+    const target = byMaterial.get(norm(initialMaterialName))
+    if (!target) return
+    setHistory([])
+    setName(target.name)
+  }, [initialMaterialName])
+
   const filtered = catalog.materials.filter((material) => material.name.toLowerCase().includes(query.toLowerCase()))
   const material = catalog.materials.find((row) => row.name === name) || filtered[0]
   const recipe = material ? recipeByName.get(norm(material.name)) : undefined
+  const planEntries = useMemo(() => selectedEntries(selected), [selected])
+  const planKey = planEntries.map(({ item, quantity }) => `${item.id}:${quantity}`).join('|')
+  const currentPlan = useMemo(() => calculateCraftingPlan(planEntries, catalog.recipes), [planKey])
 
   const openMaterial = (nextName: string) => {
     if (material && material.name !== nextName) setHistory((trail) => [...trail, material.name])
@@ -531,6 +597,10 @@ export function MaterialsWorkbench({ onOpenItem }: { onOpenItem: (item: ItemEntr
   const finalUses = catalog.items.filter((item) => usedByKeys.has(norm(item.name)))
   const materialUses = catalog.materials.filter((row) => usedByKeys.has(norm(row.name)))
   const screenshotBacked = Boolean(recipe?.quantityExplicit && (recipe.sourceStatus.includes('final-zip') || recipe.sourceStatus === 'latest-user-screenshot'))
+  const planBatch = currentPlan.batches.find((row) => norm(row.name) === norm(material.name))
+  const planRaw = currentPlan.raw.find((row) => norm(row.name) === norm(material.name))
+  const planRequired = planBatch?.needed ?? planRaw?.required ?? 0
+  const selectedCraftCount = planEntries.reduce((sum, row) => sum + row.quantity, 0)
 
   return (
     <div className="materials materials-workbench enter">
@@ -559,6 +629,12 @@ export function MaterialsWorkbench({ onOpenItem }: { onOpenItem: (item: ItemEntr
 
         <div className="reverse-lookup">
           <div className="section-head workbench-section-head"><div><small>REVERSE LOOKUP</small><h3>Where this material is used</h3></div><span className="quiet-note">{material.usedBy.length} relationships</span></div>
+          <div className={`plan-demand-card ${planRequired > 0 ? 'active' : ''}`}>
+            <div><span>CURRENT PLAN DEMAND</span><strong>{planRequired > 0 ? `×${planRequired}` : 'Not required'}</strong></div>
+            {planBatch && <div><span>Optimized batch</span><strong>{planBatch.crafts} craft{planBatch.crafts === 1 ? '' : 's'} · produce {planBatch.produced}{planBatch.leftover ? ` · ${planBatch.leftover} leftover` : ''}</strong></div>}
+            {!planBatch && planRequired > 0 && <div><span>Raw requirement</span><strong>×{planRequired}</strong></div>}
+            <p>{selectedCraftCount > 0 ? `Total optimized requirement across ${selectedCraftCount} selected final craft${selectedCraftCount === 1 ? '' : 's'}, before inventory is applied.` : 'No final craftables are currently selected in the Plan.'}</p>
+          </div>
           <div className="reverse-grid">
             <section><h4>Final craftables</h4>{finalUses.length ? <div className="reverse-list">{finalUses.map((item) => <button onClick={() => onOpenItem(item)} key={item.id}><Icon src={item.icon} alt={item.name} size={34} /><span><strong>{item.name}</strong><small>{item.profession || item.kind}</small></span><ChevronRight size={14} /></button>)}</div> : <p className="quiet-note">No final craftable directly uses this material.</p>}</section>
             <section><h4>Crafted materials</h4>{materialUses.length ? <div className="reverse-list">{materialUses.map((row) => <button onClick={() => openMaterial(row.name)} key={row.name}><Icon src={row.icon} alt={row.name} size={34} /><span><strong>{row.name}</strong><small>{row.profession || 'Crafted material'}</small></span><ChevronRight size={14} /></button>)}</div> : <p className="quiet-note">No intermediate material directly uses this material.</p>}</section>
