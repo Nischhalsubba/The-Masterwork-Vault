@@ -1,0 +1,539 @@
+/* Final phone-native interaction layer. Loaded last so older responsive rules cannot reintroduce overlap. */
+
+.mobile-native-detailbar {
+  display: none;
+}
+
+@media (max-width: 680px) {
+  :root {
+    --mobile-appbar-h: 56px;
+    --mobile-tabbar-h: 68px;
+    --mobile-gutter: max(12px, env(safe-area-inset-left, 0px));
+  }
+
+  html {
+    scroll-padding-top: calc(var(--mobile-appbar-h) + env(safe-area-inset-top, 0px));
+    scroll-padding-bottom: calc(var(--mobile-tabbar-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+  body,
+  button,
+  input {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  a,
+  input,
+  summary {
+    touch-action: manipulation;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  .app > header {
+    min-height: calc(var(--mobile-appbar-h) + env(safe-area-inset-top, 0px));
+    height: calc(var(--mobile-appbar-h) + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) max(14px, env(safe-area-inset-right, 0px)) 0 max(14px, env(safe-area-inset-left, 0px));
+    border-bottom: 1px solid var(--separator);
+    background: rgba(251, 251, 253, .985);
+    box-shadow: none;
+    backdrop-filter: saturate(180%) blur(22px);
+    -webkit-backdrop-filter: saturate(180%) blur(22px);
+  }
+
+  .app > header .brand {
+    min-width: 0;
+    max-width: calc(100vw - 28px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    transition: opacity var(--duration-fast) var(--ease);
+  }
+
+  .app > header .brand strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.mobile-detail-open .app > header .brand {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* One navigation bar owns the detail stack. No floating pills over content. */
+  .mobile-native-detailbar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 72;
+    min-height: calc(var(--mobile-appbar-h) + env(safe-area-inset-top, 0px));
+    height: calc(var(--mobile-appbar-h) + env(safe-area-inset-top, 0px));
+    display: grid;
+    grid-template-columns: minmax(88px, 1fr) minmax(0, auto) minmax(88px, 1fr);
+    align-items: end;
+    gap: 6px;
+    padding: env(safe-area-inset-top, 0px) max(8px, env(safe-area-inset-right, 0px)) 0 max(8px, env(safe-area-inset-left, 0px));
+    border-bottom: 1px solid transparent;
+    background: rgba(251, 251, 253, .985);
+    color: var(--label);
+    backdrop-filter: saturate(180%) blur(22px);
+    -webkit-backdrop-filter: saturate(180%) blur(22px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition:
+      opacity var(--duration-fast) var(--ease),
+      transform var(--duration-fast) var(--ease),
+      visibility 0s linear var(--duration-fast);
+  }
+
+  .mobile-native-detailbar.visible {
+    border-bottom-color: var(--separator);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition-delay: 0s;
+  }
+
+  .mobile-native-detailbar .mobile-native-back {
+    position: static !important;
+    inset: auto !important;
+    z-index: auto !important;
+    justify-self: start;
+    align-self: center;
+    min-width: 44px;
+    min-height: 44px;
+    max-width: 120px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    margin: 0;
+    padding: 0 8px 0 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--interactive);
+    font-size: 17px;
+    line-height: 1;
+    font-weight: 500;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .mobile-native-detailbar .mobile-native-back svg {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
+    margin-left: -5px;
+  }
+
+  .mobile-native-detailbar .mobile-native-back span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-native-detailbar-title {
+    align-self: center;
+    min-width: 0;
+    max-width: 46vw;
+    overflow: hidden;
+    color: var(--label);
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -.012em;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-native-detailbar-spacer {
+    width: 88px;
+    justify-self: end;
+  }
+
+  /* Detail becomes a true navigation-stack screen below the app bar. */
+  .catalog .detail {
+    top: calc(var(--mobile-appbar-h) + env(safe-area-inset-top, 0px)) !important;
+    bottom: calc(var(--mobile-tabbar-h) + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 14px max(12px, env(safe-area-inset-right, 0px)) 28px max(12px, env(safe-area-inset-left, 0px)) !important;
+    background: var(--canvas) !important;
+    scroll-padding-top: 14px;
+    scroll-padding-bottom: 28px;
+  }
+
+  /* Nested material drill-down uses the same native back button instead of adding another row. */
+  .catalog .detail .drilldown-nav {
+    display: none !important;
+  }
+
+  .catalog .detail > .detail-head,
+  .catalog .detail .drilldown-head {
+    grid-template-columns: 56px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    align-items: center !important;
+    padding: 12px !important;
+    border: 1px solid var(--separator) !important;
+    border-radius: 16px !important;
+    background: var(--surface) !important;
+    box-shadow: none !important;
+  }
+
+  .catalog .detail > .detail-head .sprite,
+  .catalog .detail .drilldown-head .sprite {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 12px !important;
+  }
+
+  .catalog .detail > .detail-head .primary {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .catalog .detail .detail-head h2,
+  .catalog .detail .drilldown-head h2 {
+    margin-top: 4px;
+    font-size: clamp(22px, 6.2vw, 28px);
+  }
+
+  .catalog .detail .pills {
+    gap: 4px;
+  }
+
+  .catalog .detail .source,
+  .catalog .detail .pills span {
+    min-height: 22px;
+    padding: 2px 7px;
+    font-size: 10px;
+  }
+
+  /* Native segmented control: one control, equal-width choices, no horizontal drift. */
+  .catalog .detail .section-head,
+  .catalog .detail .drilldown-section-head {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin: 20px 0 10px !important;
+  }
+
+  .catalog .detail .section-head .seg,
+  .catalog .detail .drilldown-section-head .seg,
+  .catalog .detail .detail-controls .seg {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px !important;
+    margin: 0 !important;
+    padding: 2px !important;
+    overflow: hidden !important;
+    border-radius: 10px !important;
+    background: rgba(118, 118, 128, .16) !important;
+  }
+
+  .catalog .detail .seg button {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .catalog .detail .seg button.active {
+    background: var(--surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+  }
+
+  /* Recipe ingredients become grouped native list rows rather than tall desktop cards. */
+  .recipe-list {
+    display: block !important;
+    overflow: hidden;
+    border: 1px solid var(--separator);
+    border-radius: 16px;
+    background: var(--surface);
+  }
+
+  .recipe-row,
+  .recipe-row.has-drilldown {
+    min-height: 76px;
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--separator) !important;
+    border-radius: 0 !important;
+    background: var(--surface) !important;
+  }
+
+  .recipe-row:last-child {
+    border-bottom: 0 !important;
+  }
+
+  .recipe-row .sprite {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 9px !important;
+  }
+
+  .recipe-row-copy {
+    align-self: center;
+    gap: 2px !important;
+  }
+
+  .recipe-row strong {
+    font-size: 15px !important;
+    line-height: 1.28 !important;
+  }
+
+  .recipe-row small {
+    font-size: 12px !important;
+    line-height: 1.32 !important;
+  }
+
+  .recipe-row-actions {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    min-width: 48px !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    gap: 5px !important;
+  }
+
+  .recipe-row-actions > b {
+    font-size: 17px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .craftable-indicator {
+    position: relative;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: grid !important;
+    grid-template-columns: 18px 14px;
+    place-content: center;
+    gap: 2px !important;
+    padding: 0 !important;
+    border-color: color-mix(in srgb, var(--interactive) 24%, var(--separator)) !important;
+    border-radius: 13px !important;
+    background: var(--selected) !important;
+    color: var(--interactive) !important;
+  }
+
+  .craftable-indicator span {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+  }
+
+  .craftable-indicator svg:first-child {
+    width: 17px;
+    height: 17px;
+  }
+
+  .craftable-indicator svg:last-child {
+    width: 15px;
+    height: 15px;
+  }
+
+  .drilldown-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+  }
+
+  .drilldown-summary > div {
+    min-height: 68px;
+    padding: 10px 11px !important;
+    border-radius: 12px !important;
+  }
+
+  .batches {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Stats behave like a native bottom sheet on phone. */
+  .stats-drawer-scrim {
+    background: rgba(0, 0, 0, .42) !important;
+  }
+
+  .stats-drawer {
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: min(82dvh, 720px) !important;
+    padding: 16px 14px calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    border: 1px solid var(--separator) !important;
+    border-bottom: 0 !important;
+    border-radius: 22px 22px 0 0 !important;
+    box-shadow: 0 -18px 52px rgba(0, 0, 0, .18) !important;
+    transform: translate3d(0, 104%, 0) !important;
+  }
+
+  .stats-drawer-layer.open .stats-drawer {
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .stats-drawer::before {
+    content: '';
+    width: 36px;
+    height: 5px;
+    flex: 0 0 auto;
+    align-self: center;
+    margin: -5px auto -5px;
+    border-radius: 999px;
+    background: rgba(60, 60, 67, .28);
+  }
+
+  .stats-drawer-head {
+    top: -16px !important;
+    margin: -16px -14px 0 !important;
+    padding: 18px 14px 12px !important;
+    border-radius: 22px 22px 0 0;
+  }
+
+  /* Fixed bottom navigation remains opaque enough that content never competes with labels. */
+  .mobile-native-tabbar {
+    min-height: calc(var(--mobile-tabbar-h) + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 5px max(8px, env(safe-area-inset-right, 0px)) calc(5px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)) !important;
+    border-top-color: var(--separator-strong) !important;
+    background: rgba(251, 251, 253, .985) !important;
+    box-shadow: 0 -1px 0 rgba(255, 255, 255, .8) !important;
+  }
+
+  .mobile-native-tabbar button {
+    min-height: 56px !important;
+    grid-template-rows: 24px auto !important;
+    gap: 2px !important;
+    padding: 4px 2px !important;
+    font-size: 11px !important;
+  }
+
+  .mobile-native-tabbar button svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  main {
+    padding-top: calc(var(--mobile-appbar-h) + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(var(--mobile-tabbar-h) + env(safe-area-inset-bottom, 0px) + 8px) !important;
+  }
+
+  .catalog aside {
+    top: calc(var(--mobile-appbar-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  .toolbar {
+    top: calc(var(--mobile-appbar-h) + 58px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  .page,
+  .workspace {
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+  }
+
+  .workbench-tabs,
+  .filters,
+  .catalog aside {
+    scroll-padding-inline: 12px;
+  }
+
+  .workbench-tabs button,
+  .filters button,
+  .catalog aside button,
+  .material-list button,
+  .reverse-list button,
+  .ready-card > button,
+  .saved-plan-row button,
+  .share-url button {
+    min-height: 44px !important;
+  }
+
+  .panel,
+  .workbench-header,
+  .material-intelligence,
+  .tree-panel,
+  .checklist-panel,
+  .professions-panel {
+    box-shadow: none !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .mobile-native-detailbar {
+    grid-template-columns: minmax(78px, 1fr) minmax(0, auto) minmax(78px, 1fr);
+  }
+
+  .mobile-native-detailbar-title {
+    max-width: 42vw;
+    font-size: 14px;
+  }
+
+  .recipe-row,
+  .recipe-row.has-drilldown {
+    grid-template-columns: 42px minmax(0, 1fr) auto !important;
+    padding-inline: 10px !important;
+  }
+
+  .recipe-row .sprite {
+    width: 42px !important;
+    height: 42px !important;
+  }
+}
+
+@media (max-width: 680px) and (orientation: landscape) and (max-height: 500px) {
+  .mobile-native-tabbar {
+    --mobile-tabbar-h: 56px;
+  }
+
+  .catalog .detail {
+    padding-top: 10px !important;
+  }
+
+  .stats-drawer {
+    max-height: 92dvh !important;
+  }
+}
+
+@media (max-width: 680px) and (prefers-reduced-motion: reduce) {
+  .mobile-native-detailbar,
+  .mobile-native-detailbar .mobile-native-back,
+  .stats-drawer,
+  .stats-drawer-scrim,
+  .craftable-indicator,
+  .mobile-native-tabbar button {
+    transition-duration: .01ms !important;
+    animation: none !important;
+  }
+}
