@@ -61,23 +61,20 @@ const mappedIcon = (
   const original = iconData[`${category}/${key}`] ?? iconByName.get(key) ?? fallback ?? null
   return {
     recovered,
+    original,
     url: asRenderableUrl((preferRecovered && recovered) ? recovered : original ?? recovered ?? null),
   }
 }
 
-// Every catalog entry gets a verified atlas tile as a deterministic fallback. Working weapon
-// art stays on the direct path. Recovered ZIP art stays primary for materials/tools/accessories.
-// Armor and non-recovered accessories use the verified atlas directly so a malformed old image
-// cannot render as broken alt text or a corrupted thumbnail.
+// Preserve every direct icon that was already working. The verified atlas remains only as
+// a browser-side fallback when a direct image actually fails to decode.
 let itemIconCount = 0
 for (const item of catalog.items ?? []) {
   const category = item.kind === 'Profession Tool' ? 'tools' : 'gear'
-  const preferRecovered = item.kind !== 'Weapon'
+  const preferRecovered = item.kind === 'Profession Tool' || item.kind === 'Accessory'
   const mapped = mappedIcon(category, item.name, item.icon, preferRecovered)
-  const atlasIndex = verifiedIconIndex(item.name, category)
   item.icon = mapped.url
-  item.iconIndex = atlasIndex ?? null
-  if (item.kind !== 'Weapon' && !mapped.recovered && atlasIndex !== undefined) item.icon = null
+  item.iconIndex = verifiedIconIndex(item.name, category) ?? null
   if (item.icon || item.iconIndex != null) itemIconCount += 1
 }
 
@@ -96,8 +93,11 @@ for (const item of catalog.items ?? []) {
   ]))
 }
 
-// Ensure all 29 recovered materials exist and carry their trustworthy ZIP-derived icons.
+// Ensure all 29 recovered materials exist. Keep the recovered artwork for the materials that
+// already render correctly, but use the original verified direct images for the two remaining
+// broken rows observed on the frontend: Mushroom Log and Perfect Marilith Hair.
 const materialByName = new Map<string, any>((catalog.materials ?? []).map((material: any) => [norm(material.name), material]))
+const preferOriginalMaterialIcon = new Set(['mushroom-log', 'perfect-marilith-hair'])
 for (const spec of recoveredMaterialSpecs) {
   let material = materialByName.get(norm(spec.name))
   if (!material) {
@@ -114,7 +114,8 @@ for (const spec of recoveredMaterialSpecs) {
     catalog.materials.push(material)
     materialByName.set(norm(spec.name), material)
   }
-  material.icon = mappedIcon('materials', spec.name, material.icon, true).url
+  const preferRecovered = !preferOriginalMaterialIcon.has(norm(spec.name))
+  material.icon = mappedIcon('materials', spec.name, material.icon, preferRecovered).url
   material.iconIndex = verifiedIconIndex(spec.name, 'materials') ?? null
   material.craftable = spec.craftable
   material.outputQuantity = spec.outputQuantity ?? material.outputQuantity ?? null
