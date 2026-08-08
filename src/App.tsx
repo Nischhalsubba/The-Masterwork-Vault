@@ -6,6 +6,7 @@ import spriteDataUri from './data/sprite'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
 import { calculateCraftingPlan, expandSingleMaterial } from './lib/crafting'
 import { AmbientVault } from './components/AmbientVault'
+import { CraftingWorkbench, MaterialsWorkbench } from './components/CraftingWorkbench'
 
 const catalog = catalogJson as CatalogData
 const norm = (s: string) => s.toLowerCase().replace(/\+1/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ')
@@ -272,6 +273,30 @@ export default function App() {
   const initial=catalog.items.find(i=>i.classes.includes('Cleric')&&i.name.includes('Steel Symbol'))?.id || catalog.items[0].id
   const [id,setId]=useState(initial)
   const [plan,setPlan]=useState<Map<string,number>>(new Map())
+
+  useEffect(() => {
+    const encoded = new URLSearchParams(window.location.search).get('plan')
+    if (!encoded) return
+    try {
+      const rows = JSON.parse(encoded) as Array<[string, number]>
+      if (!Array.isArray(rows)) return
+      const next = new Map<string, number>()
+      for (const row of rows) {
+        if (!Array.isArray(row) || row.length !== 2) continue
+        const [itemId, quantity] = row
+        if (typeof itemId !== 'string' || !Number.isInteger(quantity) || quantity <= 0) continue
+        if (!catalog.items.some((candidate) => candidate.id === itemId)) continue
+        next.set(itemId, Math.min(quantity, 999))
+      }
+      if (next.size > 0) {
+        setPlan(next)
+        setView('plan')
+      }
+    } catch {
+      // Ignore malformed shared-plan payloads and keep the normal app state.
+    }
+  }, [])
+
   const filtered=useMemo(()=>catalog.items.filter(i=>{
     const globalKind=i.kind==='Accessory'||i.kind==='Profession Tool'
     const classMatch=cls==='All'||i.classes.includes(cls)||((kind==='Accessory'||kind==='Profession Tool')&&globalKind&&i.kind===kind)
@@ -285,6 +310,7 @@ export default function App() {
   const resultContext=cls==='All'?'All classes & global craftables':kind==='Accessory'?'Global accessories':kind==='Profession Tool'?'Global profession tools':`${cls} gear`
   useEffect(()=>{if(!root.current)return;const mm=window.matchMedia('(prefers-reduced-motion: reduce)');if(mm.matches)return;const ctx=gsap.context(()=>gsap.fromTo('.enter',{y:12,autoAlpha:0},{y:0,autoAlpha:1,duration:.36,ease:'power3.out',clearProps:'transform,opacity,visibility'}),root);return()=>ctx.revert()},[view,id])
   const toggle=(x:ItemEntry)=>{const m=new Map(plan);m.has(x.id)?m.delete(x.id):m.set(x.id,1);setPlan(m)}
+  const openCatalogItem=(target: ItemEntry)=>{setCls('All');setKind('All');setQ('');setId(target.id);setView('catalog')}
   const IconFor=({k}:{k:string})=>k==='Weapon'?<Sword size={15}/>:k==='Armor'?<Shield size={15}/>:k==='Accessory'?<Gem size={15}/>:<Hammer size={15}/>
-  return <div ref={root} className="app"><header><a href={import.meta.env.BASE_URL} className="brand"><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt=""/><span><strong>The Masterwork Vault</strong><small>Menzoberranzan Masterwork</small></span></a><nav>{([['catalog',BookOpen,'Catalog'],['plan',Boxes,'Plan'],['materials',Gem,'Materials'],['reference',CircleHelp,'Reference']] as const).map(([v,I,l])=><button className={view===v?'active':''} onClick={()=>setView(v)} key={v}><I size={17}/>{l}{v==='plan'&&<b className="badge">{plan.size}</b>}</button>)}</nav></header><main id="main-content"><section className="hero"><AmbientVault/><div><span className="hero-kicker"><Sparkles size={15}/> RAW-MATERIAL CRAFTING INTELLIGENCE</span><h1>Know exactly what the forge demands.</h1><p>Direct recipes, full from-scratch expansion, batch-aware leftovers, class-specific gear and screenshot-grounded icons.</p><div className="metrics"><span><b>{catalog.items.length}</b> craftables</span><span><b>{catalog.materials.length}</b> materials</span><span><b>{catalog.recipes.length}</b> recipe records</span></div></div></section>{view==='catalog'&&<div className="catalog"><aside><small>CLASSES</small><button className={cls==='All'?'active':''} onClick={()=>selectClass('All')}>All craftables</button>{catalog.classes.map(c=><button className={cls===c?'active':''} onClick={()=>selectClass(c)} key={c}>{c}</button>)}</aside><div className="workspace"><div className="toolbar panel"><label className="search"><Search size={17}/><input aria-label="Search catalog" value={q} onChange={e=>setQ(e.target.value)} placeholder="Search gear, material, profession…"/></label><div className="filters">{['All','Weapon','Armor','Accessory','Profession Tool'].map(k=><button className={kind===k?'active':''} onClick={()=>setKind(k)} key={k}>{k}</button>)}</div></div><div className="split"><section className="items"><div className="result-meta"><b>{filtered.length} results</b><small>{resultContext}</small></div>{filtered.map(x=><article className={x.id===item.id?'selected':''} key={x.id}><button className="item-main" onClick={()=>setId(x.id)}><Icon src={x.icon} alt={x.name}/><div className="grow"><small><IconFor k={x.kind}/>{x.slot||x.kind}</small><strong>{x.name}</strong><span>{x.classes.includes('All')?'All classes':x.classes.join(' · ')}</span></div></button><div className="item-foot"><Source value={x.sourceStatus}/><button onClick={()=>toggle(x)}>{plan.has(x.id)?'In plan':'+ Plan'}</button></div></article>)}</section><Detail item={item} inPlan={plan.has(item.id)} togglePlan={()=>toggle(item)}/></div></div></div>}{view==='plan'&&<div className="page"><Planner selected={plan} setSelected={setPlan}/></div>}{view==='materials'&&<div className="page"><Materials/></div>}{view==='reference'&&<div className="page"><Reference/></div>}</main><footer><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt=""/><p><strong>The Masterwork Vault</strong> · Community crafting reference. Screenshot evidence remains the source of truth.</p></footer></div>
+  return <div ref={root} className="app"><header><a href={import.meta.env.BASE_URL} className="brand"><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt=""/><span><strong>The Masterwork Vault</strong><small>Menzoberranzan Masterwork</small></span></a><nav>{([['catalog',BookOpen,'Catalog'],['plan',Boxes,'Plan'],['materials',Gem,'Materials'],['reference',CircleHelp,'Reference']] as const).map(([v,I,l])=><button className={view===v?'active':''} onClick={()=>setView(v)} key={v}><I size={17}/>{l}{v==='plan'&&<b className="badge">{plan.size}</b>}</button>)}</nav></header><main id="main-content"><section className="hero"><AmbientVault/><div><span className="hero-kicker"><Sparkles size={15}/> RAW-MATERIAL CRAFTING INTELLIGENCE</span><h1>Know exactly what the forge demands.</h1><p>Direct recipes, full from-scratch expansion, batch-aware leftovers, class-specific gear and screenshot-grounded icons.</p><div className="metrics"><span><b>{catalog.items.length}</b> craftables</span><span><b>{catalog.materials.length}</b> materials</span><span><b>{catalog.recipes.length}</b> recipe records</span></div></div></section>{view==='catalog'&&<div className="catalog"><aside><small>CLASSES</small><button className={cls==='All'?'active':''} onClick={()=>selectClass('All')}>All craftables</button>{catalog.classes.map(c=><button className={cls===c?'active':''} onClick={()=>selectClass(c)} key={c}>{c}</button>)}</aside><div className="workspace"><div className="toolbar panel"><label className="search"><Search size={17}/><input aria-label="Search catalog" value={q} onChange={e=>setQ(e.target.value)} placeholder="Search gear, material, profession…"/></label><div className="filters">{['All','Weapon','Armor','Accessory','Profession Tool'].map(k=><button className={kind===k?'active':''} onClick={()=>setKind(k)} key={k}>{k}</button>)}</div></div><div className="split"><section className="items"><div className="result-meta"><b>{filtered.length} results</b><small>{resultContext}</small></div>{filtered.map(x=><article className={x.id===item.id?'selected':''} key={x.id}><button className="item-main" onClick={()=>setId(x.id)}><Icon src={x.icon} alt={x.name}/><div className="grow"><small><IconFor k={x.kind}/>{x.slot||x.kind}</small><strong>{x.name}</strong><span>{x.classes.includes('All')?'All classes':x.classes.join(' · ')}</span></div></button><div className="item-foot"><Source value={x.sourceStatus}/><button onClick={()=>toggle(x)}>{plan.has(x.id)?'In plan':'+ Plan'}</button></div></article>)}</section><Detail item={item} inPlan={plan.has(item.id)} togglePlan={()=>toggle(item)}/></div></div></div>}{view==='plan'&&<div className="page workbench-page"><CraftingWorkbench selected={plan} setSelected={setPlan}/></div>}{view==='materials'&&<div className="page"><MaterialsWorkbench onOpenItem={openCatalogItem}/></div>}{view==='reference'&&<div className="page"><Reference/></div>}</main><footer><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt=""/><p><strong>The Masterwork Vault</strong> · Community crafting reference. Screenshot evidence remains the source of truth.</p></footer></div>
 }
