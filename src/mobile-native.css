@@ -1,0 +1,615 @@
+/* Responsive native-app presentation. Desktop (>1180px) intentionally remains untouched. */
+
+.mobile-native-back {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .items article:hover {
+    transform: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .018);
+  }
+}
+
+/* Tablet: iPad-style split view with touch-first grouped surfaces. */
+@media (min-width: 681px) and (max-width: 1180px) {
+  body {
+    background: var(--canvas);
+    overscroll-behavior-y: none;
+  }
+
+  .hero,
+  footer {
+    display: none;
+  }
+
+  .app > header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    min-height: calc(60px + env(safe-area-inset-top));
+    padding: calc(7px + env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 7px max(18px, env(safe-area-inset-left));
+    flex-wrap: nowrap;
+    align-items: center;
+    background: rgba(251, 251, 253, .92);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+  }
+
+  .app > header nav {
+    flex: 0 1 auto;
+  }
+
+  .app > header nav button {
+    min-height: 44px;
+  }
+
+  main {
+    min-height: calc(100dvh - 60px);
+  }
+
+  .catalog aside {
+    position: sticky;
+    top: calc(60px + env(safe-area-inset-top));
+    z-index: 30;
+    min-height: 0;
+    padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
+    border-right: 0;
+    border-bottom: 1px solid var(--separator);
+    background: rgba(251, 251, 253, .94);
+    backdrop-filter: saturate(180%) blur(22px);
+    -webkit-backdrop-filter: saturate(180%) blur(22px);
+  }
+
+  .catalog aside > small {
+    display: none;
+  }
+
+  .catalog aside button {
+    min-height: 44px;
+    padding-inline: 13px;
+    border-radius: 12px;
+  }
+
+  .workspace {
+    padding: 14px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left));
+  }
+
+  .toolbar {
+    margin-bottom: 12px;
+    padding: 9px;
+    border-radius: 15px;
+    box-shadow: none;
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(290px, .82fr) minmax(390px, 1.18fr);
+    grid-template-areas: "items detail";
+    gap: 12px;
+    align-items: start;
+  }
+
+  .items {
+    grid-area: items;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .items article,
+  .detail,
+  .toolbar,
+  .planner > .panel,
+  .materials > .panel,
+  .reference > .panel,
+  .workbench-header,
+  .workbench-grid > .panel,
+  .tree-panel,
+  .checklist-panel,
+  .professions-panel,
+  .material-intelligence {
+    box-shadow: none;
+  }
+
+  .detail {
+    grid-area: detail;
+    position: sticky !important;
+    top: calc(116px + env(safe-area-inset-top));
+    max-height: calc(100dvh - 128px - env(safe-area-inset-top));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .page {
+    width: 100%;
+    padding: 14px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left));
+  }
+
+  .crafting-workbench {
+    gap: 12px;
+  }
+
+  .workbench-header {
+    padding: 18px;
+  }
+
+  .workbench-header h1 {
+    font-size: clamp(28px, 3.8vw, 38px);
+  }
+
+  .workbench-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workbench-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workbench-tabs button {
+    flex: 0 0 auto;
+    min-height: 44px;
+  }
+
+  .materials.materials-workbench {
+    grid-template-columns: minmax(280px, .78fr) minmax(400px, 1.22fr);
+    gap: 12px;
+  }
+
+  .materials-browser {
+    position: sticky;
+    top: calc(74px + env(safe-area-inset-top));
+    max-height: calc(100dvh - 88px - env(safe-area-inset-top));
+    overflow: hidden;
+  }
+
+  .materials-browser .material-list {
+    max-height: calc(100dvh - 170px - env(safe-area-inset-top));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Phone: top app bar, bottom tab bar, and navigation-stack item detail. */
+@media (max-width: 680px) {
+  html,
+  body {
+    min-height: 100%;
+    background: var(--canvas);
+    overscroll-behavior-y: none;
+  }
+
+  body.mobile-detail-open {
+    overflow: hidden;
+  }
+
+  .hero,
+  footer {
+    display: none;
+  }
+
+  .app > header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 60;
+    min-height: calc(56px + env(safe-area-inset-top));
+    padding: calc(7px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 7px max(14px, env(safe-area-inset-left));
+    align-items: center;
+    flex-wrap: nowrap;
+    border-bottom: 1px solid var(--separator);
+    background: rgba(251, 251, 253, .94);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+  }
+
+  .brand {
+    min-height: 42px;
+    gap: 10px;
+  }
+
+  .brand img {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .brand strong {
+    font-size: 15px;
+  }
+
+  .brand small {
+    display: none;
+  }
+
+  .app > header nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    width: 100%;
+    min-height: calc(62px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    padding: 5px max(8px, env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    overflow: visible;
+    border: 0;
+    border-top: 1px solid var(--separator);
+    border-radius: 0;
+    background: rgba(251, 251, 253, .96);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+  }
+
+  .app > header nav button {
+    position: relative;
+    min-width: 0;
+    min-height: 52px;
+    display: grid;
+    grid-template-rows: 22px auto;
+    place-items: center;
+    gap: 1px;
+    padding: 4px 2px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--label-secondary);
+    font-size: 10px;
+    line-height: 1.1;
+    font-weight: 600;
+  }
+
+  .app > header nav button svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+
+  .app > header nav button.active {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--interactive);
+  }
+
+  .app > header nav .badge {
+    position: absolute;
+    top: 2px;
+    left: calc(50% + 8px);
+    min-width: 17px;
+    height: 17px;
+    padding-inline: 4px;
+    background: var(--interactive);
+    color: #fff;
+    font-size: 9px;
+  }
+
+  main {
+    min-height: 100dvh;
+    padding-top: calc(56px + env(safe-area-inset-top));
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+
+  .catalog {
+    display: block;
+  }
+
+  .catalog aside {
+    position: sticky;
+    top: calc(56px + env(safe-area-inset-top));
+    z-index: 28;
+    min-height: 0;
+    display: flex;
+    gap: 5px;
+    padding: 7px max(10px, env(safe-area-inset-right)) 7px max(10px, env(safe-area-inset-left));
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--separator);
+    background: rgba(251, 251, 253, .96);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .catalog aside::-webkit-scrollbar {
+    display: none;
+  }
+
+  .catalog aside > small {
+    display: none;
+  }
+
+  .catalog aside button {
+    width: auto;
+    min-height: 44px;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 8px 13px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  .workspace {
+    padding: 10px max(10px, env(safe-area-inset-right)) 20px max(10px, env(safe-area-inset-left));
+  }
+
+  .toolbar {
+    position: sticky;
+    top: calc(107px + env(safe-area-inset-top));
+    z-index: 24;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+
+  .search {
+    min-height: 44px;
+    border-radius: 11px;
+  }
+
+  .filters {
+    width: 100%;
+    gap: 3px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filters button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding-inline: 12px;
+  }
+
+  .split {
+    display: block;
+  }
+
+  .items {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .result-meta {
+    padding: 2px 3px 4px;
+  }
+
+  .result-meta small {
+    display: none;
+  }
+
+  .items article {
+    border-radius: 14px;
+    box-shadow: none;
+  }
+
+  .item-main {
+    min-height: 72px;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+
+  .item-main strong {
+    font-size: 14px;
+  }
+
+  .item-main small,
+  .item-main span {
+    font-size: 11px;
+  }
+
+  .item-foot {
+    min-height: 44px;
+    padding: 3px 9px;
+  }
+
+  .catalog .detail {
+    position: fixed !important;
+    top: calc(56px + env(safe-area-inset-top));
+    right: 0;
+    bottom: calc(62px + env(safe-area-inset-bottom));
+    left: 0;
+    z-index: 50;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 58px max(12px, env(safe-area-inset-right)) 24px max(12px, env(safe-area-inset-left));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 0;
+    border-radius: 0;
+    background: var(--canvas);
+    box-shadow: none;
+    -webkit-overflow-scrolling: touch;
+    transform: translate3d(102%, 0, 0);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 240ms var(--ease),
+      visibility 0s linear 240ms;
+  }
+
+  body.mobile-detail-open .catalog .detail {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      transform 240ms var(--ease),
+      visibility 0s linear 0s;
+  }
+
+  .catalog .detail > .detail-head {
+    padding: 14px;
+    border: 1px solid var(--separator);
+    border-radius: 16px;
+    background: var(--surface);
+  }
+
+  .catalog .detail > .detail-controls,
+  .catalog .detail > .callout,
+  .catalog .detail > .section-head,
+  .catalog .detail > .recipe-list,
+  .catalog .detail > .batches,
+  .catalog .detail > .subhead {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+
+  .mobile-native-back {
+    position: fixed;
+    top: calc(66px + env(safe-area-inset-top));
+    left: max(12px, env(safe-area-inset-left));
+    z-index: 56;
+    min-width: 94px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 11px 0 7px;
+    border: 1px solid var(--separator);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .94);
+    color: var(--interactive);
+    font-weight: 650;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .08);
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    opacity: 0;
+    transform: translateX(-8px);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 160ms var(--ease),
+      transform 200ms var(--ease),
+      visibility 0s linear 200ms;
+  }
+
+  .mobile-native-back.visible {
+    opacity: 1;
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity 160ms var(--ease),
+      transform 200ms var(--ease),
+      visibility 0s linear 0s;
+  }
+
+  .page {
+    width: 100%;
+    padding: 10px max(10px, env(safe-area-inset-right)) 20px max(10px, env(safe-area-inset-left));
+  }
+
+  .planner,
+  .materials,
+  .materials.materials-workbench,
+  .reference,
+  .workbench-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .crafting-workbench {
+    gap: 10px;
+  }
+
+  .workbench-header {
+    position: relative;
+    padding: 14px;
+    border-radius: 16px;
+    box-shadow: none;
+  }
+
+  .workbench-header h1 {
+    margin: 4px 0 6px;
+    font-size: 25px;
+    line-height: 1.08;
+  }
+
+  .workbench-header p {
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .workbench-tabs {
+    position: sticky;
+    top: calc(64px + env(safe-area-inset-top));
+    z-index: 20;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    width: calc(100% + 4px);
+    max-width: none;
+    overflow-x: auto;
+    padding: 4px;
+    border-radius: 13px;
+    background: var(--fill);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workbench-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workbench-tabs button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+
+  .workbench-grid > .panel,
+  .tree-panel,
+  .checklist-panel,
+  .professions-panel,
+  .material-intelligence,
+  .materials-browser,
+  .reference > .panel {
+    padding: 14px;
+    border-radius: 16px;
+    box-shadow: none;
+  }
+
+  .materials-browser {
+    position: static;
+    max-height: none;
+  }
+
+  .material-list,
+  .materials-browser .material-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .stats-drawer {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog .detail,
+  .mobile-native-back {
+    transition-duration: .01ms !important;
+  }
+}
