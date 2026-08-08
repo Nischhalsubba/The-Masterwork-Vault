@@ -1,0 +1,212 @@
+.recipe-row-copy {
+  min-width: 0;
+}
+
+.recipe-row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: max-content;
+}
+
+.recipe-row-actions > b {
+  color: var(--label);
+}
+
+.recipe-row.has-drilldown {
+  align-items: center;
+}
+
+.craftable-indicator {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border: 1px solid var(--separator-strong);
+  border-radius: 999px;
+  padding: 0 var(--space-2);
+  background: var(--selected);
+  color: var(--interactive);
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease), border-color var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
+}
+
+.craftable-indicator:hover {
+  background: var(--surface-secondary);
+  border-color: var(--interactive);
+  transform: translateY(-1px);
+}
+
+.craftable-indicator:active {
+  transform: scale(.985);
+}
+
+.craftable-indicator:focus-visible,
+.drilldown-back:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--interactive) 28%, transparent);
+  outline-offset: 2px;
+}
+
+.material-drilldown {
+  min-width: 0;
+}
+
+.drilldown-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--separator);
+}
+
+.drilldown-nav > span {
+  min-width: 0;
+  color: var(--label-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drilldown-back {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-3) 0 var(--space-2);
+  background: var(--fill);
+  color: var(--label);
+  font-weight: 650;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
+}
+
+.drilldown-back:hover {
+  background: var(--fill-hover);
+}
+
+.drilldown-back:active {
+  transform: scale(.985);
+}
+
+.drilldown-head {
+  align-items: flex-start;
+}
+
+.drilldown-head h2 {
+  margin-top: var(--space-2);
+}
+
+.craftable-pill {
+  display: inline-flex !important;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.drilldown-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.drilldown-summary > div {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-md);
+  background: var(--surface-secondary);
+}
+
+.drilldown-summary span {
+  color: var(--label-secondary);
+  font-size: 11px;
+}
+
+.drilldown-summary strong {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
+.drilldown-section-head {
+  margin-top: var(--space-6);
+}
+
+.material-detail .drilldown-nav {
+  margin-top: 0;
+}
+
+.empty-inline {
+  padding: var(--space-6) 0;
+}
+
+.empty-inline h3,
+.empty-inline p {
+  margin: 0;
+}
+
+.empty-inline p {
+  margin-top: var(--space-2);
+  color: var(--label-secondary);
+}
+
+@media (max-width: 900px) {
+  .drilldown-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .recipe-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .recipe-row-actions {
+    grid-column: 2;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .craftable-indicator {
+    min-height: 36px;
+  }
+
+  .drilldown-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .drilldown-nav > span {
+    width: 100%;
+  }
+
+  .drilldown-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 460px) {
+  .drilldown-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .craftable-indicator,
+  .drilldown-back {
+    transition-duration: .01ms !important;
+  }
+}
