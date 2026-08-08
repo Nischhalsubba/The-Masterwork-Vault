@@ -1,19 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import { BookOpen, Boxes, CircleHelp, Gem, Hammer, Minus, Plus, Search, Shield, Sparkles, Sword } from 'lucide-react'
+import { BookOpen, Boxes, ChevronLeft, ChevronRight, CircleHelp, Gem, Hammer, Minus, Plus, Search, Shield, Sparkles, Sword } from 'lucide-react'
 import catalogJson from './data/catalog'
 import spriteDataUri from './data/sprite'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
-import { calculateCraftingPlan } from './lib/crafting'
+import { calculateCraftingPlan, expandSingleMaterial } from './lib/crafting'
 import { AmbientVault } from './components/AmbientVault'
 
 const catalog = catalogJson as CatalogData
 const norm = (s: string) => s.toLowerCase().replace(/\+1/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ')
 const byMaterial = new Map(catalog.materials.map((m) => [norm(m.name), m]))
+const recipeByName = new Map(catalog.recipes.map((r) => [norm(r.name), r]))
 const iconIndexByName = new Map<string, number>()
 for (const item of catalog.items) if (item.iconIndex != null) iconIndexByName.set(norm(item.name), item.iconIndex)
 for (const material of catalog.materials) if (material.iconIndex != null) iconIndexByName.set(norm(material.name), material.iconIndex)
 const asset = (p: string) => `${import.meta.env.BASE_URL}${p}`
+
+type MaterialTarget = { name: string; required: number }
+type OpenCraftable = (material: MaterialEntry, required: number) => void
 
 function Icon({ src, alt, size = 48 }: { src?: string | null; alt: string; size?: number }) {
   const [directFailed, setDirectFailed] = useState(false)
@@ -79,18 +83,141 @@ function Source({ value }: { value: string }) {
   return <span className={`source ${value === 'spreadsheet-supplemental' ? 'supplemental' : ''}`}>{label}</span>
 }
 
-function Recipe({ rows }: { rows: { name: string; required: number }[] }) {
-  return <div className="recipe-list">{rows.map((r) => { const m = byMaterial.get(norm(r.name)); return <div className="recipe-row" key={r.name}><Icon src={m?.icon} alt={r.name} size={42} /><div><strong>{r.name}</strong><small>{m?.craftable ? `${m.profession || 'Crafted'} · yields ${m.outputQuantity || 1}` : 'Raw material'}</small></div><b>×{r.required}</b></div> })}</div>
+function Recipe({ rows, onOpenCraftable }: { rows: { name: string; required: number }[]; onOpenCraftable?: OpenCraftable }) {
+  return (
+    <div className="recipe-list">
+      {rows.map((r) => {
+        const material = byMaterial.get(norm(r.name))
+        const hasRecipe = Boolean(material && recipeByName.has(norm(material.name)))
+        const canDrill = Boolean(onOpenCraftable && material?.craftable && hasRecipe)
+        return (
+          <div className={`recipe-row ${canDrill ? 'has-drilldown' : ''}`} key={r.name}>
+            <Icon src={material?.icon} alt={r.name} size={42} />
+            <div className="recipe-row-copy">
+              <strong>{r.name}</strong>
+              <small>{material?.craftable ? `${material.profession || 'Crafted'} · yields ${material.outputQuantity || 1}` : 'Raw material'}</small>
+            </div>
+            <div className="recipe-row-actions">
+              <b>×{r.required}</b>
+              {canDrill && material && (
+                <button className="craftable-indicator" onClick={() => onOpenCraftable?.(material, r.required)} aria-label={`Show crafting recipe for ${r.name}`}>
+                  <Hammer size={13} aria-hidden="true" />
+                  <span>Craftable</span>
+                  <ChevronRight size={14} aria-hidden="true" />
+                </button>
+              )}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function MaterialDrilldown({ target, backLabel, onBack, onOpenCraftable }: { target: MaterialTarget; backLabel: string; onBack: () => void; onOpenCraftable: OpenCraftable }) {
+  const [mode, setMode] = useState<'direct' | 'scratch'>('direct')
+  const material = byMaterial.get(norm(target.name))
+  const recipe = recipeByName.get(norm(target.name))
+  const expanded = useMemo(() => expandSingleMaterial(target.name, target.required, catalog.recipes), [target.name, target.required])
+
+  if (!material || !recipe) {
+    return (
+      <div className="material-drilldown">
+        <button className="drilldown-back" onClick={onBack}><ChevronLeft size={18} />Back</button>
+        <div className="empty-inline"><h3>Recipe unavailable</h3><p>This material does not have a craft recipe in the current catalog.</p></div>
+      </div>
+    )
+  }
+
+  const outputPerCraft = Math.max(1, recipe.outputQuantity || material.outputQuantity || 1)
+  const crafts = Math.ceil(target.required / outputPerCraft)
+  const produced = crafts * outputPerCraft
+  const leftover = produced - target.required
+  const directRows = recipe.materials.map((row) => ({ ...row, required: row.required * crafts }))
+  const rows = mode === 'direct' ? directRows : expanded.raw
+
+  return (
+    <div className="material-drilldown enter" key={`${material.name}:${target.required}`}>
+      <div className="drilldown-nav">
+        <button className="drilldown-back" onClick={onBack}><ChevronLeft size={18} />Back</button>
+        <span>Back to {backLabel}</span>
+      </div>
+
+      <div className="detail-head drilldown-head">
+        <Icon src={material.icon} alt={material.name} size={78} />
+        <div className="grow">
+          <div className="pills"><Source value={material.sourceStatus} /><span className="craftable-pill"><Hammer size={12} />Craftable material</span></div>
+          <h2>{material.name}</h2>
+          <p>{material.profession || recipe.profession || 'Crafted material'} · yields {outputPerCraft} per craft</p>
+        </div>
+      </div>
+
+      <div className="drilldown-summary" aria-label="Crafting requirement summary">
+        <div><span>Needed here</span><strong>×{target.required}</strong></div>
+        <div><span>Crafts required</span><strong>{crafts}</strong></div>
+        <div><span>Will produce</span><strong>{produced}</strong></div>
+        <div><span>Leftover</span><strong>{leftover}</strong></div>
+      </div>
+
+      <div className="section-head drilldown-section-head">
+        <div><small>CRAFTING RECIPE</small><h3>{mode === 'direct' ? `Materials for ${crafts} craft${crafts === 1 ? '' : 's'}` : 'From-scratch raw materials'}</h3></div>
+        <div className="seg">
+          <button className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button>
+          <button className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button>
+        </div>
+      </div>
+
+      <Recipe rows={rows} onOpenCraftable={mode === 'direct' ? onOpenCraftable : undefined} />
+
+      {mode === 'scratch' && expanded.batches.length > 0 && (
+        <>
+          <h3 className="subhead">Craft batches & leftovers</h3>
+          <div className="batches">
+            {expanded.batches.map((batch) => (
+              <div key={batch.name}>
+                <strong>{batch.name}</strong>
+                <span>{batch.crafts} craft{batch.crafts === 1 ? '' : 's'}</span>
+                <small>need {batch.needed} · produce {batch.produced}{batch.leftover ? ` · ${batch.leftover} leftover` : ''}</small>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean; togglePlan: () => void }) {
   const [variant, setVariant] = useState(Math.max(0, item.variants.length - 1))
   const [mode, setMode] = useState<'direct'|'scratch'>('direct')
-  useEffect(() => setVariant(Math.max(0, item.variants.length - 1)), [item.id])
+  const [materialTrail, setMaterialTrail] = useState<MaterialTarget[]>([])
+
+  useEffect(() => {
+    setVariant(Math.max(0, item.variants.length - 1))
+    setMaterialTrail([])
+  }, [item.id])
+
   const calc = useMemo(() => calculateCraftingPlan([{ item, quantity: 1 }], catalog.recipes), [item])
   const v = item.variants[variant]
   const stats = v?.stats || item.stats || {}
   const setData = item.set as { name?: string; twoPiece?: string[]; note?: string } | null | undefined
+  const openCraftable: OpenCraftable = (material, required) => setMaterialTrail((trail) => [...trail, { name: material.name, required }])
+
+  if (materialTrail.length > 0) {
+    const target = materialTrail[materialTrail.length - 1]
+    const previous = materialTrail.length > 1 ? materialTrail[materialTrail.length - 2].name : item.name
+    return (
+      <section className="detail panel enter">
+        <MaterialDrilldown
+          target={target}
+          backLabel={previous}
+          onBack={() => setMaterialTrail((trail) => trail.slice(0, -1))}
+          onOpenCraftable={openCraftable}
+        />
+      </section>
+    )
+  }
+
   return <section className="detail panel enter">
     <div className="detail-head"><Icon src={item.icon} alt={item.name} size={88} /><div className="grow"><div className="pills"><Source value={item.sourceStatus} /><span>{item.profession || item.kind}</span></div><h2>{item.name}</h2><p>{item.classes.includes('All') ? 'Global' : item.classes.join(' · ')} · {item.slot || item.kind}</p></div><button className="primary" onClick={togglePlan}>{inPlan ? 'Remove from plan' : 'Add to plan'}</button></div>
     {item.variants.length > 1 && <div className="seg">{item.variants.map((x,i) => <button key={i} className={i===variant?'active':''} onClick={() => setVariant(i)}>{x.quality || x.name}</button>)}</div>}
@@ -98,7 +225,7 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
     {setData && <div className="callout"><Sparkles size={18}/><div><strong>{setData.name || 'Set bonus'}</strong><p>{Array.isArray(setData.twoPiece) ? setData.twoPiece.join(' · ') : setData.note}</p></div></div>}
     {item.equipPower?.text && <div className="callout"><Shield size={18}/><div><strong>{item.equipPower.name || 'Equip power'}</strong><p>{item.equipPower.text}</p></div></div>}
     <div className="section-head"><div><small>RAW-MATERIAL COST</small><h3>{mode==='direct'?'Direct recipe':'From-scratch requirements'}</h3></div><div className="seg"><button className={mode==='direct'?'active':''} onClick={() => setMode('direct')}>Direct</button><button className={mode==='scratch'?'active':''} onClick={() => setMode('scratch')}>From scratch</button></div></div>
-    <Recipe rows={mode==='direct'?calc.direct:calc.raw}/>
+    <Recipe rows={mode==='direct'?calc.direct:calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined}/>
     {mode==='scratch' && calc.batches.length>0 && <><h3 className="subhead">Craft batches & leftovers</h3><div className="batches">{calc.batches.map(b => <div key={b.name}><strong>{b.name}</strong><span>{b.crafts} craft{b.crafts===1?'':'s'}</span><small>need {b.needed} · produce {b.produced}{b.leftover?` · ${b.leftover} leftover`:''}</small></div>)}</div></>}
     <div className="provenance"><strong>Source evidence</strong><span>{item.provenance.recipe || item.provenance.gameData || 'Catalog source record'}</span><small>{item.provenance.evidence.slice(0,3).join(' · ')}</small></div>
   </section>
@@ -115,10 +242,23 @@ function Planner({ selected, setSelected }: { selected: Map<string,number>; setS
 function Materials() {
   const [q,setQ]=useState('')
   const [name,setName]=useState(catalog.materials[0]?.name || '')
+  const [history,setHistory]=useState<string[]>([])
   const filtered=catalog.materials.filter(m=>m.name.toLowerCase().includes(q.toLowerCase()))
   const m=catalog.materials.find(x=>x.name===name) || filtered[0]
-  const recipe=catalog.recipes.find(r=>norm(r.name)===norm(m?.name||''))
-  return <div className="materials enter"><section className="panel"><label className="search"><Search size={17}/><input aria-label="Search materials" value={q} onChange={e=>setQ(e.target.value)} placeholder="Search materials…"/></label><div className="material-list">{filtered.map(x=><button key={x.name} className={m?.name===x.name?'active':''} onClick={()=>setName(x.name)}><Icon src={x.icon} alt={x.name} size={40}/><span><strong>{x.name}</strong><small>{x.craftable?`${x.profession} · yield ${x.outputQuantity}`:'Raw material'}</small></span></button>)}</div></section>{m&&<section className="panel"><div className="detail-head"><Icon src={m.icon} alt={m.name} size={76}/><div><Source value={m.sourceStatus}/><h2>{m.name}</h2><p>{m.craftable?`${m.profession} · output ${m.outputQuantity}`:'Raw / acquired material'}</p></div></div>{recipe?<><h3>Inputs for one craft</h3><Recipe rows={recipe.materials}/></>:<div className="callout"><Gem size={18}/><p>Base material in the current dependency graph.</p></div>}<h3 className="subhead">Used by</h3><div className="tags">{m.usedBy.slice(0,20).map(x=><span key={x}>{x}</span>)}</div></section>}</div>
+  const recipe=recipeByName.get(norm(m?.name||''))
+  const openFromRecipe: OpenCraftable = (material) => {
+    if (m) setHistory((trail) => [...trail, m.name])
+    setName(material.name)
+  }
+  const chooseMaterial = (next: string) => { setHistory([]); setName(next) }
+  const goBack = () => {
+    const previous = history[history.length - 1]
+    if (!previous) return
+    setHistory((trail) => trail.slice(0, -1))
+    setName(previous)
+  }
+
+  return <div className="materials enter"><section className="panel"><label className="search"><Search size={17}/><input aria-label="Search materials" value={q} onChange={e=>setQ(e.target.value)} placeholder="Search materials…"/></label><div className="material-list">{filtered.map(x=><button key={x.name} className={m?.name===x.name?'active':''} onClick={()=>chooseMaterial(x.name)}><Icon src={x.icon} alt={x.name} size={40}/><span><strong>{x.name}</strong><small>{x.craftable?`${x.profession} · yield ${x.outputQuantity}`:'Raw material'}</small></span></button>)}</div></section>{m&&<section className="panel material-detail">{history.length>0&&<div className="drilldown-nav"><button className="drilldown-back" onClick={goBack}><ChevronLeft size={18}/>Back</button><span>Back to {history[history.length-1]}</span></div>}<div className="detail-head"><Icon src={m.icon} alt={m.name} size={76}/><div><Source value={m.sourceStatus}/><h2>{m.name}</h2><p>{m.craftable?`${m.profession} · output ${m.outputQuantity}`:'Raw / acquired material'}</p></div></div>{recipe?<><h3>Inputs for one craft</h3><Recipe rows={recipe.materials} onOpenCraftable={openFromRecipe}/></>:<div className="callout"><Gem size={18}/><p>Base material in the current dependency graph.</p></div>}<h3 className="subhead">Used by</h3><div className="tags">{m.usedBy.slice(0,20).map(x=><span key={x}>{x}</span>)}</div></section>}</div>
 }
 
 function Reference() { return <div className="reference enter"><section className="panel"><CircleHelp/><small className="eyebrow">SOURCE POLICY</small><h2>What wins when sources disagree</h2><ol>{catalog.meta.sourcePriority.map(x=><li key={x}>{x}</li>)}</ol><p>Commission, proficiency and focus are intentionally excluded. Cost means raw materials required.</p></section><section className="panel"><Gem/><small className="eyebrow">ACQUISITION</small><h2>Workbook source channels</h2><div className="tags">{catalog.reference.acquisitionChannels.map(x=><span key={x}>{x}</span>)}</div><p>{catalog.reference.acquisitionNote}</p></section><section className="panel"><Hammer/><small className="eyebrow">TOOLS & SUPPLEMENTS</small><h2>Supplemental workbook relationships</h2><p>{catalog.reference.spreadsheetTools.length} tool references · {catalog.reference.supplements.length} supplement references. Current ZIP values supersede older sheet values.</p></section></div> }
