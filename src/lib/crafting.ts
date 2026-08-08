@@ -52,6 +52,19 @@ export interface CraftTreeNode {
   children: CraftTreeNode[]
 }
 
+export interface CraftSequenceStep {
+  order: number
+  stage: number
+  name: string
+  crafts: number
+  needed: number
+  produced: number
+  leftover: number
+  profession?: string | null
+  sourceStatus: string
+  final: boolean
+}
+
 const normalize = (value: string) => value.toLowerCase().replace(/\+1/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ')
 
 export function buildRecipeMap(recipes: RecipeEntry[]) {
@@ -229,6 +242,68 @@ export function calculateInventoryAwarePlan(selections: PlanSelection[], recipes
     inventoryUsed: toSortedNeeds(used),
     missingRaw: toSortedNeeds(missing),
   }
+}
+
+export function buildDependencyCraftSequence(selections: PlanSelection[], batches: BatchStep[], recipes: RecipeEntry[]): CraftSequenceStep[] {
+  const recipeMap = buildRecipeMap(recipes)
+  const activeBatches = new Map(batches.map((batch) => [normalize(batch.name), batch]))
+  const stageMemo = new Map<string, number>()
+  const visiting = new Set<string>()
+
+  const activeStage = (name: string): number => {
+    const key = normalize(name)
+    if (stageMemo.has(key)) return stageMemo.get(key)!
+    if (visiting.has(key)) return 1
+    const recipe = recipeMap.get(key)
+    if (!recipe || !activeBatches.has(key)) return 0
+
+    visiting.add(key)
+    const dependencyStages = recipe.materials
+      .filter((material) => activeBatches.has(normalize(material.name)))
+      .map((material) => activeStage(material.name))
+    visiting.delete(key)
+
+    const stage = dependencyStages.length ? Math.max(...dependencyStages) + 1 : 1
+    stageMemo.set(key, stage)
+    return stage
+  }
+
+  const intermediate = batches
+    .map((batch) => ({ batch, stage: activeStage(batch.name) }))
+    .sort((a, b) => a.stage - b.stage || a.batch.name.localeCompare(b.batch.name))
+
+  const finalStage = Math.max(0, ...intermediate.map((entry) => entry.stage)) + 1
+  let order = 1
+  const steps: CraftSequenceStep[] = intermediate.map(({ batch, stage }) => ({
+    order: order++,
+    stage,
+    name: batch.name,
+    crafts: batch.crafts,
+    needed: batch.needed,
+    produced: batch.produced,
+    leftover: batch.leftover,
+    profession: batch.profession,
+    sourceStatus: batch.sourceStatus,
+    final: false,
+  }))
+
+  for (const { item, quantity } of selections) {
+    if (!Number.isFinite(quantity) || quantity <= 0) continue
+    steps.push({
+      order: order++,
+      stage: finalStage,
+      name: item.name,
+      crafts: quantity,
+      needed: quantity,
+      produced: quantity,
+      leftover: 0,
+      profession: item.profession,
+      sourceStatus: item.sourceStatus,
+      final: true,
+    })
+  }
+
+  return steps
 }
 
 export function canCraftSelection(selection: PlanSelection, recipes: RecipeEntry[], inventory: InventoryRecord) {
