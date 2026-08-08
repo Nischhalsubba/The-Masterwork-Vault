@@ -5,6 +5,7 @@ import './styles.css'
 import './drilldown.css'
 import './features.css'
 import './features-a11y.css'
+import './features-complete.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
