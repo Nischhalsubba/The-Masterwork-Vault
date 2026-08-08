@@ -1,5 +1,4 @@
 import compressedCatalog from './catalog.gz.b64?raw'
-import iconData from './iconData'
 
 const bytes = Uint8Array.from(atob(compressedCatalog.replace(/\s+/g, '')), (char) => char.charCodeAt(0))
 const stream = new Blob([bytes.buffer as ArrayBuffer]).stream().pipeThrough(new DecompressionStream('gzip'))
@@ -14,16 +13,17 @@ const slug = (name: string) => name
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/^-+|-+$/g, '')
 
-// The verified screenshot-derived icon map is bundled as data:image/webp URLs.
-// Apply it to every runtime catalog entry so the UI receives a real image src.
+const iconUrl = (category: 'gear' | 'materials' | 'tools', name: string) =>
+  `${import.meta.env.BASE_URL}assets/icons/${category}/${slug(name)}.webp`
+
 for (const item of catalog.items ?? []) {
   const category = item.kind === 'Profession Tool' ? 'tools' : 'gear'
-  item.icon = iconData[`${category}/${slug(item.name)}`] ?? item.icon ?? null
+  item.icon = iconUrl(category, item.name)
   item.iconIndex = null
 }
 
 for (const material of catalog.materials ?? []) {
-  material.icon = iconData[`materials/${slug(material.name)}`] ?? material.icon ?? null
+  material.icon = iconUrl('materials', material.name)
   material.iconIndex = null
 }
 
