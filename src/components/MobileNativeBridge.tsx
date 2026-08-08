@@ -19,13 +19,27 @@ function mobileHistoryState(value: boolean) {
   return next
 }
 
+function readDetailChrome() {
+  const detail = document.querySelector<HTMLElement>('.catalog .detail')
+  const nestedBack = detail?.querySelector<HTMLButtonElement>('.material-drilldown .drilldown-back') ?? null
+  const drilldownTitle = detail?.querySelector<HTMLElement>('.material-drilldown .drilldown-head h2')?.textContent?.trim()
+  const rootTitle = detail?.querySelector<HTMLElement>(':scope > .detail-head h2')?.textContent?.trim()
+  return {
+    nested: Boolean(nestedBack),
+    title: drilldownTitle || rootTitle || 'Item details',
+  }
+}
+
 export function MobileNativeBridge() {
   const [open, setOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
   const [planCount, setPlanCount] = useState(0)
+  const [detailTitle, setDetailTitle] = useState('Item details')
+  const [nestedDetail, setNestedDetail] = useState(false)
 
   useEffect(() => {
     const media = window.matchMedia(PHONE_QUERY)
+    let syncFrame = 0
 
     const syncNavigation = () => {
       const sourceButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.app > header nav button'))
@@ -36,12 +50,28 @@ export function MobileNativeBridge() {
       setPlanCount(Number.isFinite(count) ? count : 0)
     }
 
+    const syncDetailChrome = () => {
+      const next = readDetailChrome()
+      setDetailTitle(next.title)
+      setNestedDetail(next.nested)
+    }
+
+    const scheduleSync = () => {
+      if (syncFrame) cancelAnimationFrame(syncFrame)
+      syncFrame = requestAnimationFrame(() => {
+        syncFrame = 0
+        syncNavigation()
+        syncDetailChrome()
+      })
+    }
+
     const applyOpen = (next: boolean) => {
       document.body.classList.toggle('mobile-detail-open', next)
       setOpen(next)
       if (next) {
-        window.requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
           document.querySelector<HTMLElement>('.catalog .detail')?.scrollTo({ top: 0, behavior: 'auto' })
+          syncDetailChrome()
         })
       }
     }
@@ -67,32 +97,49 @@ export function MobileNativeBridge() {
 
       if (media.matches && target.closest('.catalog .item-main')) {
         openDetail()
+        scheduleSync()
         return
+      }
+
+      if (target.closest('.catalog .detail .craftable-indicator, .catalog .detail .drilldown-back')) {
+        scheduleSync()
       }
 
       if (target.closest('.app > header nav button')) {
         closeAndClearHistory()
-        window.requestAnimationFrame(syncNavigation)
+        scheduleSync()
       }
     }
 
     const onPopState = (event: PopStateEvent) => {
       applyOpen(Boolean(media.matches && event.state?.[HISTORY_KEY]))
-      window.requestAnimationFrame(syncNavigation)
+      scheduleSync()
     }
 
     const onMediaChange = () => {
       if (!media.matches) closeAndClearHistory()
-      syncNavigation()
+      scheduleSync()
     }
 
     syncNavigation()
+    syncDetailChrome()
+
     const sourceNav = document.querySelector('.app > header nav')
-    const observer = new MutationObserver(syncNavigation)
+    const navObserver = new MutationObserver(scheduleSync)
     if (sourceNav) {
-      observer.observe(sourceNav, {
+      navObserver.observe(sourceNav, {
         attributes: true,
         attributeFilter: ['class'],
+        childList: true,
+        characterData: true,
+        subtree: true,
+      })
+    }
+
+    const root = document.querySelector('#root')
+    const detailObserver = new MutationObserver(scheduleSync)
+    if (root) {
+      detailObserver.observe(root, {
         childList: true,
         characterData: true,
         subtree: true,
@@ -104,7 +151,9 @@ export function MobileNativeBridge() {
     media.addEventListener('change', onMediaChange)
 
     return () => {
-      observer.disconnect()
+      if (syncFrame) cancelAnimationFrame(syncFrame)
+      navObserver.disconnect()
+      detailObserver.disconnect()
       document.removeEventListener('click', onDocumentClick)
       window.removeEventListener('popstate', onPopState)
       media.removeEventListener('change', onMediaChange)
@@ -113,6 +162,18 @@ export function MobileNativeBridge() {
   }, [])
 
   const close = () => {
+    const nestedBack = document.querySelector<HTMLButtonElement>('.catalog .detail .material-drilldown .drilldown-back')
+    if (nestedBack) {
+      nestedBack.click()
+      requestAnimationFrame(() => {
+        const next = readDetailChrome()
+        setDetailTitle(next.title)
+        setNestedDetail(next.nested)
+        document.querySelector<HTMLElement>('.catalog .detail')?.scrollTo({ top: 0, behavior: 'auto' })
+      })
+      return
+    }
+
     if (window.history.state?.[HISTORY_KEY]) window.history.back()
     else {
       document.body.classList.remove('mobile-detail-open')
@@ -128,17 +189,20 @@ export function MobileNativeBridge() {
 
   return (
     <>
-      <button
-        type="button"
-        className={`mobile-native-back ${open ? 'visible' : ''}`}
-        onClick={close}
-        tabIndex={open ? 0 : -1}
-        aria-hidden={!open}
-        aria-label="Back to catalog list"
-      >
-        <ChevronLeft size={20} aria-hidden="true" />
-        <span>Catalog</span>
-      </button>
+      <div className={`mobile-native-detailbar ${open ? 'visible' : ''}`} aria-hidden={!open}>
+        <button
+          type="button"
+          className="mobile-native-back"
+          onClick={close}
+          tabIndex={open ? 0 : -1}
+          aria-label={nestedDetail ? 'Back to previous recipe' : 'Back to catalog'}
+        >
+          <ChevronLeft size={24} aria-hidden="true" />
+          <span>{nestedDetail ? 'Back' : 'Catalog'}</span>
+        </button>
+        <strong className="mobile-native-detailbar-title">{detailTitle}</strong>
+        <span className="mobile-native-detailbar-spacer" aria-hidden="true" />
+      </div>
 
       <nav className="mobile-native-tabbar" aria-label="Primary navigation">
         {mobileTabs.map(({ label, Icon }, index) => (
