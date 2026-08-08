@@ -4,13 +4,13 @@
 Bright, neutral, Apple HIG-aligned utility interface with restrained semantic color, system sans-serif typography, generous and comfortable spacing, and softly rounded flat/elevated surfaces. Neverwinter item artwork supplies the visual richness; the interface supplies hierarchy, familiarity, accessibility, and calm.
 
 ## Interaction thesis
-Fast, controlled transitions using 160ms micro-interactions and 240ms state changes with `cubic-bezier(.2, 0, 0, 1)`; hover uses background/border shifts with at most a 1px lift, press scales to .985, view changes retain the existing short fade/translate entrance, and the interface has no bounce, parallax, decorative 3D, looping ambient effects, or motion that delays crafting information.
+Fast, controlled transitions using 160ms micro-interactions and 240ms state changes with `cubic-bezier(.2, 0, 0, 1)`; hover uses background/border shifts with at most a 1px lift, press scales to .985, view changes retain the existing short fade/translate entrance, and the interface has no bounce, parallax, decorative 3D, looping ambient effects, or motion that delays crafting information. On phone, selecting a catalog item uses a 240ms right-to-left navigation-stack transition and the browser Back action returns to the catalog list.
 
 ## Principles
 - Purpose: crafting information is the visual priority.
 - Agency: browsing, filtering, selection, and back paths remain visible and predictable.
 - Responsibility: accessible contrast, reduced motion, explicit states, and no hidden critical interactions.
-- Familiarity: conventional search, list, split-view, sidebar, and segmented-control behavior.
+- Familiarity: conventional search, list, split-view, sidebar, segmented-control, tablet split-view, and phone tab-bar behavior.
 - Flexibility: the same information model adapts from wide desktop to phone without squeezing long names into unreadable columns.
 - Simplicity: fewer decorative cards, fewer colors, stronger spacing and hierarchy.
 - Craft: consistent typography, alignment, control states, separators, and hit areas.
@@ -30,13 +30,19 @@ Semantic roles only. The interface must still look coherent if interactive blue 
 - Strong separator: `rgba(60,60,67,.28)`
 - Fill: `rgba(118,118,128,.12)`
 - Hover fill: `rgba(118,118,128,.18)`
-- Interactive blue: `#0071E3`, reserved for links, focus, explicit actions, and selected emphasis
+- Interactive blue: `#0071E3`, reserved for links, focus, explicit actions, selected emphasis, and the brand forge spark
 - Selected background: `#EAF4FF`
 - Success: `#248A3D`
 - Warning: `#A86600`
 - Danger: `#C9342F`
 
 Checked web contrast on white: primary label 16.83:1, secondary/small label 5.07:1, interactive blue 4.70:1.
+
+## Brand mark
+- The primary mark is an original forge-vault symbol: primary-label dark rounded square, white forged V/anvil geometry, and one interactive-blue spark.
+- The mark must remain simple enough to read at favicon and 36px mobile app-bar size.
+- No purple crystal, antique-gold theme, gradients, or decorative web motifs are part of the current brand system.
+- The same SVG is used for the app bar, footer on desktop, and favicon so the identity does not fragment across surfaces.
 
 ## Typography
 Font stack:
@@ -60,21 +66,21 @@ Long item names and metadata wrap when needed. Text is never compressed to prese
 - Base scale: 4px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px
 - Minimum interactive target: 44px
 - Standard panel padding: 20-24px
-- Workspace padding: 24-32px desktop, 16-20px tablet, 12-16px phone
-- List row padding: 14-16px
-- Split-view gap: 20-24px
-- Header horizontal padding: 20-48px responsive
+- Workspace padding: 24-32px desktop, 14-20px tablet, 10-16px phone plus safe-area insets
+- List row padding: 10-16px depending on viewport density
+- Split-view gap: 20-24px desktop, 12-16px tablet
+- Header horizontal padding: 20-48px desktop, 14-18px tablet/phone plus safe-area insets
 
 ## Layout tokens
 - Maximum application content width: 1760px
-- Desktop class sidebar: 224px
-- Desktop catalog split: list minimum 520px, detail minimum 560px
-- Detail panel always receives enough width for a two-column stat grid and readable recipe rows
-- At <=1380px the class sidebar becomes a horizontal scrolling class strip to free workspace width
-- At <=1180px the catalog becomes a single-column flow with the selected detail shown before the item list
-- At <=900px the top navigation and filters reflow instead of compressing
-- At <=680px item lists become single-column, detail actions become full-width, and header/navigation stack cleanly
-- At <=520px stat grids and dense secondary layouts collapse to one column
+- Desktop class sidebar: 204-224px depending on density pass
+- Desktop catalog split: list minimum about 500px, detail minimum about 540px
+- Desktop behavior above 1180px is not changed by the native mobile/tablet presentation layer.
+- At <=1380px the desktop class sidebar may become a horizontal scrolling class strip to free workspace width.
+- Tablet, 681-1180px: the marketing hero and footer are hidden; the top app bar remains; classes become a sticky horizontal strip; Catalog uses an iPad-style two-column list + sticky inspector split; Materials may use a two-column browser + inspector split; touch targets remain >=44px.
+- Phone, <=680px: the marketing hero and footer are hidden; a compact top app bar and persistent bottom four-tab navigation replace desktop navigation presentation; Catalog starts in the item list; tapping an item pushes a full-screen detail surface in from the right; Back/browser Back returns to the list; filters and classes remain horizontally scrollable and visible without hover.
+- Phone and tablet use `env(safe-area-inset-*)` and `viewport-fit=cover` so notches and home indicators do not cover controls.
+- Phone detail navigation uses `transform` rather than width/left animation and locks background scrolling while the detail surface is open.
 
 ## Radii
 - Small: 10px
@@ -87,6 +93,7 @@ Long item names and metadata wrap when needed. Text is never compressed to prese
 - Level 0: flat surface with separator
 - Level 1: `0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.035)`
 - Level 2: `0 12px 32px rgba(0,0,0,.08)`
+- Tablet and phone prefer Level 0 grouped surfaces; elevation is reserved for floating app chrome such as sticky search or back controls.
 
 ## Base components
 ### Button
@@ -95,28 +102,32 @@ Long item names and metadata wrap when needed. Text is never compressed to prese
 - Primary actions use the interactive semantic color
 - Secondary/toolbar actions use fill and separator states
 - States: default, hover, focus-visible, active, disabled
+- Hover is never required for discovery on touch devices.
 
 ### Search field
-- 48px preferred height on catalog/toolbars
+- 48px preferred height on desktop catalog/toolbars; 44px minimum on touch layouts
 - Filled secondary background with visible focus ring
 - Full width before filters begin to wrap
+- On phone it may live in sticky blurred app chrome below the class strip.
 
 ### Catalog item row
-- List-first composition with 14-16px internal padding
+- List-first composition with 10-16px internal padding
 - Item artwork remains untouched and visually distinct
 - Selection is communicated by semantic selected background + border, not color alone
 - Metadata gets its own line-height and breathing room
+- On phone rows remain in the list surface; the inspector is a separate pushed detail surface rather than being stacked above the list.
 
 ### Detail inspector
-- Minimum 560px on wide desktop
+- Minimum about 540px on wide desktop
 - Header uses icon, flexible text column, and action without forcing the title into a narrow sliver
-- Stats use two columns by default
 - Segmented controls may wrap; labels must never clip
-- At narrow widths, the primary action moves to its own full-width row
+- Item stats and recipe verification/evidence are opened from the compact Details control in a viewport-level right drawer.
+- On tablet the inspector remains sticky inside the right split column.
+- On phone the inspector becomes a full-screen navigation surface between the top app bar and bottom tab bar.
 
 ### Sidebar / class rail
-- 224px desktop width
-- 14px labels with comfortable vertical padding
+- Desktop width follows the current density token
+- 13-14px labels with comfortable vertical padding
 - No text truncation for class names
 - Converts to horizontal scrolling navigation before it can make the content split cramped
 
@@ -128,6 +139,7 @@ The Plan view is a workbench with six focused subviews instead of separate top-l
 - Checklist: shopping/farming list containing only the optimized raw-material shortage after inventory is applied.
 - Professions: shows an inventory-aware dependency-ordered crafting sequence first, then groups those same numbered steps by recorded profession. A step that consumes another active craftable must appear later than that dependency. Missing profession data must be labeled `Unspecified profession`, never inferred.
 - Saved: local saved plans and shareable links. Share links contain item IDs and quantities only; inventory is not encoded or shared.
+- On phone, workbench tabs remain horizontally scrollable touch targets rather than shrinking or wrapping into unreadable controls.
 
 ### Quantity semantics - locked
 These labels and operations are data semantics, not presentation choices:
@@ -145,6 +157,7 @@ These labels and operations are data semantics, not presentation choices:
 ### Recipe evidence and reverse lookup
 - Every craftable material may expose its exact one-craft inputs, explicit output quantity, source status and evidence record.
 - Every final gear, weapon, accessory and profession-tool detail exposes its recorded direct ingredient quantities, source state, source record and available evidence lines.
+- Final-item recipe evidence shares the viewport-level Details drawer with item stats to keep the persistent inspector compact.
 - Screenshot-backed verification is shown only when the underlying source state supports that claim; supplemental records remain visibly supplemental.
 - Soul Bead keeps the later screenshot resolution in evidence rather than hiding the older conflicting record.
 - Material reverse lookup is built from the canonical `usedBy` graph and separates final craftables from crafted-material consumers.
@@ -155,12 +168,15 @@ These labels and operations are data semantics, not presentation choices:
 - Saved-plan storage key: `masterwork-vault.saved-plans.v1`.
 - Both are browser-local only; no account or remote persistence is implied.
 - Shared plan query payloads are validated against current catalog item IDs and positive integer quantities before being loaded.
+- Phone item-detail navigation may use same-URL browser history state only to support native-feeling Back behavior; it does not alter catalog data or share payloads.
 
 ## Motion tokens
 - Fast: 160ms
 - Standard: 240ms
 - View entrance: existing 360ms GSAP fade/translate
 - Easing: `cubic-bezier(.2, 0, 0, 1)`
+- Phone item-detail push: 240ms transform using the standard easing
+- Screen Details drawer: standard right-edge transform transition
 - No decorative ambient animation
 - `prefers-reduced-motion` disables nonessential transitions/animation
 
@@ -172,6 +188,8 @@ The interface must remain usable and visually balanced at 375, 768, 1024, 1280, 
 - selected item detail remains discoverable
 - long item names wrap instead of shrinking
 - search/filter controls reflow before becoming cramped
+- at 375px, bottom navigation does not collide with the home indicator and the pushed detail view has an explicit Back control
+- at 768px and 1024px, Catalog remains a readable two-column tablet split rather than stacking the inspector above the list
 
 ## Asset and data safety
 The redesign and workbench must not change catalog data, recipes, item/material image URLs, exact PNG overrides, sprite indices, direct-image-first behavior, or atlas fallback behavior. UI layout and calculations may consume these records; the source asset/data pipeline itself is locked.
