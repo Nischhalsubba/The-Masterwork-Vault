@@ -1,0 +1,354 @@
+/* Moderate density pass: tighter spacing without returning to the cramped layout. */
+
+:root {
+  --sidebar-width: 204px;
+}
+
+@media (min-width: 681px) {
+  .app > header {
+    min-height: 60px;
+    padding-block: 7px;
+  }
+
+  .brand img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .brand strong {
+    font-size: 14px;
+  }
+
+  .brand small {
+    font-size: 10px;
+  }
+
+  .hero > div:not(.ambient-vault) {
+    padding-top: clamp(30px, 3.2vw, 48px);
+    padding-bottom: clamp(28px, 3vw, 44px);
+  }
+
+  .hero h1 {
+    margin: 8px 0 10px;
+    font-size: clamp(36px, 3.6vw, 54px);
+  }
+
+  .metrics {
+    margin-top: 14px;
+  }
+
+  .catalog aside {
+    top: 60px;
+    min-height: calc(100vh - 60px);
+    padding: 20px 14px 26px;
+  }
+
+  .catalog aside > small {
+    padding: 0 10px 7px;
+  }
+
+  .catalog aside button {
+    min-height: 44px;
+    margin: 1px 0;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .workspace {
+    padding: 20px 24px 32px;
+  }
+
+  .toolbar {
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 10px;
+  }
+
+  .search {
+    min-height: 44px;
+    padding-inline: 12px;
+  }
+
+  .search input {
+    min-height: 42px;
+    font-size: 13px;
+  }
+
+  .split {
+    grid-template-columns: minmax(500px, .94fr) minmax(540px, 1.06fr);
+    gap: 16px;
+  }
+
+  .items {
+    gap: 8px;
+  }
+
+  .result-meta {
+    min-height: 24px;
+    padding-bottom: 0;
+  }
+
+  .item-main {
+    gap: 11px;
+    padding: 11px 13px 10px;
+  }
+
+  .item-main .grow {
+    gap: 2px;
+  }
+
+  .item-main strong {
+    font-size: 13px;
+  }
+
+  .item-main small,
+  .item-main span {
+    font-size: 11px;
+  }
+
+  .item-foot {
+    min-height: 38px;
+    padding: 5px 10px;
+  }
+
+  .item-foot > button,
+  .ghost {
+    min-height: 36px;
+  }
+
+  .detail {
+    padding: 18px;
+  }
+
+  .detail-head {
+    gap: 14px;
+  }
+
+  .detail-head h2 {
+    margin: 5px 0 3px;
+    font-size: clamp(24px, 1.8vw, 28px);
+  }
+
+  .seg {
+    margin: 14px 0;
+  }
+
+  .stats {
+    gap: 8px;
+  }
+
+  .stats > div {
+    gap: 2px;
+    padding: 10px 11px;
+  }
+
+  .callout {
+    gap: 9px;
+    margin-top: 9px;
+    padding: 10px 12px;
+  }
+
+  .callout p {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .section-head {
+    gap: 14px;
+    margin: 18px 0 9px;
+  }
+
+  .recipe-list {
+    gap: 6px;
+  }
+
+  .recipe-row {
+    gap: 10px;
+    padding: 8px 10px;
+  }
+
+  .subhead {
+    margin: 18px 0 8px;
+  }
+
+  .batches {
+    gap: 8px;
+  }
+
+  .batches > div {
+    padding: 10px 11px;
+  }
+
+  .provenance {
+    margin-top: 18px;
+    padding-top: 14px;
+  }
+
+  .page {
+    padding: 24px;
+  }
+
+  .planner,
+  .materials {
+    gap: 18px;
+  }
+
+  .planner > .panel,
+  .materials > .panel,
+  .reference > .panel {
+    padding: 20px;
+  }
+
+  .material-list {
+    margin-top: 10px;
+    gap: 5px;
+  }
+
+  .material-list button {
+    min-height: 56px;
+    gap: 10px;
+    padding: 7px 9px;
+  }
+
+  .crafting-workbench {
+    gap: 16px;
+  }
+
+  .workbench-header {
+    gap: 16px;
+    padding: 18px 20px;
+  }
+
+  .workbench-grid {
+    gap: 16px;
+  }
+
+  .workbench-grid > .panel,
+  .tree-panel,
+  .checklist-panel,
+  .professions-panel,
+  .material-intelligence {
+    padding: 18px;
+  }
+
+  .plan-row.spacious {
+    min-height: 64px;
+    padding: 10px 0;
+  }
+
+  .workbench-metrics {
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .workbench-metrics > div {
+    padding: 11px;
+  }
+
+  .availability-list,
+  .ready-list,
+  .near-ready-list,
+  .shopping-list {
+    gap: 6px;
+  }
+
+  .availability-row,
+  .ready-card,
+  .near-ready-row {
+    padding: 9px 10px;
+  }
+
+  .craft-tree {
+    gap: 7px;
+  }
+
+  .craft-tree-row {
+    min-height: 54px;
+    padding-block: 6px;
+  }
+
+  .profession-grid {
+    gap: 10px;
+  }
+
+  .profession-card-head {
+    padding: 11px 12px;
+  }
+
+  .profession-step {
+    padding: 9px 12px;
+  }
+
+  .evidence-card {
+    margin-top: 16px;
+  }
+
+  .evidence-card summary {
+    min-height: 48px;
+  }
+
+  .evidence-body {
+    gap: 10px;
+    padding: 11px;
+  }
+
+  .reverse-lookup {
+    margin-top: 16px;
+  }
+}
+
+@media (min-width: 1181px) {
+  .catalog .split > .detail {
+    top: 72px;
+    max-height: calc(100vh - 88px);
+    max-height: calc(100dvh - 88px);
+  }
+}
+
+@media (max-width: 1380px) and (min-width: 681px) {
+  .catalog aside {
+    top: auto;
+    min-height: 0;
+    padding: 9px 16px;
+  }
+
+  .workspace {
+    padding: 18px 22px 30px;
+  }
+}
+
+@media (max-width: 1180px) and (min-width: 681px) {
+  .split {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 680px) {
+  .workspace,
+  .page {
+    padding-top: 12px;
+  }
+
+  .toolbar {
+    margin-bottom: 14px;
+  }
+
+  .items {
+    gap: 9px;
+  }
+
+  .detail,
+  .workbench-header,
+  .workbench-grid > .panel,
+  .tree-panel,
+  .checklist-panel,
+  .professions-panel,
+  .material-intelligence {
+    padding: 14px;
+  }
+
+  .section-head {
+    margin-top: 20px;
+  }
+}
