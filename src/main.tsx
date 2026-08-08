@@ -8,6 +8,7 @@ import './features-a11y.css'
 import './features-complete.css'
 import './sticky-detail.css'
 import './compact-ui.css'
+import './stats-drawer.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
