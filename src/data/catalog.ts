@@ -1,5 +1,6 @@
 import compressedCatalog from './catalog.gz.b64?raw'
 import iconData from './iconData'
+import materialIconOverrides from './materialIconOverrides'
 import { verifiedIconCount, verifiedIconIndex } from './verifiedIconIndex'
 import {
   recoveredDirectRecipes,
@@ -93,11 +94,10 @@ for (const item of catalog.items ?? []) {
   ]))
 }
 
-// Ensure all 29 recovered materials exist. Keep the recovered artwork for the materials that
-// already render correctly, but use the original verified direct images for the two remaining
-// broken rows observed on the frontend: Mushroom Log and Perfect Marilith Hair.
+// Ensure all 29 recovered materials exist. Recovered art remains primary for the rows that
+// render correctly. Mushroom Log and Perfect Marilith Hair are replaced below with the exact
+// PNG crops recovered from the extraction artifact.
 const materialByName = new Map<string, any>((catalog.materials ?? []).map((material: any) => [norm(material.name), material]))
-const preferOriginalMaterialIcon = new Set(['mushroom-log', 'perfect-marilith-hair'])
 for (const spec of recoveredMaterialSpecs) {
   let material = materialByName.get(norm(spec.name))
   if (!material) {
@@ -114,16 +114,18 @@ for (const spec of recoveredMaterialSpecs) {
     catalog.materials.push(material)
     materialByName.set(norm(spec.name), material)
   }
-  const preferRecovered = !preferOriginalMaterialIcon.has(norm(spec.name))
-  material.icon = mappedIcon('materials', spec.name, material.icon, preferRecovered).url
+  material.icon = mappedIcon('materials', spec.name, material.icon, true).url
   material.iconIndex = verifiedIconIndex(spec.name, 'materials') ?? null
   material.craftable = spec.craftable
   material.outputQuantity = spec.outputQuantity ?? material.outputQuantity ?? null
   material.sourceStatus = 'final-zip'
 }
 
-// Give any pre-existing material not touched above the same atlas fallback.
+// Two exact PNG overrides from the extraction package. These are intentionally applied last so
+// neither the recovered WebP map nor an older catalog payload can replace them.
 for (const material of catalog.materials ?? []) {
+  const override = materialIconOverrides[norm(material.name)]
+  if (override) material.icon = asRenderableUrl(override)
   if (material.iconIndex == null) material.iconIndex = verifiedIconIndex(material.name, 'materials') ?? null
 }
 
