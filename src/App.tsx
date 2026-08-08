@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import { BookOpen, Boxes, ChevronLeft, ChevronRight, CircleHelp, Gem, Hammer, Minus, Plus, Search, Shield, Sparkles, Sword } from 'lucide-react'
+import { BarChart3, BookOpen, Boxes, ChevronLeft, ChevronRight, CircleHelp, Gem, Hammer, Minus, Plus, Search, Shield, Sparkles, Sword, X } from 'lucide-react'
 import catalogJson from './data/catalog'
 import spriteDataUri from './data/sprite'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
@@ -192,17 +192,37 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
   const [variant, setVariant] = useState(Math.max(0, item.variants.length - 1))
   const [mode, setMode] = useState<'direct'|'scratch'>('direct')
   const [materialTrail, setMaterialTrail] = useState<MaterialTarget[]>([])
+  const [statsOpen, setStatsOpen] = useState(false)
+  const detailRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     setVariant(Math.max(0, item.variants.length - 1))
     setMaterialTrail([])
+    setStatsOpen(false)
   }, [item.id])
+
+  useEffect(() => {
+    if (!statsOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setStatsOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [statsOpen])
 
   const calc = useMemo(() => calculateCraftingPlan([{ item, quantity: 1 }], catalog.recipes), [item])
   const v = item.variants[variant]
   const stats = v?.stats || item.stats || {}
+  const itemLevel = v?.itemLevel || item.itemLevel
+  const statEntries = Object.entries(stats)
+  const statCount = (itemLevel ? 1 : 0) + statEntries.length
+  const hasStats = statCount > 0
   const setData = item.set as { name?: string; twoPiece?: string[]; note?: string } | null | undefined
   const openCraftable: OpenCraftable = (material, required) => setMaterialTrail((trail) => [...trail, { name: material.name, required }])
+  const openStats = () => {
+    detailRef.current?.scrollTo({ top: 0 })
+    setStatsOpen(true)
+  }
 
   if (materialTrail.length > 0) {
     const target = materialTrail[materialTrail.length - 1]
@@ -219,16 +239,16 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
     )
   }
 
-  return <section className="detail panel enter">
+  return <section ref={detailRef} className="detail panel enter">
     <div className="detail-head"><Icon src={item.icon} alt={item.name} size={88} /><div className="grow"><div className="pills"><Source value={item.sourceStatus} /><span>{item.profession || item.kind}</span></div><h2>{item.name}</h2><p>{item.classes.includes('All') ? 'Global' : item.classes.join(' · ')} · {item.slot || item.kind}</p></div><button className="primary" onClick={togglePlan}>{inPlan ? 'Remove from plan' : 'Add to plan'}</button></div>
-    {item.variants.length > 1 && <div className="seg">{item.variants.map((x,i) => <button key={i} className={i===variant?'active':''} onClick={() => setVariant(i)}>{x.quality || x.name}</button>)}</div>}
-    <div className="stats">{(v?.itemLevel || item.itemLevel) && <div><span>Item level</span><strong>{Number(v?.itemLevel || item.itemLevel).toLocaleString()}</strong></div>}{Object.entries(stats).map(([k,val]) => <div key={k}><span>{k}</span><strong>{typeof val === 'number' ? `+${val.toLocaleString()}` : val}</strong></div>)}</div>
+    {(item.variants.length > 1 || hasStats) && <div className="detail-controls">{item.variants.length > 1 && <div className="seg">{item.variants.map((x,i) => <button key={i} className={i===variant?'active':''} onClick={() => setVariant(i)}>{x.quality || x.name}</button>)}</div>}{hasStats && <button className="stats-trigger" aria-expanded={statsOpen} aria-controls="item-stats-drawer" onClick={openStats}><BarChart3 size={16} aria-hidden="true" />Stats<span>{statCount}</span><ChevronRight size={14} aria-hidden="true" /></button>}</div>}
     {setData && <div className="callout"><Sparkles size={18}/><div><strong>{setData.name || 'Set bonus'}</strong><p>{Array.isArray(setData.twoPiece) ? setData.twoPiece.join(' · ') : setData.note}</p></div></div>}
     {item.equipPower?.text && <div className="callout"><Shield size={18}/><div><strong>{item.equipPower.name || 'Equip power'}</strong><p>{item.equipPower.text}</p></div></div>}
     <div className="section-head"><div><small>RAW-MATERIAL COST</small><h3>{mode==='direct'?'Direct recipe':'From-scratch requirements'}</h3></div><div className="seg"><button className={mode==='direct'?'active':''} onClick={() => setMode('direct')}>Direct</button><button className={mode==='scratch'?'active':''} onClick={() => setMode('scratch')}>From scratch</button></div></div>
     <Recipe rows={mode==='direct'?calc.direct:calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined}/>
     {mode==='scratch' && calc.batches.length>0 && <><h3 className="subhead">Craft batches & leftovers</h3><div className="batches">{calc.batches.map(b => <div key={b.name}><strong>{b.name}</strong><span>{b.crafts} craft{b.crafts===1?'':'s'}</span><small>need {b.needed} · produce {b.produced}{b.leftover?` · ${b.leftover} leftover`:''}</small></div>)}</div></>}
     <ItemRecipeEvidence item={item}/>
+    {hasStats && <div className={`stats-drawer-layer ${statsOpen ? 'open' : ''}`} aria-hidden={!statsOpen}><button className="stats-drawer-scrim" tabIndex={statsOpen ? 0 : -1} onClick={() => setStatsOpen(false)} aria-label="Close item stats" /><aside id="item-stats-drawer" className="stats-drawer" aria-label={`${item.name} stats`}><div className="stats-drawer-head"><div><small>ITEM STATS</small><h3>{item.name}</h3><p>{v?.quality || v?.name || item.kind}</p></div><button className="stats-drawer-close" onClick={() => setStatsOpen(false)} aria-label="Close stats"><X size={18} aria-hidden="true" /></button></div><div className="stats-drawer-grid">{itemLevel && <div><span>Item level</span><strong>{Number(itemLevel).toLocaleString()}</strong></div>}{statEntries.map(([key,value]) => <div key={key}><span>{key}</span><strong>{typeof value === 'number' ? `+${value.toLocaleString()}` : value}</strong></div>)}</div><p className="stats-drawer-note">Stats reflect the currently selected quality variant. Recipe quantities remain unchanged.</p></aside></div>}
   </section>
 }
 
