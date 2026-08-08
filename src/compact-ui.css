@@ -107,13 +107,13 @@
   }
 
   .item-foot {
-    min-height: 38px;
-    padding: 5px 10px;
+    min-height: 44px;
+    padding: 3px 10px;
   }
 
   .item-foot > button,
   .ghost {
-    min-height: 36px;
+    min-height: 44px;
   }
 
   .detail {
