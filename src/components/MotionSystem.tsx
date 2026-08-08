@@ -95,58 +95,6 @@ export function MotionSystem() {
         const reduceMotion = Boolean(context.conditions?.reduceMotion)
         if (reduceMotion) return undefined
 
-        const ctx = gsap.context(() => {
-          const intro = gsap.timeline({ defaults: { ease: 'power3.out' } })
-          const initialRows = gsap.utils.toArray<HTMLElement>('.items article').slice(0, 8)
-
-          intro.from('.app > header .brand', {
-            y: -6,
-            autoAlpha: 0,
-            duration: 0.28,
-            clearProps: 'transform,opacity,visibility',
-          })
-
-          if (phone) {
-            intro.from(
-              '.mobile-native-tabbar button',
-              {
-                y: 7,
-                autoAlpha: 0,
-                duration: 0.24,
-                stagger: 0.025,
-                clearProps: 'transform,opacity,visibility',
-              },
-              '<0.04',
-            )
-          } else {
-            intro.from(
-              '.app > header nav button',
-              {
-                y: -4,
-                autoAlpha: 0,
-                duration: 0.22,
-                stagger: 0.025,
-                clearProps: 'transform,opacity,visibility',
-              },
-              '<0.04',
-            )
-          }
-
-          if (initialRows.length) {
-            intro.from(
-              initialRows,
-              {
-                y: 8,
-                autoAlpha: 0,
-                duration: 0.25,
-                stagger: 0.025,
-                clearProps: 'transform,opacity,visibility',
-              },
-              '<0.03',
-            )
-          }
-        }, root)
-
         let pressed: HTMLElement | null = null
 
         const releasePress = () => {
@@ -173,9 +121,6 @@ export function MotionSystem() {
             overwrite: 'auto',
           })
         }
-
-        const onPointerUp = () => releasePress()
-        const onPointerCancel = () => releasePress()
 
         const onPointerOver = (event: PointerEvent) => {
           if (event.pointerType === 'touch') return
@@ -305,7 +250,20 @@ export function MotionSystem() {
           document.removeEventListener('pointerover', onPointerOver)
           document.removeEventListener('pointerout', onPointerOut)
           document.removeEventListener('click', onClick)
-          ctx.revert()
+
+          const animated = root.querySelectorAll<HTMLElement>([
+            PRESS_TARGETS,
+            DIRECTIONAL_TARGETS,
+            '.material-drilldown.enter',
+            '.workbench-grid.enter',
+            '.tree-panel.enter',
+            '.checklist-panel.enter',
+            '.professions-panel.enter',
+            '.saved-grid.enter',
+            '.items article',
+            '.badge',
+          ].join(', '))
+          gsap.killTweensOf(Array.from(animated))
         }
       },
     )
