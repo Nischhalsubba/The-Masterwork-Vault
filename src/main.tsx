@@ -11,6 +11,7 @@ import './sticky-detail.css'
 import './compact-ui.css'
 import './stats-drawer.css'
 import './mobile-native.css'
+import './mobile-browser-fixes.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
