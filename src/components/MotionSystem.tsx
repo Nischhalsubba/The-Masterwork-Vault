@@ -97,6 +97,8 @@ export function MotionSystem() {
 
         const ctx = gsap.context(() => {
           const intro = gsap.timeline({ defaults: { ease: 'power3.out' } })
+          const initialRows = gsap.utils.toArray<HTMLElement>('.items article').slice(0, 8)
+
           intro.from('.app > header .brand', {
             y: -6,
             autoAlpha: 0,
@@ -130,17 +132,19 @@ export function MotionSystem() {
             )
           }
 
-          intro.from(
-            '.items article',
-            {
-              y: 8,
-              autoAlpha: 0,
-              duration: 0.25,
-              stagger: { each: 0.025, amount: 0.15 },
-              clearProps: 'transform,opacity,visibility',
-            },
-            '<0.03',
-          )
+          if (initialRows.length) {
+            intro.from(
+              initialRows,
+              {
+                y: 8,
+                autoAlpha: 0,
+                duration: 0.25,
+                stagger: 0.025,
+                clearProps: 'transform,opacity,visibility',
+              },
+              '<0.03',
+            )
+          }
         }, root)
 
         let pressed: HTMLElement | null = null
@@ -177,9 +181,8 @@ export function MotionSystem() {
           if (event.pointerType === 'touch') return
           const target = closestElement(event.target, DIRECTIONAL_TARGETS)
           if (!target) return
-          const icon = target.matches('.mobile-native-back')
-            ? target.querySelector<SVGElement>('svg')
-            : target.querySelectorAll<SVGElement>('svg')[target.querySelectorAll('svg').length - 1]
+          const icons = target.querySelectorAll<SVGElement>('svg')
+          const icon = target.matches('.mobile-native-back') ? icons[0] : icons[icons.length - 1]
           if (!icon) return
           gsap.to(icon, {
             x: target.matches('.mobile-native-back') ? -2 : 2,
@@ -288,8 +291,8 @@ export function MotionSystem() {
         observer.observe(root, { childList: true, subtree: true })
 
         document.addEventListener('pointerdown', onPointerDown, { passive: true })
-        document.addEventListener('pointerup', onPointerUp, { passive: true })
-        document.addEventListener('pointercancel', onPointerCancel, { passive: true })
+        document.addEventListener('pointerup', releasePress, { passive: true })
+        document.addEventListener('pointercancel', releasePress, { passive: true })
         document.addEventListener('pointerover', onPointerOver, { passive: true })
         document.addEventListener('pointerout', onPointerOut, { passive: true })
         document.addEventListener('click', onClick)
@@ -297,8 +300,8 @@ export function MotionSystem() {
         return () => {
           observer.disconnect()
           document.removeEventListener('pointerdown', onPointerDown)
-          document.removeEventListener('pointerup', onPointerUp)
-          document.removeEventListener('pointercancel', onPointerCancel)
+          document.removeEventListener('pointerup', releasePress)
+          document.removeEventListener('pointercancel', releasePress)
           document.removeEventListener('pointerover', onPointerOver)
           document.removeEventListener('pointerout', onPointerOut)
           document.removeEventListener('click', onClick)
