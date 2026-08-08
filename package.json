@@ -1,11 +1,10 @@
 {
   "name": "the-masterwork-vault",
   "private": true,
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/prepare-icons.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
