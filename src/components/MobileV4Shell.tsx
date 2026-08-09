@@ -108,8 +108,6 @@ export function MobileV4Shell() {
 
       if (sheetWasOpen && !sheetOpen) {
         document.body.classList.remove('mobile-v5-sheet-open')
-        // App.tsx restores its previous overflow value in an effect cleanup. Clear again
-        // after that cleanup so a dismissed sheet can never leave the detail screen frozen.
         requestAnimationFrame(() => {
           clearStaleScrollLock()
           requestAnimationFrame(() => {
@@ -309,7 +307,7 @@ export function MobileV4Shell() {
             <img src={`${import.meta.env.BASE_URL}assets/brand/masterwork-vault-mark.svg`} alt="" />
             <span>
               <strong>The Masterwork Vault</strong>
-              <small>Menzoberranzan Masterwork</small>
+              <small>Underdark + Sharandar Masterwork</small>
             </span>
           </a>
         )}
@@ -318,7 +316,7 @@ export function MobileV4Shell() {
       <aside className="tablet-v4-sidebar" aria-label="Primary navigation">
         <a className="tablet-v4-brand" href={import.meta.env.BASE_URL} aria-label="The Masterwork Vault home">
           <img src={`${import.meta.env.BASE_URL}assets/brand/masterwork-vault-mark.svg`} alt="" />
-          <span><strong>The Masterwork Vault</strong><small>Menzoberranzan Masterwork</small></span>
+          <span><strong>The Masterwork Vault</strong><small>Underdark + Sharandar Masterwork</small></span>
         </a>
         <nav className="tablet-v4-nav">
           {tabs.map(({ label, Icon }, index) => (
