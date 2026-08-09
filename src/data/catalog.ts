@@ -1,6 +1,7 @@
 import compressedCatalog from './catalog.gz.b64?raw'
 import iconData from './iconData'
 import materialIconOverrides from './materialIconOverrides'
+import gatheringMaterialIconOverrides from './gatheringMaterialIconOverrides'
 import { verifiedIconCount, verifiedIconIndex } from './verifiedIconIndex'
 import {
   recoveredDirectRecipes,
@@ -138,10 +139,13 @@ for (const spec of recoveredMaterialSpecs) {
   appendCampaign(material, 'Underdark')
 }
 
-// Two exact PNG overrides from the Underdark extraction package.
+// Exact and curated material artwork overrides.
 for (const material of catalog.materials ?? []) {
-  const override = materialIconOverrides[norm(material.name)]
+  const key = norm(material.name)
+  const override = materialIconOverrides[key]
+  const gatheringOverride = gatheringMaterialIconOverrides[key]
   if (override) material.icon = asRenderableUrl(override)
+  if (gatheringOverride) material.icon = gatheringOverride
   if (material.iconIndex == null) material.iconIndex = verifiedIconIndex(material.name, 'materials') ?? null
 }
 
