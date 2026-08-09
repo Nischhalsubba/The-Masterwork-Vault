@@ -5,6 +5,22 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# Same-origin proxy for the handful of legacy profession icons that are not
+# bundled in the verified atlases. The app references /media/neverwinter/* so
+# browser referrer/hotlink behaviour cannot turn these rows into blank tiles.
+[[redirects]]
+  from = "/media/neverwinter/*"
+  to = "https://neverwinter.fandom.com/wiki/Special:Redirect/file/:splat"
+  status = 200
+  force = true
+
+# The UI is a client-side application. Keep meaningful URLs such as /plan and
+# /materials shareable and reload-safe by serving the same Vite entry point.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
