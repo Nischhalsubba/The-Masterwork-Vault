@@ -8,6 +8,7 @@ import {
   recoveredMaterialRecipes,
   recoveredMaterialSpecs,
 } from './extractedSupplement'
+import { sharandarItems, sharandarRecipes } from './sharandarSupplement'
 
 const bytes = Uint8Array.from(atob(compressedCatalog.replace(/\s+/g, '')), (char) => char.charCodeAt(0))
 const stream = new Blob([bytes.buffer as ArrayBuffer]).stream().pipeThrough(new DecompressionStream('gzip'))
@@ -67,6 +68,20 @@ const mappedIcon = (
   }
 }
 
+const appendCampaign = (row: any, campaign: string) => {
+  const campaigns = new Set<string>([...(row.campaigns ?? []), ...(row.campaign ? [row.campaign] : []), campaign])
+  row.campaigns = [...campaigns]
+  if (!row.campaign) row.campaign = campaign
+}
+
+// Everything in the original compressed payload is the Underdark/Menzoberranzan collection.
+for (const item of catalog.items ?? []) {
+  item.campaign = item.campaign ?? 'Underdark'
+  item.recipeKnown = item.recipeKnown ?? Boolean(item.materials?.length)
+}
+for (const recipe of catalog.recipes ?? []) recipe.campaign = recipe.campaign ?? 'Underdark'
+for (const material of catalog.materials ?? []) appendCampaign(material, 'Underdark')
+
 // Preserve every direct icon that was already working. The verified atlas remains only as
 // a browser-side fallback when a direct image actually fails to decode.
 let itemIconCount = 0
@@ -79,13 +94,13 @@ for (const item of catalog.items ?? []) {
   if (item.icon || item.iconIndex != null) itemIconCount += 1
 }
 
-// Final-ZIP direct recipes are unambiguous for the five recovered accessories and seven
-// recovered profession tools. Patch those rows without touching weapon recipes.
+// Final-ZIP direct recipes are unambiguous for the recovered Underdark accessories/tools.
 for (const item of catalog.items ?? []) {
   const supplement = recoveredDirectRecipes[item.name as keyof typeof recoveredDirectRecipes]
   if (!supplement) continue
   item.materials = supplement.materials.map((material) => ({ ...material }))
   item.sourceStatus = 'final-zip'
+  item.recipeKnown = true
   item.provenance = item.provenance ?? { evidence: [] }
   item.provenance.recipe = `Underdark Masterwork ZIP · recipe page ${supplement.page}`
   item.provenance.evidence = Array.from(new Set([
@@ -94,9 +109,7 @@ for (const item of catalog.items ?? []) {
   ]))
 }
 
-// Ensure all 29 recovered materials exist. Recovered art remains primary for the rows that
-// render correctly. Mushroom Log and Perfect Marilith Hair are replaced below with the exact
-// PNG crops recovered from the extraction artifact.
+// Ensure all recovered Underdark materials exist.
 const materialByName = new Map<string, any>((catalog.materials ?? []).map((material: any) => [norm(material.name), material]))
 for (const spec of recoveredMaterialSpecs) {
   let material = materialByName.get(norm(spec.name))
@@ -110,6 +123,8 @@ for (const spec of recoveredMaterialSpecs) {
       profession: null,
       usedBy: [],
       sourceStatus: 'final-zip',
+      campaign: 'Underdark',
+      campaigns: ['Underdark'],
     }
     catalog.materials.push(material)
     materialByName.set(norm(spec.name), material)
@@ -119,19 +134,17 @@ for (const spec of recoveredMaterialSpecs) {
   material.craftable = spec.craftable
   material.outputQuantity = spec.outputQuantity ?? material.outputQuantity ?? null
   material.sourceStatus = 'final-zip'
+  appendCampaign(material, 'Underdark')
 }
 
-// Two exact PNG overrides from the extraction package. These are intentionally applied last so
-// neither the recovered WebP map nor an older catalog payload can replace them.
+// Two exact PNG overrides from the Underdark extraction package.
 for (const material of catalog.materials ?? []) {
   const override = materialIconOverrides[norm(material.name)]
   if (override) material.icon = asRenderableUrl(override)
   if (material.iconIndex == null) material.iconIndex = verifiedIconIndex(material.name, 'materials') ?? null
 }
 
-// Replace the twelve component recipes with the values visible in the final ZIP screenshots.
-// Soul Bead deliberately uses page 191 (6 Fallen God's Ore), the later screenshot, while
-// retaining the conflict note in evidence instead of silently ignoring page 186.
+// Replace the recovered Underdark component recipes with screenshot-grounded values.
 const recoveredRecipeNames = new Set(recoveredMaterialRecipes.map((recipe) => norm(recipe.name)))
 catalog.recipes = (catalog.recipes ?? []).filter((recipe: any) => !recoveredRecipeNames.has(norm(recipe.name)))
 for (const recipe of recoveredMaterialRecipes) {
@@ -143,11 +156,129 @@ for (const recipe of recoveredMaterialRecipes) {
     profession: material?.profession ?? null,
     materials: recipe.materials.map((entry) => ({ ...entry })),
     sourceStatus: recipe.sourceStatus,
+    campaign: 'Underdark',
     evidence: [...recipe.evidence],
   })
 }
 
-// Rebuild used-by relationships after merging the recovered recipes and direct recipes.
+// ---------------------------------------------------------------------------
+// Sharandar collection
+// ---------------------------------------------------------------------------
+
+const finalSharandarNames = new Set(sharandarItems.map((item) => norm(String(item.name ?? ''))))
+const sharandarRecipeByName = new Map(sharandarRecipes.map((recipe) => [norm(recipe.name), recipe]))
+const existingRecipeByName = new Map<string, any>((catalog.recipes ?? []).map((recipe: any) => [norm(recipe.name), recipe]))
+
+for (const recipe of sharandarRecipes) {
+  const key = norm(recipe.name)
+  const existing = existingRecipeByName.get(key)
+  if (existing && existing.campaign !== 'Sharandar') {
+    // The current planner keys recipes by material name. Preserve the older record rather than
+    // silently replacing a different-era recipe. There are no known collisions in the supplied
+    // Sharandar pack, but this guard makes future uploads fail safe instead of fail creative.
+    console.warn(`Sharandar recipe name collision: ${recipe.name}. Keeping ${existing.campaign ?? 'existing'} recipe.`)
+    continue
+  }
+  const next = {
+    ...recipe,
+    sourceStatus: 'sharandar-screenshot',
+    campaign: 'Sharandar',
+    materials: recipe.materials.map((entry) => ({ ...entry })),
+    evidence: [...recipe.evidence],
+  }
+  if (existing) Object.assign(existing, next)
+  else {
+    catalog.recipes.push(next)
+    existingRecipeByName.set(key, next)
+  }
+}
+
+// Create every material referenced by Sharandar screenshots. Recipe outputs that are not final
+// craftables become craftable materials; leaf/raw inputs remain acquisition materials.
+const ensureMaterial = (name: string) => {
+  const key = norm(name)
+  let material = materialByName.get(key)
+  const recipe = sharandarRecipeByName.get(key)
+  const isCraftableMaterial = Boolean(recipe && !finalSharandarNames.has(key))
+  if (!material) {
+    material = {
+      name,
+      icon: null,
+      iconIndex: null,
+      craftable: isCraftableMaterial,
+      outputQuantity: isCraftableMaterial ? recipe?.outputQuantity ?? 1 : null,
+      profession: isCraftableMaterial ? recipe?.profession ?? null : null,
+      usedBy: [],
+      sourceStatus: 'sharandar-screenshot',
+      campaign: 'Sharandar',
+      campaigns: ['Sharandar'],
+    }
+    catalog.materials.push(material)
+    materialByName.set(key, material)
+  } else {
+    appendCampaign(material, 'Sharandar')
+    if (isCraftableMaterial) {
+      material.craftable = true
+      material.outputQuantity = recipe?.outputQuantity ?? material.outputQuantity ?? 1
+      material.profession = recipe?.profession ?? material.profession ?? null
+      if (material.sourceStatus === 'spreadsheet-supplemental') material.sourceStatus = 'sharandar-screenshot'
+    }
+  }
+  return material
+}
+
+for (const recipe of sharandarRecipes) {
+  if (!finalSharandarNames.has(norm(recipe.name))) ensureMaterial(recipe.name)
+  for (const need of recipe.materials) ensureMaterial(need.name)
+}
+
+// Merge duplicate Sharandar names by keeping the richer screenshot record. This prevents a
+// name-only Miscellaneous crop and a class-specific tooltip from appearing as two fake items.
+const itemScore = (item: any) =>
+  (item.classes?.length ?? 0) * 3 +
+  (item.variants?.length ?? 0) * 3 +
+  (item.itemLevel ? 4 : 0) +
+  (item.stats && Object.keys(item.stats).length ? 4 : 0) +
+  (item.equipPower?.text ? 3 : 0) +
+  (item.materials?.length ? 2 : 0) +
+  (item.recipeKnown === false ? -1 : 0)
+
+const sharandarByName = new Map<string, any>()
+for (const raw of sharandarItems) {
+  const item: any = {
+    icon: null,
+    iconIndex: null,
+    bind: null,
+    levelRequirement: null,
+    itemLevel: null,
+    stats: null,
+    equipPower: null,
+    set: null,
+    recommended: null,
+    reinforced: null,
+    ...raw,
+    campaign: 'Sharandar',
+    categories: Array.from(new Set([...(Array.isArray(raw.categories) ? raw.categories : []), 'Sharandar'])),
+    classes: Array.isArray(raw.classes) ? [...raw.classes] : [],
+    variants: Array.isArray(raw.variants) ? [...raw.variants] : [],
+    materials: Array.isArray(raw.materials) ? raw.materials.map((entry: any) => ({ ...entry })) : [],
+    provenance: raw.provenance ?? { evidence: [] },
+  }
+  const key = norm(item.name)
+  const previous = sharandarByName.get(key)
+  if (!previous || itemScore(item) > itemScore(previous)) sharandarByName.set(key, item)
+}
+
+catalog.items.push(...sharandarByName.values())
+
+// Keep class navigation useful as the new pack introduces Bard alongside the older collection.
+const classNames = new Set<string>(catalog.classes ?? [])
+for (const item of sharandarByName.values()) {
+  for (const className of item.classes ?? []) if (className && className !== 'All') classNames.add(className)
+}
+catalog.classes = [...classNames].sort((a, b) => a.localeCompare(b))
+
+// Rebuild used-by relationships after both campaign packs are merged.
 for (const material of catalog.materials ?? []) material.usedBy = []
 const addUsedBy = (materialName: string, targetName: string) => {
   const material = materialByName.get(norm(materialName))
@@ -162,14 +293,26 @@ for (const recipe of catalog.recipes ?? []) {
 }
 for (const material of catalog.materials ?? []) material.usedBy.sort((a: string, b: string) => a.localeCompare(b))
 
-catalog.meta.sprite = {
-  ...(catalog.meta.sprite ?? {}),
-  tileSize: 48,
-  columns: 10,
-  count: verifiedIconCount,
+catalog.meta = {
+  ...catalog.meta,
+  title: 'The Masterwork Vault',
+  subtitle: 'Underdark + Sharandar Masterwork',
+  campaigns: ['Sharandar', 'Underdark'],
+  sourcePriority: Array.from(new Set([
+    'User-supplied Sharandar screenshots / Sharandar.zip',
+    ...(catalog.meta.sourcePriority ?? []),
+    'External workshop/profession reference pages',
+  ])),
+  sprite: {
+    ...(catalog.meta.sprite ?? {}),
+    tileSize: 48,
+    columns: 10,
+    count: verifiedIconCount,
+  },
 }
 
 const materialIconCount = (catalog.materials ?? []).filter((material: any) => Boolean(material.icon) || material.iconIndex != null).length
-console.info(`Displayable icon audit: ${itemIconCount}/${catalog.items?.length ?? 0} craftables and ${materialIconCount}/${catalog.materials?.length ?? 0} materials`)
+console.info(`Displayable Underdark icon audit: ${itemIconCount} craftables and ${materialIconCount} materials before Sharandar sprite fallback`)
+console.info(`Masterwork campaign audit: ${catalog.items.filter((item: any) => item.campaign === 'Sharandar').length} Sharandar craftables, ${catalog.items.filter((item: any) => item.campaign === 'Underdark').length} Underdark craftables`)
 
 export default catalog
