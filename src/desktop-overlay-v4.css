@@ -1,0 +1,63 @@
+/* Desktop-only overlay contract. Mobile/tablet behavior lives in mobile-v4.css. */
+
+@media (min-width: 1181px) {
+  .catalog .split > .detail:has(.stats-drawer-layer.open) {
+    z-index: 1000 !important;
+  }
+
+  .stats-drawer-layer {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 1000 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    isolation: isolate;
+  }
+
+  .stats-drawer-scrim {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    background: rgba(29, 29, 31, .44) !important;
+  }
+
+  .stats-drawer {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    z-index: 1 !important;
+    width: min(92vw, 520px) !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow-y: auto !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-left: 1px solid var(--separator) !important;
+    border-radius: 0 !important;
+    background: rgba(251, 251, 253, .995) !important;
+    box-shadow: -24px 0 56px rgba(0, 0, 0, .18) !important;
+    transform: translate3d(104%, 0, 0) !important;
+  }
+
+  .stats-drawer-layer.open .stats-drawer {
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .stats-drawer-head {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+    border-radius: 0 !important;
+    background: rgba(251, 251, 253, .985) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+}
