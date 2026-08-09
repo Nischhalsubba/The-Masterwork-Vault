@@ -1,0 +1,35 @@
+/* A missing image should read as an intentional unavailable-art state, never a blank tile. */
+.sprite.fallback {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(60, 60, 67, .20);
+  border-radius: 10px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.96), rgba(235,237,242,.96));
+}
+
+.sprite.fallback::before {
+  content: '';
+  width: 58%;
+  height: 58%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666b75' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 4.5 7v10L12 21l7.5-4V7L12 3Z'/%3E%3Cpath d='m4.5 7 7.5 4 7.5-4M12 11v10'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: .74;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sprite.fallback {
+    border-color: rgba(235, 235, 245, .22);
+    background: linear-gradient(145deg, rgba(47,48,53,.96), rgba(31,32,36,.96));
+  }
+
+  .sprite.fallback::before {
+    filter: invert(1);
+    opacity: .66;
+  }
+}
