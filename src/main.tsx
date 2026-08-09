@@ -1,8 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
-import { AdaptiveNativeShell } from './components/AdaptiveNativeShell'
-import { MobileNativeBridge } from './components/MobileNativeBridge'
+import { MobileV4Shell } from './components/MobileV4Shell'
 import { MotionSystem } from './components/MotionSystem'
 import './styles.css'
 import './drilldown.css'
@@ -12,17 +11,13 @@ import './features-complete.css'
 import './sticky-detail.css'
 import './compact-ui.css'
 import './stats-drawer.css'
-import './mobile-native.css'
-import './mobile-browser-fixes.css'
-import './native-app-polish.css'
-import './native-overlay-fixes.css'
-import './adaptive-native-v2.css'
+import './desktop-overlay-v4.css'
+import './mobile-v4.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
-    <AdaptiveNativeShell />
-    <MobileNativeBridge />
+    <MobileV4Shell />
     <MotionSystem />
   </StrictMode>,
 )
