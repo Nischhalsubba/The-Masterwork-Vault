@@ -3,6 +3,7 @@ import c1 from './sharandarSpriteChunk1'
 import c2 from './sharandarSpriteChunk2'
 import c3 from './sharandarSpriteChunk3'
 import c4 from './sharandarSpriteChunk4'
+import gatheringMaterialIconOverrides from './gatheringMaterialIconOverrides'
 import {
   verifiedSharandarWeaponIconDataUri,
   verifiedSharandarWeaponIconIndex,
@@ -28,6 +29,8 @@ const normalize = (value: string) => value
   .trim()
   .replace(/\s+/g, ' ')
 
+const materialKey = (value: string) => normalize(value).replace(/ /g, '-')
+
 const indexByName = new Map<string, number>(names.map((name, index) => [normalize(name), index]))
 const dataUri = `data:image/webp;base64,${c0}${c1}${c2}${c3}${c4}`
 
@@ -48,6 +51,9 @@ export const sharandarIconIndex = (name: string) => {
 }
 
 export const sharandarIconDataUri = (name: string) => {
+  const materialOverride = gatheringMaterialIconOverrides[materialKey(name)]
+  if (materialOverride) return materialOverride
+
   const verifiedWeapon = verifiedSharandarWeaponIconDataUri(name)
   if (verifiedWeapon) return verifiedWeapon
 
