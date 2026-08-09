@@ -1,12 +1,12 @@
-const fandomFile = (fileName: string) =>
-  `https://neverwinter.fandom.com/wiki/Special:Redirect/file/${encodeURIComponent(fileName)}`
+const gatheringIcon = (fileName: string) =>
+  `/media/neverwinter/${encodeURIComponent(fileName)}`
 
 const gatheringMaterialIconOverrides: Record<string, string> = {
-  'sugar-beet': fandomFile('Crafting_Resource_Sugarbeat.png'),
-  'aberrant-blood': fandomFile('Crafting_Resource_Aberrantblood.png'),
-  'aberrant-bone': fandomFile('Crafting_Resource_Bone_Aberrant.png'),
-  'chamomile': fandomFile('Crafting_Resource_Chamomile.png'),
-  'beast-horn': fandomFile('Crafting_Resource_Beasthorn.png'),
+  'sugar-beet': gatheringIcon('Crafting_Resource_Sugarbeat.png'),
+  'aberrant-blood': gatheringIcon('Crafting_Resource_Aberrantblood.png'),
+  'aberrant-bone': gatheringIcon('Crafting_Resource_Bone_Aberrant.png'),
+  'chamomile': gatheringIcon('Crafting_Resource_Chamomile.png'),
+  'beast-horn': gatheringIcon('Crafting_Resource_Beasthorn.png'),
 }
 
 export default gatheringMaterialIconOverrides
