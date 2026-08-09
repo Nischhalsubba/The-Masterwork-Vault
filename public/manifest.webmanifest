@@ -1,7 +1,7 @@
 {
   "name": "The Masterwork Vault",
   "short_name": "Masterwork Vault",
-  "description": "Neverwinter Menzoberranzan Masterwork crafting reference, planner, materials explorer, and recipe guide.",
+  "description": "Neverwinter Underdark and Sharandar Masterwork crafting reference, planner, materials explorer, workshop guide, and recipe evidence vault.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
