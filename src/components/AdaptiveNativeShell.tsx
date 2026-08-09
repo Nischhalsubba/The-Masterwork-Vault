@@ -8,21 +8,28 @@ const tabs = [
   { label: 'Reference', Icon: CircleHelp },
 ] as const
 
+const FOCUSABLE = [
+  'button:not([disabled])',
+  'a[href]',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
+
 function sourceButtons() {
   return Array.from(document.querySelectorAll<HTMLButtonElement>('.app > header nav button'))
 }
 
 function releaseStaleScrollLock() {
   const body = document.body
+  const root = document.documentElement
   const detail = document.querySelector<HTMLElement>('.catalog .detail')
 
-  body.style.removeProperty('overflow')
-  body.style.removeProperty('overflow-y')
-  body.style.removeProperty('position')
-  body.style.removeProperty('top')
-  body.style.removeProperty('left')
-  body.style.removeProperty('right')
-  body.style.removeProperty('width')
+  for (const property of ['overflow', 'overflow-y', 'position', 'top', 'left', 'right', 'width']) {
+    body.style.removeProperty(property)
+    root.style.removeProperty(property)
+  }
 
   if (detail) {
     detail.style.removeProperty('overflow')
@@ -31,12 +38,20 @@ function releaseStaleScrollLock() {
   }
 }
 
+function visibleFocusables(container: Element) {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((element) => {
+    const style = window.getComputedStyle(element)
+    return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0
+  })
+}
+
 export function AdaptiveNativeShell() {
   const [activeTab, setActiveTab] = useState(0)
   const [planCount, setPlanCount] = useState(0)
 
   useEffect(() => {
     let wasSheetOpen = Boolean(document.querySelector('.stats-drawer-layer.open'))
+    let returnFocus: HTMLElement | null = null
     let frame = 0
 
     const syncNavigation = () => {
@@ -48,13 +63,25 @@ export function AdaptiveNativeShell() {
     }
 
     const syncOverlays = () => {
-      const sheetOpen = Boolean(document.querySelector('.stats-drawer-layer.open'))
+      const layer = document.querySelector<HTMLElement>('.stats-drawer-layer.open')
+      const sheetOpen = Boolean(layer)
+
+      if (!wasSheetOpen && sheetOpen) {
+        returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+        window.requestAnimationFrame(() => {
+          const preferred = layer?.querySelector<HTMLElement>('.stats-drawer-close')
+          preferred?.focus({ preventScroll: true })
+        })
+      }
+
       if (wasSheetOpen && !sheetOpen) {
         releaseStaleScrollLock()
         window.requestAnimationFrame(() => {
-          document.querySelector<HTMLElement>('.catalog .detail')?.focus({ preventScroll: true })
+          if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true })
+          returnFocus = null
         })
       }
+
       wasSheetOpen = sheetOpen
     }
 
@@ -65,6 +92,26 @@ export function AdaptiveNativeShell() {
         syncNavigation()
         syncOverlays()
       })
+    }
+
+    const trapSheetFocus = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return
+      const layer = document.querySelector<HTMLElement>('.stats-drawer-layer.open')
+      if (!layer) return
+      const focusables = visibleFocusables(layer)
+      if (!focusables.length) return
+
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      const active = document.activeElement
+
+      if (event.shiftKey && (active === first || !layer.contains(active))) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && (active === last || !layer.contains(active))) {
+        event.preventDefault()
+        first.focus()
+      }
     }
 
     // Repair stale inline locks left behind by a dismissed sheet or a restored browser tab.
@@ -84,6 +131,7 @@ export function AdaptiveNativeShell() {
       scheduleSync()
     }
 
+    document.addEventListener('keydown', trapSheetFocus)
     window.addEventListener('pageshow', recover)
     window.addEventListener('orientationchange', recover)
     window.addEventListener('resize', recover, { passive: true })
@@ -92,6 +140,7 @@ export function AdaptiveNativeShell() {
     return () => {
       if (frame) cancelAnimationFrame(frame)
       observer.disconnect()
+      document.removeEventListener('keydown', trapSheetFocus)
       window.removeEventListener('pageshow', recover)
       window.removeEventListener('orientationchange', recover)
       window.removeEventListener('resize', recover)
