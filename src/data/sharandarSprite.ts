@@ -1,0 +1,36 @@
+import c0 from './sharandarSpriteChunk0'
+import c1 from './sharandarSpriteChunk1'
+import c2 from './sharandarSpriteChunk2'
+import c3 from './sharandarSpriteChunk3'
+import c4 from './sharandarSpriteChunk4'
+
+const names = [
+  'Silver Vines', 'Silvertongue Moss', "Shard of Dawn's Light", 'Feywood Lumber', 'Feywood Log', 'Soulfire Flies', 'Hardened Feywood', "Ears 'n Tears",
+  'Living Feywood', "Weeping Willow's Tears", "Dawn's Silver Enamel", 'Salty Tears Varnish', 'Lacquered Leaves', 'Questionable Piece of Leather', 'Dryad Hair', "Lacquered 'Aged' Leather",
+  "Shadowdemon's Eyes", "Fey'd Fabrics", 'Woven Fey Leaves', 'Fey Fibers', 'Woven Whiskers', "Displacer Beast's Whisker", 'Beads of Light', 'Crystalline Ornament',
+  'Thorned Ornament', 'Corpse Flower Thorn', "Frozen Dawn's Dew", 'Shattered Snowflakes', 'Feywood Broad Slab', "Fey'd Leaf Sword Knot", 'Feywood Sprouts', 'Feywood Lute',
+  'Feywood Rapier', 'Silvervine Sceptor', 'Frozen Dew Icon', 'Feywood Carved Blade', 'Feywood Buckler', 'Feywood Club', 'Feywood Shield', 'Feywood Longbow',
+  'Feywood Blades', 'Feywood Stiletto', 'Feywood Dagger', 'Feywood Pact Blade', 'Petrified Grimoire', 'Silvervine Orb', 'Thorned Talisman', 'Lacquered Leaf Waders',
+  'Petrified Braces', 'Petrified Wraps', 'Petrified Wristlets', "Fey'd Leaf Branches", 'Feywood Bark', 'Petrified Bark Barbute', 'Feywood Bark Barbute', 'Sprouting Crown',
+  "Fey'd Leaf Wood Crown", "Hermit's Medicinal Tea", 'Hardened Blight Bark', 'Shade Leaves', 'Honey', "Hermit's Incense", "Troll's Earwax Resin", 'Alkali',
+] as const
+
+const normalize = (value: string) => value
+  .toLowerCase()
+  .replace(/\+1/g, '')
+  .replace(/[’']/g, '')
+  .replace(/&/g, 'and')
+  .replace(/[^a-z0-9]+/g, ' ')
+  .trim()
+  .replace(/\s+/g, ' ')
+
+const indexByName = new Map<string, number>(names.map((name, index) => [normalize(name), index]))
+
+export const sharandarSprite = {
+  dataUri: `data:image/webp;base64,${c0}${c1}${c2}${c3}${c4}`,
+  tileSize: 40,
+  columns: 8,
+  count: names.length,
+} as const
+
+export const sharandarIconIndex = (name: string) => indexByName.get(normalize(name)) ?? null
