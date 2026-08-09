@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import { MobileV4Shell } from './components/MobileV4Shell'
 import { MotionSystem } from './components/MotionSystem'
+import { WorkshopJourney } from './components/WorkshopJourney'
 import './styles.css'
 import './drilldown.css'
 import './features.css'
@@ -15,11 +16,13 @@ import './desktop-overlay-v4.css'
 import './mobile-v4.css'
 import './campaign-layout.css'
 import './mobile-popups-v5.css'
+import './workshop-journey.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
     <MobileV4Shell />
     <MotionSystem />
+    <WorkshopJourney />
   </StrictMode>,
 )
