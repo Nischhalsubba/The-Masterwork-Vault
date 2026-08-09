@@ -224,8 +224,53 @@
 }
 
 .journey-result span { color: var(--secondary-label, #66666c); font-size: 11px; }
-.journey-result strong { grid-row: 1 / span 2; grid-column: 2; font-size: 28px; line-height: 1; letter-spacing: -.03em; }
+.journey-result strong { grid-row: 1 / span 2; grid-column: 2; font-size: 24px; line-height: 1.05; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .journey-result small { font-size: 11px; }
+
+.journey-budget-summary {
+  min-height: 44px;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--interactive, #0878d1) 7%, var(--canvas, #f7f7f9));
+}
+
+.journey-budget-summary span,
+.journey-budget-summary small,
+.journey-budget-grid span {
+  color: var(--secondary-label, #66666c);
+  font-size: 11px;
+}
+
+.journey-budget-summary strong,
+.journey-budget-grid strong,
+.journey-budget-total strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.journey-budget-summary strong { font-size: 18px; }
+
+.journey-budget-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.journey-budget-grid > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--separator, #ddd);
+  border-radius: 11px;
+  background: var(--canvas, #f7f7f9);
+}
+
+.journey-budget-grid strong { font-size: 14px; }
+.journey-budget-total { margin: 12px 0 0 !important; padding-top: 12px; border-top: 1px solid var(--separator, #ddd); }
 
 .journey-next-grid {
   display: grid;
@@ -285,6 +330,9 @@
   .journey-calculator, .journey-next { padding: 15px; }
   .journey-calculator-grid { grid-template-columns: 1fr; }
   .journey-calculator-grid input, .journey-calculator-grid select { font-size: 16px; }
+  .journey-result { grid-template-columns: 1fr; align-items: start; }
+  .journey-result strong { grid-row: auto; grid-column: auto; margin-top: 3px; }
+  .journey-budget-grid { grid-template-columns: 1fr; }
   .journey-next-grid { grid-template-columns: 1fr; gap: 10px; }
   .journey-next-grid > svg { display: none; }
   .journey-next-grid > div { padding: 10px 0; border-bottom: 1px solid var(--separator, #ddd); }

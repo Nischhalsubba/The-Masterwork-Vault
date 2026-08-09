@@ -1,120 +1,79 @@
 import { useEffect, useMemo, useState } from 'react'
-import { BadgeCheck, BookOpen, ChevronRight, CircleHelp, Gem, Hammer, X } from 'lucide-react'
+import { BadgeCheck, BookOpen, ChevronRight, CircleHelp, Coins, Gem, Hammer, X } from 'lucide-react'
+import {
+  masterworkProgression,
+  masterworkUnlockPrices,
+  professionMechanics,
+  workshopProgressionKnowledge,
+} from '../data/craftingKnowledgePool'
 
-const PROGRESS_KEY = 'masterwork-vault.workshop-journey.v1'
+const PROGRESS_KEY = 'masterwork-vault.workshop-journey.v2'
 const GUIDE_HASH = '#masterwork-journey'
+
+const professions = Object.keys(masterworkUnlockPrices)
+const firstProfession = professions[0] ?? 'Alchemy'
 
 const phases = [
   {
     id: 'foundation',
     rank: 'START',
-    title: 'Build a workshop that can fund itself',
-    summary: 'Learn the daily action economy before you chase Masterwork recipes.',
+    title: 'Unlock the Workshop and learn the daily economy',
+    summary: `Modern professions cap at Level ${professionMechanics.maxLevel}. Your Workshop has ${professionMechanics.dailyMorale} Morale each day for instant crafts.`,
     tasks: [
-      'Unlock the physical Workshop through the introductory Protector’s Enclave profession questline.',
-      'Treat Morale as your daily fast-action budget. Spending it carelessly makes every later grind slower.',
-      'Build a gold reserve for artisan commissions. The supplied historical guide demonstrates a Leatherworking → Leather Visor vendor loop as an early funding method.',
-      'Keep Blacksmithing in your plan because profession tools become part of the workshop’s internal supply chain.',
+      'Unlock the Workshop from character Level 8 through A Workshop Opportunity from Sergeant Knox.',
+      `Treat ${professionMechanics.dailyMorale} daily Morale as your fast-crafting budget; normal crafting can continue over time without spending Morale.`,
+      `Base Morale restoration costs ${professionMechanics.moraleRefillAdPerPoint.toLocaleString()} AD per point before applicable discounts.`,
+      'Successful crafts grant profession/artisan XP. Failed crafts consume ingredients and any Morale spent.',
     ],
   },
   {
-    id: 'rank-2',
-    rank: 'RANK 2',
-    title: 'Level one profession far enough to advance',
-    summary: 'The historical Module 15 guide uses profession level 15 as the early progression gate.',
+    id: 'workshop',
+    rank: 'WORKSHOP',
+    title: 'Advance Workshop ranks without confusing them with Masterwork access',
+    summary: 'Workshop progression remains useful, but Rank 4 is no longer the modern gate for buying Masterwork recipe books.',
     tasks: [
-      'Concentrate Morale and gathering on one profession instead of spreading early progress across every profession.',
-      'The supplied guide recommends Alchemy as a practical early focus and uses Honey as both profession XP progression and a later commission item.',
-      'If an upgrade NPC offers no useful progression dialogue, re-check profession-level prerequisites before assuming the quest is broken.',
+      ...workshopProgressionKnowledge.questTriggers.map((row) => `Profession Level ${row.professionLevel}: ${row.quest} — ${row.outcome}.`),
+      `Current artisan capacity by Workshop rank: ${Object.entries(workshopProgressionKnowledge.artisanCapacityByRank).map(([rank, count]) => `R${rank} ${count}`).join(' · ')}.`,
+      `Grand Upgrade currently uses ${workshopProgressionKnowledge.rank4.southSeaTradingCompanyCredits.toLocaleString()} South Sea Trading Company Credits.`,
+      'The October 2021 professions rework superseded the old “Workshop Rank 4 required for Masterwork books” rule.',
     ],
   },
   {
-    id: 'rank-3',
-    rank: 'RANK 3',
-    title: 'Prepare for the South Sea credit grind',
-    summary: 'The supplied guide gives 500,000 South Sea Trading Company Credits as the Rank 3 target.',
+    id: 'chultan',
+    rank: 'CHULTAN',
+    title: 'Acquire Chultan Masterwork I, then II',
+    summary: 'The modern book-purchase sequence starts with the two Chultan stages and must be completed in order.',
     tasks: [
-      'Accepted commission items rotate, so pre-craft useful turn-ins and wait for the matching list instead of crafting only after reset.',
-      'The guide highlights Beeswax as a historical bulk route: Alchemy level 44, 225 base credits each, or 2,223 standard Beeswax from zero to 500,000.',
-      'Higher-quality outputs reduce the number of crafts needed, so artisan quality and proficiency matter before the quantities become painful.',
+      'Purchase and unlock Chultan Masterwork I before Chultan Masterwork II.',
+      `Budget ${masterworkUnlockPrices[firstProfession].chultanMW1.toLocaleString()} AD for Chultan I and ${masterworkUnlockPrices[firstProfession].chultanMW2.toLocaleString()} AD for Chultan II per profession.`,
+      'Do not treat the modern Chultan Choice Pack binding state as known; it is intentionally excluded from this implementation.',
+      'Do not hardcode a Guild Hall, Marketplace, or Stronghold rank gate; that exact modern lock is intentionally excluded from this implementation.',
     ],
   },
   {
-    id: 'rank-4',
-    rank: 'RANK 4',
-    title: 'Plan the Grand Upgrade as a logistics problem',
-    summary: 'The guide records a historical 5,000,000-credit requirement later reduced to 2,500,000, with stale quest text sometimes still showing the old value.',
+    id: 'sharandar',
+    rank: 'SHARANDAR',
+    title: 'Complete Chultan and unlock Sharandar Masterwork',
+    summary: `Sharandar recipes are Level ${masterworkProgression.sharandar.professionLevel} profession crafts and the book costs ${masterworkProgression.sharandar.pricePerProfession.toLocaleString()} AD per profession.`,
     tasks: [
-      'Verify the current in-game target before committing materials. The supplied source describes both 5M and 2.5M values from different patches.',
-      'The historical guide uses profession level 20 as another prerequisite before the Grand Upgrade can proceed.',
-      'Choose a production route around what limits you most: Morale, raw materials, gold/AD, or real-world time. The guide discusses Myrrh, Black Ink, Sapphire Chokers, and Gold Pendants as historical strategies.',
-      'Do not copy old Auction House profit assumptions into a modern plan. Prices are server- and patch-dependent.',
+      'Own the required Chultan Masterwork recipe progression before Sharandar.',
+      `Reach profession Level ${masterworkProgression.sharandar.professionLevel}.`,
+      `Buy the profession book from ${masterworkProgression.sharandar.vendor} in ${masterworkProgression.sharandar.location}.`,
+      `The Sharandar book is recorded as ${masterworkProgression.sharandar.bind.toLowerCase()}-bound and consumed to unlock the profession recipes.`,
     ],
   },
   {
-    id: 'masterwork-ready',
-    rank: 'MASTERWORK',
-    title: 'Graduate from Workshop management to Masterwork planning',
-    summary: 'Rank 4 is the doorway. Your artisan roster, tools, Focus, Proficiency, and material chains become the real system.',
+    id: 'menzoberranzan',
+    rank: 'MENZOBERRANZAN',
+    title: 'Finish the full prerequisite chain for Menzoberranzan',
+    summary: 'This tier is account-planning heavy: every profession and the earlier Masterwork tiers matter before the final profession book purchase.',
     tasks: [
-      'Prioritize strong Focus and Proficiency once high-quality checks matter.',
-      'The supplied guide emphasizes Dab Hand for bonus output and commission-cost reduction for expensive production, but treat exact profitability as historical rather than current market truth.',
-      'Use the Vault’s Sharandar and Underdark collections to inspect recipes, drill into crafted components, expand from-scratch requirements, and build a consolidated Plan.',
-      'Keep screenshot-backed recipe evidence separate from historical workshop strategy. Missing recipe evidence should remain unknown instead of becoming a zero-cost craft.',
+      `Reach Level ${masterworkProgression.menzoberranzan.professionLevel} in all seven professions.`,
+      'Own all Chultan Masterwork recipes and all Sharandar Masterwork books.',
+      `Complete ${masterworkProgression.menzoberranzan.quest}.`,
+      `Buy the profession book for ${masterworkProgression.menzoberranzan.pricePerProfession.toLocaleString()} AD from the ${masterworkProgression.menzoberranzan.vendor} in ${masterworkProgression.menzoberranzan.location}.`,
     ],
   },
-] as const
-
-const commissions = [
-  ['Sleeping Phial', 26, 6],
-  ['Steel Greataxe', 29, 300],
-  ['Wolfskin Jacket', 32, 300],
-  ['Amethyst Ring', 33, 150],
-  ['Silver Rod', 34, 300],
-  ['Steel Hauberk', 34, 300],
-  ['Wool Doublet', 35, 300],
-  ['Silver Symbol', 36, 600],
-  ['Wolfskin Jerkin', 37, 600],
-  ['Felt Halfrobe', 38, 600],
-  ['Steel Platemail', 39, 600],
-  ['Steel Claymore', 39, 600],
-  ['Peridot Ring', 39, 300],
-  ['Honey', 41, 150],
-  ['Mithral Zweihander', 43, 900],
-  ['Beeswax', 44, 225],
-  ['Black Pearl Ring', 46, 450],
-  ['Velveteen Halfrobe', 47, 900],
-  ['Mithral Scepter', 48, 900],
-  ['Mithral Scale Mail', 48, 900],
-  ['Bearskin Vest', 48, 900],
-  ['Mithral Greataxe', 50, 1200],
-  ['Mithral Symbol', 50, 1200],
-  ['Ornate Mithral Hauberk', 51, 1200],
-  ['Aquamarine Ring', 51, 600],
-  ["Workman's Anodyne", 52, 100],
-  ['Bearskin Jacket', 54, 1200],
-  ['Velveteen Justaucorps', 54, 1200],
-  ['Electrum Symbol', 60, 1800],
-  ['Farhide Jerkin', 60, 1800],
-  ['Blackiron Scale Mail', 61, 1800],
-  ['Blackiron Greataxe', 62, 1800],
-  ['Silk Robe', 62, 1800],
-  ['Emerald Ring', 62, 900],
-  ['Horn Glue', 63, 450],
-  ['Farskin Jerkin', 63, 2200],
-  ['Silk Justaucorps', 64, 2200],
-  ['Electrum Scepter', 64, 2200],
-  ['Blackiron Zweihander', 65, 2200],
-  ['Gilded Blackiron Scale Mail', 66, 2200],
-  ['Sapphire Ring', 66, 1100],
-  ['Potent Paralyzing Phial', 67, 45],
-  ['Adamantine Claymore', 70, 3000],
-  ['Gold Symbol', 70, 3000],
-  ['Adamantine Cuirass', 70, 3000],
-  ['Drakehide Coat', 70, 3000],
-  ['Shimmerweave Halfrobe', 70, 3000],
-  ['Black Opal Ring', 70, 1500],
-  ['Black Ink', 70, 750],
 ] as const
 
 type PhaseId = typeof phases[number]['id']
@@ -138,8 +97,9 @@ function clearGuideHash() {
 export function WorkshopJourney() {
   const [open, setOpen] = useState(() => window.location.hash === GUIDE_HASH)
   const [completed, setCompleted] = useState<Set<PhaseId>>(() => readProgress())
-  const [currentCredits, setCurrentCredits] = useState(0)
-  const [commissionName, setCommissionName] = useState('Beeswax')
+  const [moraleToRestore, setMoraleToRestore] = useState(100)
+  const [doubleProfessions, setDoubleProfessions] = useState(false)
+  const [profession, setProfession] = useState(firstProfession)
 
   useEffect(() => {
     const syncHash = () => setOpen(window.location.hash === GUIDE_HASH)
@@ -151,7 +111,7 @@ export function WorkshopJourney() {
     try {
       window.localStorage.setItem(PROGRESS_KEY, JSON.stringify([...completed]))
     } catch {
-      // The guide still works when storage is unavailable.
+      // The guide remains usable when storage is unavailable.
     }
   }, [completed])
 
@@ -167,13 +127,18 @@ export function WorkshopJourney() {
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [open])
 
-  const selectedCommission = useMemo(
-    () => commissions.find(([name]) => name === commissionName) ?? commissions[15],
-    [commissionName],
-  )
-  const remainingRank3 = Math.max(0, 500000 - currentCredits)
-  const unitsNeeded = Math.ceil(remainingRank3 / selectedCommission[2])
   const progress = Math.round((completed.size / phases.length) * 100)
+  const unlockRow = masterworkUnlockPrices[profession] ?? masterworkUnlockPrices[firstProfession]
+  const moraleRefillCost = moraleToRestore * professionMechanics.moraleRefillAdPerPoint
+  const effectiveMoralePerTaskMultiplier = doubleProfessions
+    ? professionMechanics.doubleProfessionsEvent.moraleCostMultiplier
+    : 1
+  const fullPathPerProfession = unlockRow.chultanMW1 + unlockRow.chultanMW2 + unlockRow.sharandarMW + unlockRow.menzoberranzanMW
+  const allProfessionTotals = useMemo(() => ({
+    chultan: professions.reduce((sum, name) => sum + masterworkUnlockPrices[name].chultanMW1 + masterworkUnlockPrices[name].chultanMW2, 0),
+    sharandar: professions.reduce((sum, name) => sum + masterworkUnlockPrices[name].sharandarMW, 0),
+    menzoberranzan: professions.reduce((sum, name) => sum + masterworkUnlockPrices[name].menzoberranzanMW, 0),
+  }), [])
 
   const togglePhase = (id: PhaseId) => {
     setCompleted((previous) => {
@@ -198,7 +163,7 @@ export function WorkshopJourney() {
     <>
       <button className="workshop-journey-launcher" type="button" onClick={openGuide} aria-haspopup="dialog">
         <BookOpen size={18} aria-hidden="true" />
-        <span>{completed.size ? `Journey ${completed.size}/${phases.length}` : 'New player guide'}</span>
+        <span>{completed.size ? `Journey ${completed.size}/${phases.length}` : 'Masterwork journey'}</span>
       </button>
 
       {open && (
@@ -208,17 +173,17 @@ export function WorkshopJourney() {
           <section className="workshop-journey-sheet" role="dialog" aria-modal="true" aria-labelledby="workshop-journey-title">
             <header className="workshop-journey-header">
               <div>
-                <span className="journey-eyebrow">WORKSHOP → MASTERWORK</span>
-                <h2 id="workshop-journey-title">The new-player crafting journey</h2>
-                <p>Follow the Workshop progression first. Use the recipe vault once you are ready to plan actual Masterwork crafts.</p>
+                <span className="journey-eyebrow">WORKSHOP → CHULTAN → SHARANDAR → MENZOBERRANZAN</span>
+                <h2 id="workshop-journey-title">Current Masterwork progression</h2>
+                <p>Follow the modern profession and Masterwork path without inheriting obsolete pre-2021 gates. Three user-approved unknowns are intentionally excluded rather than guessed.</p>
               </div>
-              <button type="button" className="journey-close" onClick={closeGuide} aria-label="Close new-player guide"><X size={22} /></button>
+              <button type="button" className="journey-close" onClick={closeGuide} aria-label="Close Masterwork progression guide"><X size={22} /></button>
             </header>
 
             <div className="workshop-journey-scroll">
               <div className="journey-caveat">
                 <CircleHelp size={20} aria-hidden="true" />
-                <div><strong>Historical guide, current planner.</strong><p>The supplied video write-up reconstructs a Module 15 Workshop tutorial and related economic guidance rather than providing a literal transcript. Rank thresholds, credit targets, market prices, and old exploits can change. Verify patch-sensitive requirements in game; the Sharandar/Underdark recipe data elsewhere in this app remains separately screenshot-backed.</p></div>
+                <div><strong>Three fields intentionally remain outside the model.</strong><p>Exact profession XP thresholds from Level 1→20, modern Chultan Choice Pack binding, and the exact current Stronghold purchase gate are not used as blockers or guessed values. Everything else below uses the current researched model.</p></div>
               </div>
 
               <section className="journey-progress" aria-label="Journey progress">
@@ -245,30 +210,44 @@ export function WorkshopJourney() {
               </div>
 
               <section className="journey-calculator">
-                <div className="journey-section-heading"><Gem size={20} /><div><span>HISTORICAL SOUTH SEA TOOL</span><h3>Rank 3 commission calculator</h3></div></div>
-                <p>Use the commission values recorded in the supplied Module 15 guide to estimate how many standard items would cover the remaining portion of its 500,000-credit Rank 3 target.</p>
+                <div className="journey-section-heading"><Coins size={20} /><div><span>CURRENT WORKSHOP ECONOMY</span><h3>Morale refill calculator</h3></div></div>
+                <p>Estimate the base Astral Diamond cost of restoring Workshop Morale. VIP or other applicable discounts are intentionally not baked into the base value.</p>
                 <div className="journey-calculator-grid">
-                  <label><span>Current credits</span><input type="number" min="0" max="500000" inputMode="numeric" value={currentCredits} onChange={(event) => setCurrentCredits(Math.max(0, Math.min(500000, Number(event.target.value) || 0)))} /></label>
-                  <label><span>Commission item</span><select value={commissionName} onChange={(event) => setCommissionName(event.target.value)}>{commissions.map(([name, level, credits]) => <option value={name} key={name}>{name} · Lv {level} · {credits.toLocaleString()} credits</option>)}</select></label>
+                  <label><span>Morale to restore</span><input type="number" min="0" max="400" inputMode="numeric" value={moraleToRestore} onChange={(event) => setMoraleToRestore(Math.max(0, Math.min(400, Number(event.target.value) || 0)))} /></label>
+                  <label><span>Professions event</span><select value={doubleProfessions ? 'double' : 'normal'} onChange={(event) => setDoubleProfessions(event.target.value === 'double')}><option value="normal">Normal Morale costs</option><option value="double">2x Professions · half Morale cost</option></select></label>
                 </div>
-                <div className="journey-result"><span>Estimated standard items needed</span><strong>{unitsNeeded.toLocaleString()}</strong><small>{remainingRank3.toLocaleString()} credits remaining ÷ {selectedCommission[2].toLocaleString()} credits each</small></div>
+                <div className="journey-result"><span>Base refill cost</span><strong>{moraleRefillCost.toLocaleString()} AD</strong><small>{moraleToRestore.toLocaleString()} Morale × {professionMechanics.moraleRefillAdPerPoint.toLocaleString()} AD · task Morale multiplier {effectiveMoralePerTaskMultiplier}×</small></div>
+              </section>
+
+              <section className="journey-calculator">
+                <div className="journey-section-heading"><Gem size={20} /><div><span>DIRECT BOOK BUDGET</span><h3>Masterwork unlock purchases</h3></div></div>
+                <p>This estimates direct recipe-book purchases only. Materials, tools, failures, commissions and Morale refills are separate.</p>
+                <div className="journey-calculator-grid">
+                  <label><span>Profession</span><select value={profession} onChange={(event) => setProfession(event.target.value)}>{professions.map((name) => <option value={name} key={name}>{name}</option>)}</select></label>
+                  <div className="journey-budget-summary"><span>Through Menzoberranzan</span><strong>{fullPathPerProfession.toLocaleString()} AD</strong><small>for {profession}</small></div>
+                </div>
+                <div className="journey-budget-grid">
+                  <div><span>Chultan I + II</span><strong>{(unlockRow.chultanMW1 + unlockRow.chultanMW2).toLocaleString()} AD</strong></div>
+                  <div><span>Sharandar</span><strong>{unlockRow.sharandarMW.toLocaleString()} AD</strong></div>
+                  <div><span>Menzoberranzan</span><strong>{unlockRow.menzoberranzanMW.toLocaleString()} AD</strong></div>
+                </div>
+                <p className="journey-budget-total">All seven professions: <strong>{allProfessionTotals.chultan.toLocaleString()} AD Chultan</strong> · <strong>{allProfessionTotals.sharandar.toLocaleString()} AD Sharandar</strong> · <strong>{allProfessionTotals.menzoberranzan.toLocaleString()} AD Menzoberranzan</strong></p>
               </section>
 
               <section className="journey-next">
-                <div className="journey-section-heading"><Hammer size={20} /><div><span>WHEN YOU REACH MASTERWORK</span><h3>Move from progression to production</h3></div></div>
+                <div className="journey-section-heading"><Hammer size={20} /><div><span>WHEN ACCESS IS READY</span><h3>Move from progression to production</h3></div></div>
                 <div className="journey-next-grid">
-                  <div><strong>1. Catalog</strong><p>Choose Sharandar or Underdark and find the craftable you actually want.</p></div>
+                  <div><strong>1. Catalog</strong><p>Choose Sharandar or Underdark and find the craftable you want.</p></div>
                   <ChevronRight aria-hidden="true" />
-                  <div><strong>2. Recipe tree</strong><p>Open crafted ingredients until you understand every dependency.</p></div>
+                  <div><strong>2. Recipe tree</strong><p>Open crafted ingredients until every dependency is understood.</p></div>
                   <ChevronRight aria-hidden="true" />
-                  <div><strong>3. Plan</strong><p>Combine several crafts so shared materials and batches are calculated together.</p></div>
+                  <div><strong>3. Plan</strong><p>Combine crafts so shared materials, output batches and leftovers are calculated together.</p></div>
                 </div>
               </section>
 
               <footer className="journey-sources">
-                <strong>Guide basis</strong>
-                <p>Neverwinter Workshop Rank 1 → Rank 4 tutorial reconstruction supplied by the user, based on the Gavscar Gaming video and supporting community references.</p>
-                <a href="https://www.youtube.com/watch?v=mqDD5x2nLpM" target="_blank" rel="noreferrer">Open the original video</a>
+                <strong>Knowledge policy</strong>
+                <p>Current researched progression rules are kept separate from historical Workshop strategies. Null means unknown, never zero. The old Rank-4 Masterwork gate remains recorded only as superseded history.</p>
               </footer>
             </div>
           </section>

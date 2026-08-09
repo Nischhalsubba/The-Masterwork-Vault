@@ -93,8 +93,8 @@ await patch('src/components/WorkshopJourney.tsx', [
     to: "import { useEffect, useMemo, useRef, useState } from 'react'",
   },
   {
-    from: "  const [commissionName, setCommissionName] = useState('Beeswax')",
-    to: "  const [commissionName, setCommissionName] = useState('Beeswax')\n  const dialogRef = useRef<HTMLElement>(null)\n  const returnFocusRef = useRef<HTMLElement | null>(null)",
+    from: "  const [profession, setProfession] = useState(firstProfession)",
+    to: "  const [profession, setProfession] = useState(firstProfession)\n  const dialogRef = useRef<HTMLElement>(null)\n  const returnFocusRef = useRef<HTMLElement | null>(null)",
   },
   {
     from: "  useEffect(() => {\n    if (!open) return\n    const closeOnEscape = (event: KeyboardEvent) => {\n      if (event.key === 'Escape') {\n        clearGuideHash()\n        setOpen(false)\n      }\n    }\n    window.addEventListener('keydown', closeOnEscape)\n    return () => window.removeEventListener('keydown', closeOnEscape)\n  }, [open])",

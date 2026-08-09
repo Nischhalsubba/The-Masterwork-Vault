@@ -2,6 +2,8 @@ import catalog from './catalog'
 
 export type KnowledgeConfidence =
   | 'screenshot-backed'
+  | 'verified-current'
+  | 'strong-current'
   | 'spreadsheet-supplemental'
   | 'historical-secondary'
   | 'unknown'
@@ -10,11 +12,13 @@ export type MasterworkCampaign = 'Chultan MW1' | 'Chultan MW2' | 'Sharandar MW' 
 
 export const knowledgeSourcePriority = [
   'Latest user-supplied correction screenshots',
+  'Current in-game screenshots / tooltips',
+  'Official Neverwinter patch notes and current official documentation',
   'User-supplied final screenshot archives (Sharandar.zip / Underdark Masterwork.zip)',
   'Screenshot-derived extraction data',
   'Menzoberranzan MW spreadsheet/extraction',
-  'User-shared workshop/progression transcript-equivalent and links',
-  'External/community guidance only when explicitly labeled historical/secondary',
+  'Current community evidence when official material is silent',
+  'Historical/community guidance only when explicitly labeled historical',
 ] as const
 
 export const knowledgeSources = [
@@ -38,70 +42,75 @@ export const knowledgeSources = [
     confidence: 'spreadsheet-supplemental' as const,
   },
   {
-    id: 'workshop-rank-guide',
-    type: 'user-shared-transcript-equivalent',
-    label: 'Comprehensive Text Guide and Economic Analysis: Upgrading the Neverwinter Workshop (Rank 1 to Rank 4)',
-    note: 'Historical Module 15 progression knowledge reconstructed from Gavscar Gaming video timestamps plus community documentation. It is not a literal transcript and must not be presented as a current 2026 hard gate without current in-game verification.',
-    confidence: 'historical-secondary' as const,
+    id: 'profession-rework-2021',
+    type: 'official-patch-note',
+    label: 'October 19, 2021 professions / Masterwork rework',
+    note: 'Masterwork recipe books became direct purchases from the Stronghold Artisan and the old Stronghold Artisan storyline ceased to be the acquisition prerequisite.',
+    confidence: 'verified-current' as const,
+  },
+  {
+    id: 'progression-research-2026',
+    type: 'cross-source-research',
+    label: '2026 current-system progression research pass',
+    note: 'Modern profession, Workshop and Masterwork rules reconciled against official patch notes, current wiki data and live-era community evidence. Unresolved fields remain null rather than inferred.',
+    confidence: 'strong-current' as const,
   },
 ] as const
 
+export const professionMechanics = {
+  maxLevel: 20,
+  dailyMorale: 400,
+  moraleRefillAdPerPoint: 120,
+  trainingManualXpMultipliers: {
+    tinkers: 0.5,
+    makers: 1,
+    philosophers: 2,
+  },
+  doubleProfessionsEvent: {
+    xpMultiplier: 1,
+    moraleCostMultiplier: 0.5,
+    note: 'Modern 2x Professions halves Morale cost rather than doubling XP per successful task.',
+  },
+  highQualityChance: {
+    formula: 'clamp((focus - minimumFocus) / (focusGoal - minimumFocus), 0, 1)',
+    confidence: 'strong-current' as KnowledgeConfidence,
+  },
+  craftingTime: {
+    formula: 'baseInterval / (1 + speedModifier / 100)',
+    confidence: 'strong-current' as KnowledgeConfidence,
+  },
+  xpThresholds: null,
+  xpThresholdsIgnoredForImplementation: true,
+  xpThresholdNote: 'Exact post-2021 profession Level 1→20 XP thresholds remain unavailable from reliable public sources. Time-to-level calculations must remain disabled rather than reuse obsolete Forgotten Profession XP values.',
+} as const
+
 export const workshopProgressionKnowledge = {
-  confidence: 'historical-secondary' as KnowledgeConfidence,
-  currentVerificationRequired: true,
-  ranks: [
-    {
-      fromRank: 1,
-      toRank: 2,
-      requirements: [
-        {
-          type: 'profession-level',
-          minimumLevel: 15,
-          count: 1,
-          description: 'The supplied progression guide states that at least one profession must reach Level 15 to advance the early workshop questline.',
-        },
-      ],
-      source: 'User-shared workshop progression guide, Phase 2',
-    },
-    {
-      fromRank: 2,
-      toRank: 3,
-      requirements: [
-        {
-          type: 'south-sea-trading-company-credits',
-          amount: 500_000,
-          description: 'The supplied guide records 500,000 South Sea Trading Company Credits for the Rank 3 upgrade.',
-        },
-      ],
-      strategy: [
-        'Commission items rotate on a daily schedule.',
-        'The supplied guide highlights Beeswax as an efficient historical route and records Alchemy Level 44 for Beeswax.',
-      ],
-      source: 'User-shared workshop progression guide, Phase 3',
-    },
-    {
-      fromRank: 3,
-      toRank: 4,
-      requirements: [
-        {
-          type: 'profession-level',
-          minimumLevel: 20,
-          count: 1,
-          description: 'The supplied guide states that at least one profession must be Level 20 before the Grand Upgrade can advance.',
-        },
-        {
-          type: 'south-sea-trading-company-credits',
-          amountCandidates: [2_500_000, 5_000_000],
-          description: 'The guide records a historical reduction from 5,000,000 to 2,500,000 credits and warns that some quest text remained stale.',
-        },
-      ],
-      source: 'User-shared workshop progression guide, Phase 4',
-    },
+  confidence: 'strong-current' as KnowledgeConfidence,
+  currentVerificationRequired: false,
+  note: 'Workshop Rank 4 remains useful Workshop progression but is not a modern prerequisite for purchasing Masterwork recipe books.',
+  artisanCapacityByRank: {
+    1: 11,
+    2: 17,
+    3: 23,
+    4: 29,
+  },
+  questTriggers: [
+    { professionLevel: 5, quest: 'A Clean Start', outcome: 'Workshop Rank 2 progression' },
+    { professionLevel: 8, quest: 'Trading Company', outcome: 'Continue Workshop progression' },
+    { professionLevel: 10, quest: 'Lessons Learned', outcome: 'Continue Workshop progression' },
+    { professionLevel: 13, quest: 'A Box for Knox', outcome: 'Continue Workshop progression' },
+    { professionLevel: 15, quest: 'Facilities Upgrade', outcome: 'Workshop Rank 3 progression' },
   ],
+  rank4: {
+    quest: 'Grand Upgrade',
+    southSeaTradingCompanyCredits: 2_500_000,
+    note: 'The South Sea Trading Company credit requirement was reduced from the historical 5,000,000 value to 2,500,000.',
+  },
   masterworkGate: {
-    requiredWorkshopRank: 4,
-    description: 'The supplied historical guide treats Workshop Rank 4 as the prerequisite for entering Masterwork professions.',
-    currentVerificationRequired: true,
+    requiredWorkshopRank: null,
+    supersededHistoricalRule: 4,
+    description: 'Workshop Rank 4 was a historical Masterwork-access gate. The 2021 professions rework removed the old Stronghold Artisan storyline requirement and moved books to direct purchase.',
+    currentVerificationRequired: false,
   },
 } as const
 
@@ -149,9 +158,9 @@ export const masterworkUnlockPrices = Object.fromEntries(
       chultanMW2: 500_000,
       sharandarMW: 1_500_000,
       menzoberranzanMW: 1_500_000,
-      confidence: 'spreadsheet-supplemental' as const,
-      currentVerificationRequired: true,
-      source: 'Spreadsheet - Menzoberranzan MW, profession unlock-price table',
+      confidence: 'strong-current' as const,
+      currentVerificationRequired: false,
+      source: 'Current-system research plus supplied Menzoberranzan unlock-price data',
     },
   ]),
 ) as Record<string, {
@@ -160,10 +169,42 @@ export const masterworkUnlockPrices = Object.fromEntries(
   chultanMW2: number
   sharandarMW: number
   menzoberranzanMW: number
-  confidence: 'spreadsheet-supplemental'
+  confidence: 'strong-current'
   currentVerificationRequired: boolean
   source: string
 }>
+
+export const masterworkProgression = {
+  chultan: {
+    order: ['Chultan MW1', 'Chultan MW2'] as MasterworkCampaign[],
+    purchaseBinding: null,
+    purchaseBindingIgnoredForImplementation: true,
+    strongholdPurchaseGate: null,
+    strongholdPurchaseGateIgnoredForImplementation: true,
+    note: 'The exact modern Chultan Choice Pack binding and Stronghold structure/rank lock remain intentionally unspecified. They do not block the current implementation.',
+  },
+  sharandar: {
+    professionLevel: 20,
+    prerequisites: ['Chultan MW1', 'Chultan MW2'] as MasterworkCampaign[],
+    allChultanRecipesRequired: true,
+    vendor: 'Stryker Bronzepin',
+    location: 'New Sharandar',
+    pricePerProfession: 1_500_000,
+    bind: 'Character',
+    confidence: 'strong-current' as KnowledgeConfidence,
+  },
+  menzoberranzan: {
+    professionLevel: 20,
+    allProfessionsLevel20: true,
+    prerequisites: ['Chultan MW1', 'Chultan MW2', 'Sharandar MW'] as MasterworkCampaign[],
+    quest: 'Drow Mastery',
+    vendor: 'Drow Master Artisan',
+    location: 'Narbondellyn',
+    pricePerProfession: 1_500_000,
+    bind: 'Character',
+    confidence: 'strong-current' as KnowledgeConfidence,
+  },
+} as const
 
 const normalized = (value: string) => value
   .toLowerCase()
@@ -211,6 +252,25 @@ const expandDependencies = (name: string, seen = new Set<string>()): any[] => {
   })
 }
 
+export const getMasterworkAccessPath = (campaign?: string | null) => {
+  const era = String(campaign ?? '').toLowerCase()
+  if (era.includes('sharandar')) {
+    return {
+      target: 'Sharandar MW' as const,
+      steps: ['Obtain Chultan MW1', 'Obtain Chultan MW2', 'Reach profession Level 20', 'Purchase the profession Sharandar book from Stryker Bronzepin'],
+      unresolvedIgnoredFields: ['Current Chultan Choice Pack binding', 'Exact modern Stronghold purchase gate'],
+    }
+  }
+  if (era.includes('under') || era.includes('menzo')) {
+    return {
+      target: 'Menzoberranzan MW' as const,
+      steps: ['Reach Level 20 in all seven professions', 'Own all Chultan Masterwork recipes', 'Own all Sharandar Masterwork books', 'Complete Drow Mastery', 'Purchase the profession book from the Drow Master Artisan in Narbondellyn'],
+      unresolvedIgnoredFields: ['Current Chultan Choice Pack binding', 'Exact modern Stronghold purchase gate'],
+    }
+  }
+  return null
+}
+
 export const getCraftingRequirementProfile = (name: string) => {
   const key = normalized(name)
   const entity = itemByName.get(key) ?? materialByName.get(key) ?? null
@@ -228,26 +288,31 @@ export const getCraftingRequirementProfile = (name: string) => {
     profession,
     requiredProfessionLevel: professionLevel,
     masterworkUnlock: unlockFor(profession, campaign),
+    masterworkAccessPath: getMasterworkAccessPath(campaign),
     workshopProgression: workshopProgressionKnowledge,
+    professionMechanics,
     directRecipe: directNeeds(entity, recipe),
     dependencyTree: expandDependencies(name),
     provenance: entity?.provenance ?? {
       evidence: recipe?.evidence ?? [],
       sourceStatus: entity?.sourceStatus ?? recipe?.sourceStatus ?? null,
     },
-    readinessRule: 'A null requirement means unknown, never zero. Historical progression gates require current verification before being treated as a current hard block.',
+    readinessRule: 'Unknown requirements stay null. The three user-approved ignored gaps must never be converted to zero, false or a guessed requirement.',
   }
 }
 
 export const craftingKnowledgePool = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   sourcePriority: knowledgeSourcePriority,
   sources: knowledgeSources,
+  professionMechanics,
   workshopProgression: workshopProgressionKnowledge,
+  masterworkProgression,
   historicalCommissionIndex,
   masterworkUnlockPrices,
   catalog,
   getRequirementProfile: getCraftingRequirementProfile,
+  getMasterworkAccessPath,
 } as const
 
 export default craftingKnowledgePool
