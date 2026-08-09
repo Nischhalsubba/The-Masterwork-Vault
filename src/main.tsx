@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import { CompareWorkbench } from './components/CompareWorkbench'
 import { MobileV4Shell } from './components/MobileV4Shell'
 import { QualitySystem } from './components/QualitySystem'
 import { RouteSync } from './components/RouteSync'
@@ -20,6 +21,7 @@ import './mobile-popups-v5.css'
 import './workshop-journey.css'
 import './workshop-journey-prominence.css'
 import './icon-fallbacks.css'
+import './quality-fixes.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -28,5 +30,6 @@ createRoot(document.getElementById('root')!).render(
     <RouteSync />
     <QualitySystem />
     <WorkshopJourney />
+    <CompareWorkbench />
   </StrictMode>,
 )
