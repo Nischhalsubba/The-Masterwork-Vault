@@ -25,12 +25,24 @@ const normalize = (value: string) => value
   .replace(/\s+/g, ' ')
 
 const indexByName = new Map<string, number>(names.map((name, index) => [normalize(name), index]))
+const dataUri = `data:image/webp;base64,${c0}${c1}${c2}${c3}${c4}`
 
 export const sharandarSprite = {
-  dataUri: `data:image/webp;base64,${c0}${c1}${c2}${c3}${c4}`,
+  dataUri,
   tileSize: 40,
   columns: 8,
   count: names.length,
 } as const
 
 export const sharandarIconIndex = (name: string) => indexByName.get(normalize(name)) ?? null
+
+export const sharandarIconDataUri = (name: string) => {
+  const index = sharandarIconIndex(name)
+  if (index == null) return null
+  const col = index % sharandarSprite.columns
+  const row = Math.floor(index / sharandarSprite.columns)
+  const rows = Math.ceil(sharandarSprite.count / sharandarSprite.columns)
+  const tile = sharandarSprite.tileSize
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${tile}" height="${tile}" viewBox="0 0 ${tile} ${tile}"><image href="${dataUri}" width="${sharandarSprite.columns * tile}" height="${rows * tile}" x="${-col * tile}" y="${-row * tile}"/></svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
