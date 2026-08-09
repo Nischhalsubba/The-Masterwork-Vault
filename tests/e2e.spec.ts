@@ -23,7 +23,7 @@ test('catalog filters are reflected in the URL', async ({ page }) => {
   await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe('sword')
 })
 
-test('item selection creates a stable deep link and reloads', async ({ page }) => {
+test('item selection creates a stable deep link and reloads the full app', async ({ page }) => {
   await page.goto('/catalog')
   const item = page.locator('.catalog .items .item-main').first()
   await item.click()
@@ -31,6 +31,10 @@ test('item selection creates a stable deep link and reloads', async ({ page }) =
   const path = new URL(page.url()).pathname
   await page.reload()
   await expect(page).toHaveURL(new RegExp(path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  await expect(page.getByRole('main')).toBeVisible()
+  await expect(page.locator('#root')).not.toBeEmpty()
+  const moduleSrc = await page.locator('script[type="module"][src]').first().getAttribute('src')
+  expect(moduleSrc).toMatch(/^\/assets\//)
 })
 
 test('unknown paths canonicalize to catalog', async ({ page }) => {
