@@ -104,7 +104,10 @@
 /* Phone: make Start here part of the top-bar visual zone. The primary tab bar stays at four items. */
 @media (max-width: 680px) {
   .mobile-v4-brand {
-    padding-right: 112px !important;
+    width: calc(100% - 112px) !important;
+    max-width: calc(100% - 112px) !important;
+    padding-right: 0 !important;
+    justify-self: start;
   }
 
   .workshop-journey-launcher {
