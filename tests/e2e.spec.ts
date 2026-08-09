@@ -55,6 +55,20 @@ test('details drawer traps focus and closes with Escape', async ({ page }, testI
   await expect(details).toBeFocused()
 })
 
+test('Masterwork journey opens as a focused roadmap workspace', async ({ page }) => {
+  await page.goto('/catalog')
+  await page.locator('.workshop-journey-launcher').click()
+  const dialog = page.getByRole('dialog', { name: 'Masterwork journey' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.locator('.journey-roadmap-step')).toHaveCount(5)
+  await expect(dialog.locator('.journey-stage-card')).toBeVisible()
+  await dialog.locator('.journey-roadmap-step').filter({ hasText: 'Chultan I & II' }).click()
+  await expect(dialog.getByRole('heading', { name: 'Acquire Chultan Masterwork I, then II' })).toBeVisible()
+  await expect(dialog.getByText('Useful numbers without leaving the journey')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(dialog).not.toBeVisible()
+})
+
 test('reference exposes accessible tabs', async ({ page }) => {
   await page.goto('/reference')
   await expect(page.getByRole('tab', { name: 'Workshop' })).toHaveAttribute('aria-selected', 'true')
