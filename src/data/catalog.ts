@@ -9,6 +9,7 @@ import {
   recoveredMaterialSpecs,
 } from './extractedSupplement'
 import { sharandarItems, sharandarRecipes } from './sharandarSupplement'
+import { sharandarIconDataUri } from './sharandarSprite'
 
 const bytes = Uint8Array.from(atob(compressedCatalog.replace(/\s+/g, '')), (char) => char.charCodeAt(0))
 const stream = new Blob([bytes.buffer as ArrayBuffer]).stream().pipeThrough(new DecompressionStream('gzip'))
@@ -181,7 +182,7 @@ for (const recipe of sharandarRecipes) {
   }
   const next = {
     ...recipe,
-    sourceStatus: 'sharandar-screenshot',
+    sourceStatus: 'sharandar-final-zip',
     campaign: 'Sharandar',
     materials: recipe.materials.map((entry) => ({ ...entry })),
     evidence: [...recipe.evidence],
@@ -200,16 +201,17 @@ const ensureMaterial = (name: string) => {
   let material = materialByName.get(key)
   const recipe = sharandarRecipeByName.get(key)
   const isCraftableMaterial = Boolean(recipe && !finalSharandarNames.has(key))
+  const screenshotIcon = sharandarIconDataUri(name)
   if (!material) {
     material = {
       name,
-      icon: null,
+      icon: screenshotIcon,
       iconIndex: null,
       craftable: isCraftableMaterial,
       outputQuantity: isCraftableMaterial ? recipe?.outputQuantity ?? 1 : null,
       profession: isCraftableMaterial ? recipe?.profession ?? null : null,
       usedBy: [],
-      sourceStatus: 'sharandar-screenshot',
+      sourceStatus: 'sharandar-final-zip',
       campaign: 'Sharandar',
       campaigns: ['Sharandar'],
     }
@@ -217,11 +219,12 @@ const ensureMaterial = (name: string) => {
     materialByName.set(key, material)
   } else {
     appendCampaign(material, 'Sharandar')
+    if (!material.icon && screenshotIcon) material.icon = screenshotIcon
     if (isCraftableMaterial) {
       material.craftable = true
       material.outputQuantity = recipe?.outputQuantity ?? material.outputQuantity ?? 1
       material.profession = recipe?.profession ?? material.profession ?? null
-      if (material.sourceStatus === 'spreadsheet-supplemental') material.sourceStatus = 'sharandar-screenshot'
+      if (material.sourceStatus === 'spreadsheet-supplemental') material.sourceStatus = 'sharandar-final-zip'
     }
   }
   return material
@@ -245,8 +248,10 @@ const itemScore = (item: any) =>
 
 const sharandarByName = new Map<string, any>()
 for (const raw of sharandarItems) {
+  const itemName = String(raw.name ?? '')
+  const recipeKnown = raw.recipeKnown !== false
   const item: any = {
-    icon: null,
+    icon: sharandarIconDataUri(itemName),
     iconIndex: null,
     bind: null,
     levelRequirement: null,
@@ -257,6 +262,7 @@ for (const raw of sharandarItems) {
     recommended: null,
     reinforced: null,
     ...raw,
+    sourceStatus: recipeKnown ? 'sharandar-final-zip' : raw.sourceStatus,
     campaign: 'Sharandar',
     categories: Array.from(new Set([...(Array.isArray(raw.categories) ? raw.categories : []), 'Sharandar'])),
     classes: Array.isArray(raw.classes) ? [...raw.classes] : [],
@@ -264,6 +270,7 @@ for (const raw of sharandarItems) {
     materials: Array.isArray(raw.materials) ? raw.materials.map((entry: any) => ({ ...entry })) : [],
     provenance: raw.provenance ?? { evidence: [] },
   }
+  if (!item.icon) item.icon = sharandarIconDataUri(itemName)
   const key = norm(item.name)
   const previous = sharandarByName.get(key)
   if (!previous || itemScore(item) > itemScore(previous)) sharandarByName.set(key, item)
@@ -312,7 +319,7 @@ catalog.meta = {
 }
 
 const materialIconCount = (catalog.materials ?? []).filter((material: any) => Boolean(material.icon) || material.iconIndex != null).length
-console.info(`Displayable Underdark icon audit: ${itemIconCount} craftables and ${materialIconCount} materials before Sharandar sprite fallback`)
+console.info(`Displayable icon audit: ${itemIconCount} original craftables; ${materialIconCount}/${catalog.materials?.length ?? 0} merged materials have direct or atlas art`)
 console.info(`Masterwork campaign audit: ${catalog.items.filter((item: any) => item.campaign === 'Sharandar').length} Sharandar craftables, ${catalog.items.filter((item: any) => item.campaign === 'Underdark').length} Underdark craftables`)
 
 export default catalog
