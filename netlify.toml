@@ -5,17 +5,17 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# Same-origin proxy for the handful of legacy profession icons that are not
-# bundled in the verified atlases. The app references /media/neverwinter/* so
-# browser referrer/hotlink behaviour cannot turn these rows into blank tiles.
 [[redirects]]
   from = "/media/neverwinter/*"
   to = "https://neverwinter.fandom.com/wiki/Special:Redirect/file/:splat"
   status = 200
   force = true
 
-# The UI is a client-side application. Keep meaningful URLs such as /plan and
-# /materials shareable and reload-safe by serving the same Vite entry point.
+[[redirects]]
+  from = "/social-preview.png"
+  to = "/.netlify/images?url=/social-preview.svg&w=1200&h=630&fit=cover&fm=png"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -26,3 +26,31 @@
   [headers.values]
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/social-preview.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=3600"

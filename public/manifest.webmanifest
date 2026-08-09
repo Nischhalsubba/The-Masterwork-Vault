@@ -2,17 +2,31 @@
   "name": "The Masterwork Vault",
   "short_name": "Masterwork Vault",
   "description": "Neverwinter Underdark and Sharandar Masterwork crafting reference, planner, materials explorer, workshop guide, and recipe evidence vault.",
-  "start_url": "/",
+  "start_url": "/catalog",
   "scope": "/",
+  "id": "/catalog",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#F2F2F7",
   "theme_color": "#F2F2F7",
+  "categories": ["games", "utilities", "productivity"],
   "icons": [
     {
       "src": "/assets/brand/masterwork-vault-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/.netlify/images?url=/assets/brand/masterwork-vault-mark.svg&w=192&h=192&fit=contain&fm=png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/.netlify/images?url=/assets/brand/masterwork-vault-mark.svg&w=512&h=512&fit=contain&fm=png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

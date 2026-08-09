@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">The Masterwork Vault social preview</title>
+  <desc id="desc">A realistic preview of the Masterwork Vault crafting catalog with Sharandar recipes and a crafting detail panel.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#eef3f8"/>
+      <stop offset="1" stop-color="#dbe7f2"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#132238"/>
+      <stop offset="1" stop-color="#243c5e"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#0b1726" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="164" fill="url(#hero)"/>
+  <circle cx="1115" cy="58" r="136" fill="#4a8cc9" opacity=".16"/>
+  <circle cx="1045" cy="10" r="72" fill="#9fc7ec" opacity=".12"/>
+
+  <g transform="translate(62 39)">
+    <rect x="0" y="0" width="54" height="54" rx="14" fill="#e9f4ff"/>
+    <path d="M27 9 40 17v20L27 45 14 37V17Z" fill="#174d7a"/>
+    <path d="m27 14 8 5v16l-8 5-8-5V19Z" fill="#8ec6f2"/>
+    <text x="72" y="23" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" font-size="24" font-weight="760" fill="#fff">The Masterwork Vault</text>
+    <text x="72" y="47" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="#bed0e3" letter-spacing="1.4">NEVERWINTER MASTERWORK GUIDE</text>
+  </g>
+
+  <text x="62" y="128" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" font-size="34" font-weight="760" fill="#fff">Recipes, materials, and crafting plans in one place.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="62" y="188" width="1076" height="382" rx="24" fill="#f8fafc" stroke="#c7d4df"/>
+    <rect x="62" y="188" width="1076" height="58" rx="24" fill="#ffffff"/>
+    <rect x="62" y="226" width="1076" height="20" fill="#ffffff"/>
+    <circle cx="91" cy="217" r="8" fill="#d2d9e0"/>
+    <rect x="116" y="207" width="170" height="20" rx="7" fill="#17283e"/>
+    <rect x="836" y="202" width="76" height="30" rx="9" fill="#eaf1f7"/>
+    <rect x="920" y="202" width="76" height="30" rx="9" fill="#eaf1f7"/>
+    <rect x="1004" y="202" width="94" height="30" rx="9" fill="#17283e"/>
+
+    <rect x="62" y="246" width="176" height="324" fill="#f2f5f8"/>
+    <text x="84" y="278" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#708090" letter-spacing="1.2">CLASSES</text>
+    <rect x="82" y="292" width="134" height="34" rx="10" fill="#17283e"/>
+    <text x="96" y="314" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#fff">All craftables</text>
+    <g font-family="Arial,sans-serif" font-size="13" fill="#5b6875">
+      <text x="96" y="356">Barbarian</text><text x="96" y="393">Fighter</text><text x="96" y="430">Ranger</text><text x="96" y="467">Rogue</text><text x="96" y="504">Wizard</text>
+    </g>
+
+    <rect x="258" y="264" width="314" height="45" rx="13" fill="#fff" stroke="#d7e0e8"/>
+    <circle cx="281" cy="286" r="7" fill="none" stroke="#728091" stroke-width="2"/>
+    <line x1="286" y1="291" x2="292" y2="297" stroke="#728091" stroke-width="2"/>
+    <text x="306" y="291" font-family="Arial,sans-serif" font-size="13" fill="#8793a0">Search item, material, profession…</text>
+
+    <rect x="258" y="326" width="314" height="70" rx="14" fill="#edf5fc" stroke="#7db4e0"/>
+    <rect x="274" y="341" width="40" height="40" rx="9" fill="#244764"/>
+    <path d="M282 375 302 347l4 4-17 29Z" fill="#d7ecff"/>
+    <text x="328" y="351" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#6e7e8d">WEAPON</text>
+    <text x="328" y="371" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#1d2935">Masterwork Longsword</text>
+    <text x="328" y="388" font-family="Arial,sans-serif" font-size="11" fill="#73808d">Fighter · Sharandar</text>
+
+    <rect x="258" y="404" width="314" height="70" rx="14" fill="#fff" stroke="#d7e0e8"/>
+    <rect x="274" y="419" width="40" height="40" rx="9" fill="#3b5062"/>
+    <text x="328" y="429" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#6e7e8d">ARMOR</text>
+    <text x="328" y="449" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#1d2935">Masterwork Cuirass</text>
+    <text x="328" y="466" font-family="Arial,sans-serif" font-size="11" fill="#73808d">Barbarian · Sharandar</text>
+
+    <rect x="590" y="264" width="524" height="282" rx="18" fill="#fff" stroke="#d7e0e8"/>
+    <rect x="612" y="286" width="62" height="62" rx="13" fill="#244764"/>
+    <path d="M624 337 655 297l7 7-28 39Z" fill="#d7ecff"/>
+    <rect x="691" y="288" width="84" height="20" rx="10" fill="#e8f3fb"/>
+    <text x="706" y="302" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#2d6a98">SHARANDAR</text>
+    <text x="691" y="333" font-family="Arial,sans-serif" font-size="24" font-weight="760" fill="#182532">Masterwork Longsword</text>
+    <text x="691" y="355" font-family="Arial,sans-serif" font-size="12" fill="#71808f">Fighter · Weapon · screenshot-backed recipe</text>
+    <rect x="978" y="288" width="113" height="38" rx="11" fill="#0875d1"/>
+    <text x="1000" y="312" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#fff">Add to plan</text>
+
+    <text x="614" y="400" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#71808f" letter-spacing="1">DIRECT RECIPE</text>
+    <g>
+      <rect x="612" y="414" width="478" height="52" rx="11" fill="#f6f8fa"/>
+      <circle cx="638" cy="440" r="15" fill="#c58a42"/>
+      <text x="664" y="437" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#24313d">Tempered Mithral</text>
+      <text x="664" y="453" font-family="Arial,sans-serif" font-size="10" fill="#758391">Blacksmithing · craftable</text>
+      <text x="1055" y="445" text-anchor="end" font-family="Arial,sans-serif" font-size="15" font-weight="760" fill="#17283e">×3</text>
+    </g>
+    <g>
+      <rect x="612" y="474" width="478" height="52" rx="11" fill="#f6f8fa"/>
+      <circle cx="638" cy="500" r="15" fill="#557a9c"/>
+      <text x="664" y="497" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#24313d">Masterwork Resin</text>
+      <text x="664" y="513" font-family="Arial,sans-serif" font-size="10" fill="#758391">Raw / acquired material</text>
+      <text x="1055" y="505" text-anchor="end" font-family="Arial,sans-serif" font-size="15" font-weight="760" fill="#17283e">×2</text>
+    </g>
+  </g>
+
+  <rect x="790" y="584" width="348" height="30" rx="15" fill="#ffffff" opacity=".82"/>
+  <text x="964" y="604" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#30465a">Sharandar + Underdark · optimized crafting planner</text>
+</svg>
