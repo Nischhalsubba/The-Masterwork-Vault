@@ -1,0 +1,523 @@
+/*
+ * Mobile popup system V5
+ * One modal surface per task. Phone uses a full-screen detail sheet; tablet uses a right inspector.
+ * This file must remain last in the stylesheet order.
+ */
+
+@media (max-width: 1180px) {
+  body.mobile-v5-sheet-open {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+
+  body.mobile-v5-sheet-open .catalog .detail {
+    overscroll-behavior: none !important;
+  }
+
+  .stats-drawer-layer {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 5000 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    isolation: isolate;
+    contain: layout paint;
+  }
+
+  .stats-drawer-layer.open {
+    pointer-events: auto !important;
+  }
+
+  .stats-drawer-scrim {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: rgba(17, 24, 39, .54) !important;
+    opacity: 0 !important;
+    transition: opacity 180ms cubic-bezier(.2, 0, 0, 1) !important;
+  }
+
+  .stats-drawer-layer.open .stats-drawer-scrim {
+    opacity: 1 !important;
+  }
+
+  .stats-drawer {
+    position: absolute !important;
+    z-index: 1 !important;
+    margin: 0 !important;
+    background: #f7f7f9 !important;
+    color: #1d1d1f !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .stats-drawer::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stats-drawer-head,
+  .stats-drawer-section,
+  .stats-drawer-evidence,
+  .stats-drawer-grid,
+  .stats-drawer-grid > div,
+  .stats-drawer-evidence .evidence-card,
+  .stats-drawer-evidence .evidence-body,
+  .stats-drawer-evidence .evidence-grid,
+  .stats-drawer-evidence .evidence-grid > div,
+  .stats-drawer-evidence .evidence-inputs,
+  .stats-drawer-evidence .evidence-conflict {
+    position: static !important;
+    inset: auto !important;
+    float: none !important;
+    transform: none !important;
+  }
+
+  .stats-drawer-head {
+    z-index: 3 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 44px !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(60, 60, 67, .16) !important;
+    background: rgba(255, 255, 255, .96) !important;
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+  }
+
+  .stats-drawer-head > div {
+    min-width: 0 !important;
+  }
+
+  .stats-drawer-head small,
+  .stats-drawer-section-head small {
+    display: block !important;
+    margin: 0 0 4px !important;
+    color: #6e6e73 !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    letter-spacing: .06em !important;
+    text-transform: uppercase !important;
+  }
+
+  .stats-drawer-head h3 {
+    margin: 0 !important;
+    color: #1d1d1f !important;
+    font-size: 22px !important;
+    line-height: 1.16 !important;
+    letter-spacing: -.025em !important;
+  }
+
+  .stats-drawer-head p {
+    margin: 4px 0 0 !important;
+    color: #6e6e73 !important;
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+  }
+
+  .stats-drawer-close {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: grid !important;
+    place-items: center !important;
+    align-self: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: rgba(118, 118, 128, .12) !important;
+    color: #54565a !important;
+    box-shadow: none !important;
+  }
+
+  .stats-drawer-close:active {
+    background: rgba(118, 118, 128, .20) !important;
+  }
+
+  .stats-drawer-section {
+    display: block !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .stats-drawer-section-head {
+    margin: 0 0 12px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .stats-drawer-section-head h4 {
+    margin: 0 !important;
+    color: #1d1d1f !important;
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+    letter-spacing: -.015em !important;
+  }
+
+  .stats-drawer-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .stats-drawer-grid > div {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 4px !important;
+    padding: 12px !important;
+    border: 1px solid rgba(60, 60, 67, .14) !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+  }
+
+  .stats-drawer-grid span {
+    color: #6e6e73 !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+  }
+
+  .stats-drawer-grid strong {
+    min-width: 0 !important;
+    color: #1d1d1f !important;
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .stats-drawer-empty {
+    margin: 0 !important;
+    padding: 14px !important;
+    border: 1px solid rgba(60, 60, 67, .14) !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    color: #6e6e73 !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+  .stats-drawer-note {
+    margin: 10px 2px 0 !important;
+    color: #6e6e73 !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .stats-drawer-evidence {
+    display: block !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .stats-drawer-evidence .evidence-card {
+    margin: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(60, 60, 67, .14) !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  .stats-drawer-evidence .evidence-card summary {
+    min-height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    padding: 0 14px !important;
+    border: 0 !important;
+    background: #ffffff !important;
+    color: #1d1d1f !important;
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+    font-weight: 700 !important;
+  }
+
+  .stats-drawer-evidence .evidence-body {
+    display: grid !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 14px 14px !important;
+    border-top: 1px solid rgba(60, 60, 67, .12) !important;
+    background: #ffffff !important;
+    color: #1d1d1f !important;
+  }
+
+  /* Evidence reads like a grouped native list, not a stack of cards inside a card. */
+  .stats-drawer-evidence .evidence-grid {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .stats-drawer-evidence .evidence-grid > div {
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: minmax(110px, .42fr) minmax(0, .58fr) !important;
+    align-items: start !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    padding: 12px 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(60, 60, 67, .12) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  .stats-drawer-evidence .evidence-grid span {
+    color: #6e6e73 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+  }
+
+  .stats-drawer-evidence .evidence-grid strong {
+    min-width: 0 !important;
+    color: #1d1d1f !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    font-weight: 650 !important;
+    overflow-wrap: anywhere !important;
+    text-align: right !important;
+  }
+
+  .stats-drawer-evidence .evidence-inputs,
+  .stats-drawer-evidence .evidence-conflict {
+    display: grid !important;
+    gap: 8px !important;
+    margin: 12px 0 0 !important;
+    padding: 12px !important;
+    border: 1px solid rgba(60, 60, 67, .14) !important;
+    border-radius: 12px !important;
+    background: #f8f8fa !important;
+  }
+
+  .stats-drawer-evidence .evidence-inputs > span {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    color: #6e6e73 !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+
+  .stats-drawer-evidence .evidence-inputs b,
+  .stats-drawer-evidence .evidence-inputs em {
+    color: #1d1d1f !important;
+  }
+
+  .stats-drawer-evidence .evidence-body ul {
+    margin: 12px 0 0 !important;
+    padding-left: 20px !important;
+    color: #5f6368 !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+
+/* Phone: details are a new screen, not a floating card. */
+@media (max-width: 680px) {
+  .stats-drawer-layer {
+    background: transparent !important;
+  }
+
+  .stats-drawer-scrim {
+    display: none !important;
+  }
+
+  .stats-drawer {
+    inset: 0 !important;
+    width: 100vw !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding: 0 0 max(24px, env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 0 !important;
+    transform: translate3d(0, 100%, 0) !important;
+    transition: transform 220ms cubic-bezier(.2, 0, 0, 1) !important;
+  }
+
+  .stats-drawer-layer.open .stats-drawer {
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .stats-drawer-head {
+    position: sticky !important;
+    top: 0 !important;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px !important;
+    min-height: calc(66px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  .stats-drawer-head small {
+    display: none !important;
+  }
+
+  .stats-drawer-head h3 {
+    max-width: 74vw !important;
+    overflow: hidden !important;
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .stats-drawer-head p {
+    max-width: 74vw !important;
+    overflow: hidden !important;
+    font-size: 12px !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .stats-drawer-section,
+  .stats-drawer-evidence {
+    margin: 12px !important;
+    padding: 16px !important;
+    border: 1px solid rgba(60, 60, 67, .14) !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+  }
+
+  .stats-drawer-evidence {
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .stats-drawer-evidence .evidence-card {
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .stats-drawer-section + .stats-drawer-evidence {
+    margin-top: 0 !important;
+  }
+
+  .stats-drawer-evidence .evidence-grid > div {
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+  }
+
+  .stats-drawer-evidence .evidence-grid strong {
+    text-align: left !important;
+  }
+
+  .stats-drawer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .mobile-v4-topbar,
+  .mobile-v4-tabbar {
+    transition: opacity 140ms ease !important;
+  }
+
+  body.mobile-v5-sheet-open .mobile-v4-topbar,
+  body.mobile-v5-sheet-open .mobile-v4-tabbar {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body.mobile-v5-sheet-open .catalog .detail {
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .stats-drawer-section,
+  .stats-drawer-evidence {
+    margin-inline: 10px !important;
+  }
+
+  .stats-drawer-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Tablet: one right-side inspector above the sidebar/content, never a nested desktop card. */
+@media (min-width: 681px) and (max-width: 1180px) {
+  .stats-drawer {
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    width: min(560px, 78vw) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding: 0 0 max(24px, env(safe-area-inset-bottom, 0px)) !important;
+    border-left: 1px solid rgba(60, 60, 67, .18) !important;
+    border-radius: 0 !important;
+    transform: translate3d(100%, 0, 0) !important;
+    transition: transform 220ms cubic-bezier(.2, 0, 0, 1) !important;
+  }
+
+  .stats-drawer-layer.open .stats-drawer {
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .stats-drawer-head {
+    position: sticky !important;
+    top: 0 !important;
+    padding: max(18px, env(safe-area-inset-top, 0px)) 18px 14px !important;
+  }
+
+  .stats-drawer-section,
+  .stats-drawer-evidence {
+    margin: 16px 18px !important;
+    padding: 16px !important;
+    border: 1px solid rgba(60, 60, 67, .14) !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+  }
+
+  .stats-drawer-evidence {
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .stats-drawer-evidence .evidence-card {
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
+@media (max-width: 1180px) and (prefers-reduced-motion: reduce) {
+  .stats-drawer,
+  .stats-drawer-scrim,
+  .mobile-v4-topbar,
+  .mobile-v4-tabbar {
+    transition-duration: .01ms !important;
+    animation: none !important;
+  }
+}
