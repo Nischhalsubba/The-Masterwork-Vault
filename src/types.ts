@@ -1,4 +1,4 @@
-export type SourceStatus = 'final-zip' | 'latest-user-screenshot' | 'spreadsheet-supplemental' | string
+export type SourceStatus = 'final-zip' | 'latest-user-screenshot' | 'spreadsheet-supplemental' | 'sharandar-screenshot' | 'sharandar-screenshot-tooltip' | 'sharandar-screenshot-name-only' | string
 
 export interface MaterialNeed {
   name: string
@@ -35,6 +35,8 @@ export interface ItemEntry {
   reinforced?: string | null
   materials: MaterialNeed[]
   sourceStatus: SourceStatus
+  campaign?: string | null
+  recipeKnown?: boolean
   provenance: {
     gameData?: string | null
     recipe?: string | null
@@ -50,6 +52,7 @@ export interface RecipeEntry {
   profession?: string | null
   materials: MaterialNeed[]
   sourceStatus: SourceStatus
+  campaign?: string | null
   evidence: string[]
 }
 
@@ -62,6 +65,8 @@ export interface MaterialEntry {
   profession?: string | null
   usedBy: string[]
   sourceStatus: SourceStatus
+  campaign?: string | null
+  campaigns?: string[]
 }
 
 export interface CatalogData {
@@ -73,6 +78,7 @@ export interface CatalogData {
     clericCorrections: Record<string, string>
     soulBeadResolution: string
     sprite: { path: string; tileSize: number; columns: number; count: number }
+    campaigns?: string[]
   }
   classes: string[]
   items: ItemEntry[]
