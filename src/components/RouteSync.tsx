@@ -31,7 +31,6 @@ function routeFromLocation(): { detail: RouteDetail; canonicalPath: string; vali
   if (first !== 'catalog') return { detail: { view: first }, canonicalPath: `/${first}`, valid: parts.length === 1 }
   if (parts.length === 1) return { detail: { view: 'catalog' }, canonicalPath: '/catalog', valid: true }
 
-  // Stable route: /catalog/<campaign>/<item-id>/<human-readable-slug>
   if (parts.length >= 3 && (parts[1] === 'sharandar' || parts[1] === 'underdark')) {
     const itemId = decodeURIComponent(parts[2])
     const item = catalog.items.find((entry) => entry.id === itemId)
@@ -41,7 +40,6 @@ function routeFromLocation(): { detail: RouteDetail; canonicalPath: string; vali
     return { detail: { view: 'catalog', itemId: item.id, campaign }, canonicalPath, valid: true }
   }
 
-  // Backward-compatible legacy route: /catalog/<item-name-slug>
   const legacy = itemByLegacySlug(decodeURIComponent(parts.slice(1).join('/')))
   if (legacy) {
     const campaign = legacy.campaign === 'Underdark' ? 'Underdark' : 'Sharandar'
@@ -91,17 +89,13 @@ function pathForItem(itemId: string) {
 
 export function RouteSync() {
   useEffect(() => {
-    const sync = (replaceInvalid = false) => {
+    const sync = () => {
       const route = routeFromLocation()
-      if (!route.valid || window.location.pathname !== route.canonicalPath) {
-        setUrl(route.canonicalPath, route.detail.view, true)
-      } else if (replaceInvalid && window.location.pathname === '/') {
-        setUrl('/catalog', 'catalog', true)
-      }
+      if (!route.valid || window.location.pathname !== route.canonicalPath) setUrl(route.canonicalPath, route.detail.view, true)
       dispatchRoute(route.detail)
     }
 
-    requestAnimationFrame(() => sync(true))
+    requestAnimationFrame(sync)
 
     const onClick = (event: MouseEvent) => {
       const target = event.target instanceof Element ? event.target : null
@@ -123,16 +117,24 @@ export function RouteSync() {
       }
 
       const itemButton = target.closest<HTMLButtonElement>('.catalog .items .item-main[data-item-id]')
-      if (itemButton?.dataset.itemId) {
-        setUrl(pathForItem(itemButton.dataset.itemId), 'catalog')
-      }
+      if (itemButton?.dataset.itemId) setUrl(pathForItem(itemButton.dataset.itemId), 'catalog')
+    }
+
+    const onRequestRoute = (event: Event) => {
+      const detail = (event as CustomEvent<RouteDetail>).detail
+      if (!detail || !VIEWS.includes(detail.view)) return
+      const path = detail.itemId ? pathForItem(detail.itemId) : `/${detail.view}`
+      setUrl(path, detail.view)
+      dispatchRoute(detail)
     }
 
     const onPopState = () => sync()
     document.addEventListener('click', onClick)
+    document.addEventListener('masterwork:request-route', onRequestRoute)
     window.addEventListener('popstate', onPopState)
     return () => {
       document.removeEventListener('click', onClick)
+      document.removeEventListener('masterwork:request-route', onRequestRoute)
       window.removeEventListener('popstate', onPopState)
     }
   }, [])
