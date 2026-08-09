@@ -83,6 +83,20 @@ test('unknown-recipe craftables are not presented as ready', async ({ page }) =>
   }
 })
 
+test('potion raw material artwork loads instead of the generic fallback', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'phone', 'One external-image regression check is enough')
+  await page.goto('/catalog?campaign=Sharandar&q=Crafted%20Potion%20of%20Defense%20Rank%2013')
+  const result = page.locator('.catalog .items .item-main').filter({ hasText: 'Crafted Potion of Defense Rank 13' }).first()
+  await expect(result).toBeVisible()
+  await result.click()
+  const row = page.locator('.recipe-row').filter({ hasText: 'Aberrant Bone' }).first()
+  await expect(row).toBeVisible()
+  await expect(row.locator('.sprite.fallback')).toHaveCount(0)
+  const image = row.locator('img.thumb')
+  await expect(image).toBeVisible()
+  await expect.poll(async () => image.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0), { timeout: 15000 }).toBe(true)
+})
+
 test('mobile catalog can open and back out of item detail', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'phone', 'Phone-only navigation flow')
   await page.goto('/catalog')
