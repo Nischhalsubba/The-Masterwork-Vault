@@ -1,4 +1,4 @@
-const CACHE = 'masterwork-vault-shell-v2'
+const CACHE = 'masterwork-vault-shell-v3'
 const SHELL = ['/catalog', '/manifest.webmanifest', '/assets/brand/masterwork-vault-mark.svg', '/social-preview.svg']
 
 self.addEventListener('install', (event) => {
