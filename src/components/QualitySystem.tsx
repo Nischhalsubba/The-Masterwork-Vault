@@ -44,6 +44,9 @@ function currentSeo() {
   } else if (view === 'reference') {
     title = 'Workshop Reference | The Masterwork Vault'
     description = 'Neverwinter Workshop progression, artisan mechanics, South Seas commissions, collection notes, and source caveats.'
+  } else if (view === 'journey') {
+    title = 'Masterwork Journey | The Masterwork Vault'
+    description = 'Follow the current Neverwinter Masterwork progression from Workshop basics through Chultan, Sharandar, and Menzoberranzan with milestone tracking and planning tools.'
   } else if (view === 'catalog' && parts.length >= 3) {
     const id = decodeURIComponent(parts[2] || '')
     const item = catalog.items.find((entry) => entry.id === id)
