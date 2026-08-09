@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import { ContentVoice } from './components/ContentVoice'
 import { MobileV4Shell } from './components/MobileV4Shell'
 import { MotionSystem } from './components/MotionSystem'
 import { WorkshopJourney } from './components/WorkshopJourney'
@@ -25,5 +26,6 @@ createRoot(document.getElementById('root')!).render(
     <MobileV4Shell />
     <MotionSystem />
     <WorkshopJourney />
+    <ContentVoice />
   </StrictMode>,
 )
