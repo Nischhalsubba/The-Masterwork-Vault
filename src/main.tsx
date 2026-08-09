@@ -4,6 +4,7 @@ import App from './App'
 import { ContentVoice } from './components/ContentVoice'
 import { MobileV4Shell } from './components/MobileV4Shell'
 import { MotionSystem } from './components/MotionSystem'
+import { RouteSync } from './components/RouteSync'
 import { WorkshopJourney } from './components/WorkshopJourney'
 import './styles.css'
 import './drilldown.css'
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
     <MobileV4Shell />
+    <RouteSync />
     <MotionSystem />
     <WorkshopJourney />
     <ContentVoice />
