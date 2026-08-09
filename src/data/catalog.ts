@@ -182,7 +182,7 @@ for (const recipe of sharandarRecipes) {
   }
   const next = {
     ...recipe,
-    sourceStatus: 'sharandar-final-zip',
+    sourceStatus: 'sharandar-screenshot-final-zip',
     campaign: 'Sharandar',
     materials: recipe.materials.map((entry) => ({ ...entry })),
     evidence: [...recipe.evidence],
@@ -211,7 +211,7 @@ const ensureMaterial = (name: string) => {
       outputQuantity: isCraftableMaterial ? recipe?.outputQuantity ?? 1 : null,
       profession: isCraftableMaterial ? recipe?.profession ?? null : null,
       usedBy: [],
-      sourceStatus: 'sharandar-final-zip',
+      sourceStatus: 'sharandar-screenshot-final-zip',
       campaign: 'Sharandar',
       campaigns: ['Sharandar'],
     }
@@ -224,7 +224,7 @@ const ensureMaterial = (name: string) => {
       material.craftable = true
       material.outputQuantity = recipe?.outputQuantity ?? material.outputQuantity ?? 1
       material.profession = recipe?.profession ?? material.profession ?? null
-      if (material.sourceStatus === 'spreadsheet-supplemental') material.sourceStatus = 'sharandar-final-zip'
+      if (material.sourceStatus === 'spreadsheet-supplemental') material.sourceStatus = 'sharandar-screenshot-final-zip'
     }
   }
   return material
@@ -262,7 +262,7 @@ for (const raw of sharandarItems) {
     recommended: null,
     reinforced: null,
     ...raw,
-    sourceStatus: recipeKnown ? 'sharandar-final-zip' : raw.sourceStatus,
+    sourceStatus: recipeKnown ? 'sharandar-screenshot-final-zip' : raw.sourceStatus,
     campaign: 'Sharandar',
     categories: Array.from(new Set([...(Array.isArray(raw.categories) ? raw.categories : []), 'Sharandar'])),
     classes: Array.isArray(raw.classes) ? [...raw.classes] : [],
