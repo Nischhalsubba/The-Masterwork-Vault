@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import { AdaptiveNativeShell } from './components/AdaptiveNativeShell'
 import { MobileNativeBridge } from './components/MobileNativeBridge'
 import { MotionSystem } from './components/MotionSystem'
 import './styles.css'
@@ -15,10 +16,12 @@ import './mobile-native.css'
 import './mobile-browser-fixes.css'
 import './native-app-polish.css'
 import './native-overlay-fixes.css'
+import './adaptive-native-v2.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
+    <AdaptiveNativeShell />
     <MobileNativeBridge />
     <MotionSystem />
   </StrictMode>,
