@@ -83,6 +83,30 @@ test('unknown-recipe craftables are not presented as ready', async ({ page }) =>
   }
 })
 
+test('all potion-only raw material icons use bundled screenshot artwork', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'phone', 'Desktop coverage verifies the shared icon renderer')
+  const cases = [
+    ['Crafted Potion of Accuracy Rank 13', 'Sugar Beet'],
+    ['Crafted Potion of Critical Strike Rank 13', 'Aberrant Blood'],
+    ['Crafted Potion of Defense Rank 13', 'Aberrant Bone'],
+    ['Crafted Potion of Deflect Rank 13', 'Chamomile'],
+    ['Crafted Potion of Power Rank 13', 'Beast Horn'],
+  ] as const
+
+  for (const [potion, material] of cases) {
+    await page.goto(`/catalog?campaign=Sharandar&q=${encodeURIComponent(potion)}`)
+    const result = page.locator('.catalog .items .item-main').filter({ hasText: potion }).first()
+    await expect(result).toBeVisible()
+    await result.click()
+    const row = page.locator('.recipe-row').filter({ hasText: material }).first()
+    await expect(row).toBeVisible()
+    await expect(row.locator('.sprite.fallback')).toHaveCount(0)
+    const image = row.locator('img.thumb')
+    await expect(image).toBeVisible()
+    await expect.poll(async () => image.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0)).toBe(true)
+  }
+})
+
 test('mobile catalog can open and back out of item detail', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'phone', 'Phone-only navigation flow')
   await page.goto('/catalog')
