@@ -3,6 +3,10 @@ import c1 from './sharandarSpriteChunk1'
 import c2 from './sharandarSpriteChunk2'
 import c3 from './sharandarSpriteChunk3'
 import c4 from './sharandarSpriteChunk4'
+import {
+  verifiedSharandarWeaponIconDataUri,
+  verifiedSharandarWeaponIconIndex,
+} from './sharandarVerifiedWeaponIcons'
 
 const names = [
   'Silver Vines', 'Silvertongue Moss', "Shard of Dawn's Light", 'Feywood Lumber', 'Feywood Log', 'Soulfire Flies', 'Hardened Feywood', "Ears 'n Tears",
@@ -34,9 +38,19 @@ export const sharandarSprite = {
   count: names.length,
 } as const
 
-export const sharandarIconIndex = (name: string) => indexByName.get(normalize(name)) ?? null
+// The original contact-sheet extraction mislabeled several final weapon icons with ingredient
+// crops. Verified weapon art is now resolved from its own screenshot-backed atlas. Returning null
+// here for those names also prevents a failed direct image from silently falling back to the old,
+// incorrect tile.
+export const sharandarIconIndex = (name: string) => {
+  if (verifiedSharandarWeaponIconIndex(name) != null) return null
+  return indexByName.get(normalize(name)) ?? null
+}
 
 export const sharandarIconDataUri = (name: string) => {
+  const verifiedWeapon = verifiedSharandarWeaponIconDataUri(name)
+  if (verifiedWeapon) return verifiedWeapon
+
   const index = sharandarIconIndex(name)
   if (index == null) return null
   const col = index % sharandarSprite.columns
