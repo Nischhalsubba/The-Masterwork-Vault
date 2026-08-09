@@ -1,5 +1,5 @@
 const gatheringIcon = (fileName: string) =>
-  `/media/neverwinter/${encodeURIComponent(fileName)}`
+  `https://neverwinter.fandom.com/wiki/Special:Redirect/file/${encodeURIComponent(fileName)}`
 
 const gatheringMaterialIconOverrides: Record<string, string> = {
   'sugar-beet': gatheringIcon('Crafting_Resource_Sugarbeat.png'),
