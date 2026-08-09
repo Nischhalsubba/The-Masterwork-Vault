@@ -1,0 +1,19 @@
+{
+  "name": "The Masterwork Vault",
+  "short_name": "Masterwork Vault",
+  "description": "Neverwinter Menzoberranzan Masterwork crafting reference, planner, materials explorer, and recipe guide.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F2F2F7",
+  "theme_color": "#F2F2F7",
+  "icons": [
+    {
+      "src": "/assets/brand/masterwork-vault-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
