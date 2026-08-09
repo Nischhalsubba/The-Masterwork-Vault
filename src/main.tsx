@@ -17,6 +17,7 @@ import './mobile-v4.css'
 import './campaign-layout.css'
 import './mobile-popups-v5.css'
 import './workshop-journey.css'
+import './workshop-journey-prominence.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
