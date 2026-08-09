@@ -13,6 +13,7 @@ import './compact-ui.css'
 import './stats-drawer.css'
 import './desktop-overlay-v4.css'
 import './mobile-v4.css'
+import './mobile-popups-v5.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
