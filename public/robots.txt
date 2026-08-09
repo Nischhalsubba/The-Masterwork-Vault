@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://neverwintermastercraft.netlify.app/sitemap.xml
