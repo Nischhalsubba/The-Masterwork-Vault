@@ -1,6 +1,3 @@
-import c0 from './sharandarVerifiedWeaponChunk0'
-import c1 from './sharandarVerifiedWeaponChunk1'
-
 const names = [
   'Feywood Broad Slab',
   "Fey'd Leaf Sword Knot",
@@ -54,14 +51,10 @@ const normalize = (value: string) => value
   .trim()
   .replace(/\s+/g, ' ')
 
+const slug = (value: string) => normalize(value).replace(/ /g, '-')
 const indexByName = new Map<string, number>(names.map((name, index) => [normalize(name), index]))
 const sourceByName = new Map<string, string>(names.map((name, index) => [normalize(name), sources[index]]))
-
-const dataUri = `data:image/webp;base64,${c0}${c1}`
-const tile = 64
-const columns = 5
-const count = names.length
-const rows = Math.ceil(count / columns)
+const atlasUrl = `${import.meta.env.BASE_URL}sharandar-verified-weapons.svg`
 
 export const verifiedSharandarWeaponNames = [...names]
 
@@ -72,8 +65,5 @@ export const verifiedSharandarWeaponIconSource = (name: string) => sourceByName.
 export const verifiedSharandarWeaponIconDataUri = (name: string) => {
   const index = verifiedSharandarWeaponIconIndex(name)
   if (index == null) return null
-  const col = index % columns
-  const row = Math.floor(index / columns)
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${tile}" height="${tile}" viewBox="0 0 ${tile} ${tile}"><image href="${dataUri}" width="${columns * tile}" height="${rows * tile}" x="${-col * tile}" y="${-row * tile}"/></svg>`
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+  return `${atlasUrl}#${slug(names[index])}`
 }
