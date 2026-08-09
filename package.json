@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs",
+    "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/patch-mobile-routing.mjs",
     "verify:recipes": "node scripts/verify-material-recipes.mjs",
     "build": "npm run verify:recipes && tsc -b && vite build",
     "preview": "vite preview",
