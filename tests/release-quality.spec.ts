@@ -30,6 +30,7 @@ test('phone landscape keeps readiness usable', async ({ page }) => {
 
 test('keyboard can reach primary navigation and command search', async ({ page }) => {
   await page.goto('/readiness')
+  await expect(page.getByRole('button', { name: 'Open universal search' })).toBeVisible()
   await page.keyboard.press('Tab')
   const first = page.locator(':focus')
   await expect(first).toBeVisible()

@@ -14,6 +14,7 @@ test('readiness tracks seven professions and survives reload', async ({ page }) 
 
 test('universal search opens from keyboard and finds progression', async ({ page }) => {
   await page.goto('/catalog')
+  await expect(page.getByRole('button', { name: 'Open universal search' })).toBeVisible()
   await page.evaluate(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true })))
   await expect(page.getByRole('dialog', { name: 'Search the entire Vault' })).toBeVisible()
   await page.getByPlaceholder(/Try/).fill('Sharandar')
