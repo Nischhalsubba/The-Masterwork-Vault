@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/patch-mobile-routing.mjs && node scripts/apply-next-level-integration.mjs",
+    "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/apply-next-level-integration.mjs",
     "verify:recipes": "node scripts/verify-material-recipes.mjs",
     "verify:knowledge": "node scripts/verify-knowledge.mjs",
     "test:domain": "node --experimental-strip-types scripts/verify-domain-math.mjs",
