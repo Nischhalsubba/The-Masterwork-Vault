@@ -1,26 +1,7 @@
 import assert from 'node:assert/strict'
-import fs from 'node:fs'
 
-const tsModule = await import('typescript')
-const ts = tsModule.default ?? tsModule
 const sourceUrl = new URL('../src/domain/professionMath.ts', import.meta.url)
-const source = fs.readFileSync(sourceUrl, 'utf8')
-const transpiled = ts.transpileModule(source, {
-  compilerOptions: {
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-    strict: true,
-  },
-  fileName: sourceUrl.pathname,
-  reportDiagnostics: true,
-})
-const errors = (transpiled.diagnostics ?? []).filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
-if (errors.length) {
-  for (const diagnostic of errors) console.error(ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
-  process.exit(1)
-}
-const moduleUrl = `data:text/javascript;base64,${Buffer.from(transpiled.outputText).toString('base64')}`
-const { craftingDuration, eventMoraleCost, highQualityChance, moraleRefillCost } = await import(moduleUrl)
+const { craftingDuration, eventMoraleCost, highQualityChance, moraleRefillCost } = await import(sourceUrl.href)
 
 assert.equal(highQualityChance(970, 970, 1400), 0)
 assert.equal(highQualityChance(1400, 970, 1400), 1)
