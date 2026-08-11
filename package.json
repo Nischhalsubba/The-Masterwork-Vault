@@ -12,9 +12,9 @@
     "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain",
     "build": "npm run verify:release && tsc -b && vite build",
     "preview": "vite preview",
-    "test:e2e": "playwright test",
-    "test:e2e:update": "playwright test --update-snapshots",
-    "test:quality": "npm run build && npm run test:e2e"
+    "test:e2e": "npm run build && playwright test",
+    "test:e2e:update": "npm run build && playwright test --update-snapshots",
+    "test:quality": "npm run test:e2e"
   },
   "dependencies": {
     "gsap": "3.15.0",

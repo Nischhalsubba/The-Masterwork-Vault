@@ -29,7 +29,7 @@ jobs:
       - name: Install browser
         run: npx playwright install --with-deps chromium
       - name: Desktop, mobile, accessibility and responsive E2E
-        run: npm run test:e2e
+        run: npx playwright test
       - name: Preserve test artifacts
         if: always()
         uses: actions/upload-artifact@v4
