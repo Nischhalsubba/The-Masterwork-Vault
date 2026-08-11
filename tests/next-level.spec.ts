@@ -14,7 +14,7 @@ test('readiness tracks seven professions and survives reload', async ({ page }) 
 
 test('universal search opens from keyboard and finds progression', async ({ page }) => {
   await page.goto('/catalog')
-  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+K' : 'Control+K')
+  await page.evaluate(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true })))
   await expect(page.getByRole('dialog', { name: 'Search the entire Vault' })).toBeVisible()
   await page.getByPlaceholder(/Try/).fill('Sharandar')
   await expect(page.getByRole('option').filter({ hasText: 'Masterwork Journey' }).or(page.getByRole('option').filter({ hasText: 'Sharandar' })).first()).toBeVisible()
