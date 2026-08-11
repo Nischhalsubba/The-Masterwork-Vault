@@ -1,9 +1,32 @@
 export type SourceStatus = 'final-zip' | 'latest-user-screenshot' | 'spreadsheet-supplemental' | 'sharandar-screenshot' | 'sharandar-screenshot-tooltip' | 'sharandar-screenshot-name-only' | string
+export type VerificationState = 'verified' | 'strong-current' | 'screenshot-backed' | 'supplemental' | 'historical' | 'unknown'
+export type ArtworkProvenance = 'screenshot-extracted' | 'verified-game-asset' | 'reference-derived' | 'placeholder' | 'missing' | 'rejected'
 
-export interface MaterialNeed {
-  name: string
-  required: number
+export interface VerificationMetadata {
+  status: VerificationState
+  lastVerified?: string | null
+  gameEra?: string | null
+  sourceIds?: string[]
+  notes?: string[]
 }
+
+export interface ArtworkMetadata {
+  provenance: ArtworkProvenance
+  sourceId?: string | null
+  lastVerified?: string | null
+}
+
+export interface AcquisitionInfo {
+  type: 'vendor' | 'gathering' | 'campaign' | 'drop' | 'auction' | 'commission' | 'unknown'
+  location?: string | null
+  npc?: string | null
+  currency?: string | null
+  cost?: number | null
+  notes?: string[]
+  verification?: VerificationMetadata
+}
+
+export interface MaterialNeed { name: string; required: number }
 
 export interface ItemVariant {
   quality?: string
@@ -12,6 +35,7 @@ export interface ItemVariant {
   stats?: Record<string, number | string>
   source?: string
   levelLabel?: string
+  verification?: VerificationMetadata
 }
 
 export interface ItemEntry {
@@ -37,12 +61,9 @@ export interface ItemEntry {
   sourceStatus: SourceStatus
   campaign?: string | null
   recipeKnown?: boolean
-  provenance: {
-    gameData?: string | null
-    recipe?: string | null
-    image?: string | null
-    evidence: string[]
-  }
+  verification?: VerificationMetadata
+  artwork?: ArtworkMetadata
+  provenance: { gameData?: string | null; recipe?: string | null; image?: string | null; evidence: string[] }
 }
 
 export interface RecipeEntry {
@@ -54,6 +75,7 @@ export interface RecipeEntry {
   sourceStatus: SourceStatus
   campaign?: string | null
   evidence: string[]
+  verification?: VerificationMetadata
 }
 
 export interface MaterialEntry {
@@ -67,6 +89,9 @@ export interface MaterialEntry {
   sourceStatus: SourceStatus
   campaign?: string | null
   campaigns?: string[]
+  acquisition?: AcquisitionInfo
+  verification?: VerificationMetadata
+  artwork?: ArtworkMetadata
 }
 
 export interface CatalogData {

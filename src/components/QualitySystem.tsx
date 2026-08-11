@@ -21,11 +21,7 @@ function upsertMeta(selector: string, attr: string, value: string) {
 
 function upsertCanonical(href: string) {
   let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')
-  if (!link) {
-    link = document.createElement('link')
-    link.rel = 'canonical'
-    document.head.appendChild(link)
-  }
+  if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link) }
   link.href = href
 }
 
@@ -34,20 +30,15 @@ function currentSeo() {
   const view = parts[0] || 'catalog'
   let title = DEFAULT_TITLE
   let description = DEFAULT_DESCRIPTION
-
-  if (view === 'plan') {
-    title = 'Crafting Planner | The Masterwork Vault'
-    description = 'Build optimized Neverwinter Masterwork crafting plans with shared batches, inventory-aware shortages, dependency trees, and checklists.'
-  } else if (view === 'materials') {
-    title = 'Masterwork Materials | The Masterwork Vault'
-    description = 'Search Neverwinter Masterwork materials, inspect exact recipes, trace reverse dependencies, and track inventory.'
-  } else if (view === 'reference') {
-    title = 'Workshop Reference | The Masterwork Vault'
-    description = 'Neverwinter Workshop progression, artisan mechanics, South Seas commissions, collection notes, and source caveats.'
-  } else if (view === 'journey') {
-    title = 'Masterwork Journey | The Masterwork Vault'
-    description = 'Follow the current Neverwinter Masterwork progression from Workshop basics through Chultan, Sharandar, and Menzoberranzan with milestone tracking and planning tools.'
-  } else if (view === 'catalog' && parts.length >= 3) {
+  if (view === 'plan') { title = 'Crafting Planner | The Masterwork Vault'; description = 'Build inventory-aware Neverwinter Masterwork crafting plans with shared batches, shortages, dependency trees, and ordered craft steps.' }
+  else if (view === 'materials') { title = 'Masterwork Materials | The Masterwork Vault'; description = 'Search Neverwinter Masterwork materials, inspect recipes, trace reverse dependencies, and track inventory.' }
+  else if (view === 'reference') { title = 'Workshop Reference | The Masterwork Vault'; description = 'Neverwinter Workshop progression, artisan mechanics, South Seas commissions, source caveats, and current research context.' }
+  else if (view === 'journey') { title = 'Masterwork Journey | The Masterwork Vault'; description = 'Follow Neverwinter Masterwork progression from Workshop basics through Chultan, Sharandar, and Menzoberranzan.' }
+  else if (view === 'readiness') { title = 'Masterwork Readiness | The Masterwork Vault'; description = 'Track all seven professions, Workshop rank, Masterwork unlock stages, next actions, and remaining direct book costs.' }
+  else if (view === 'data-health') { title = 'Masterwork Data Health | The Masterwork Vault'; description = 'Inspect Masterwork source confidence, reverification queues, unknown yields, artwork provenance, and patch-sensitive facts.' }
+  else if (view === 'explore') { title = 'Advanced Masterwork Explorer | The Masterwork Vault'; description = 'Filter Neverwinter Masterwork craftables by campaign, profession, type, class, recipe availability, and evidence state.' }
+  else if (view === 'graph') { title = 'Masterwork Dependency Graph | The Masterwork Vault'; description = 'Explore recursive Neverwinter Masterwork crafting dependencies from final item to raw materials.' }
+  else if (view === 'catalog' && parts.length >= 3) {
     const id = decodeURIComponent(parts[2] || '')
     const item = catalog.items.find((entry) => entry.id === id)
     if (item) {
@@ -56,7 +47,6 @@ function currentSeo() {
       description = `${item.name}: ${item.campaign || 'Neverwinter'} Masterwork ${item.kind.toLowerCase()} for ${classes}. View recipe inputs, stats, materials, and crafting dependencies.`
     }
   }
-
   return { title, description }
 }
 
@@ -75,25 +65,9 @@ function updateSeo() {
   upsertMeta('meta[name="twitter:title"]', 'content', title)
   upsertMeta('meta[name="twitter:description"]', 'content', description)
   upsertMeta('meta[name="twitter:image"]', 'content', SOCIAL_IMAGE)
-
   let jsonLd = document.head.querySelector<HTMLScriptElement>('script[data-masterwork-jsonld]')
-  if (!jsonLd) {
-    jsonLd = document.createElement('script')
-    jsonLd.type = 'application/ld+json'
-    jsonLd.dataset.masterworkJsonld = 'true'
-    document.head.appendChild(jsonLd)
-  }
-  jsonLd.textContent = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'WebApplication',
-    name: 'The Masterwork Vault',
-    url: SITE,
-    description,
-    applicationCategory: 'ReferenceApplication',
-    operatingSystem: 'Any',
-    image: SOCIAL_IMAGE,
-    isAccessibleForFree: true,
-  })
+  if (!jsonLd) { jsonLd = document.createElement('script'); jsonLd.type = 'application/ld+json'; jsonLd.dataset.masterworkJsonld = 'true'; document.head.appendChild(jsonLd) }
+  jsonLd.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebApplication', name: 'The Masterwork Vault', url: SITE, description, applicationCategory: 'ReferenceApplication', operatingSystem: 'Any', image: SOCIAL_IMAGE, isAccessibleForFree: true })
 }
 
 function visibleFocusables(container: Element) {
@@ -101,53 +75,60 @@ function visibleFocusables(container: Element) {
   return Array.from(container.querySelectorAll<HTMLElement>(selector)).filter((element) => element.getClientRects().length > 0 && getComputedStyle(element).visibility !== 'hidden')
 }
 
+function setupServiceWorker() {
+  if (!('serviceWorker' in navigator) || !import.meta.env.PROD) return () => undefined
+  let disposed = false
+  let registration: ServiceWorkerRegistration | null = null
+  const signalUpdate = () => { if (!disposed) document.dispatchEvent(new Event('masterwork:update-available')) }
+  const register = async () => {
+    try {
+      registration = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+      await registration.update()
+      const watch = () => {
+        const worker = registration?.installing
+        if (!worker) return
+        worker.addEventListener('statechange', () => { if (worker.state === 'installed' && navigator.serviceWorker.controller) signalUpdate() })
+      }
+      registration.addEventListener('updatefound', watch)
+    } catch {
+      // Offline/PWA support is progressive enhancement; the application remains usable.
+    }
+  }
+  window.addEventListener('load', register, { once: true })
+  return () => { disposed = true; window.removeEventListener('load', register); registration = null }
+}
+
 export function QualitySystem() {
   useEffect(() => {
     updateSeo()
     let statsReturnFocus: HTMLElement | null = null
-
     const onClick = (event: MouseEvent) => {
       const target = event.target instanceof Element ? event.target : null
       if (!target) return
       if (target.closest('.stats-trigger')) statsReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
-      if (target.closest('.stats-drawer-close, .stats-drawer-scrim') && statsReturnFocus?.isConnected) {
-        requestAnimationFrame(() => statsReturnFocus?.focus({ preventScroll: true }))
-      }
+      if (target.closest('.stats-drawer-close, .stats-drawer-scrim') && statsReturnFocus?.isConnected) requestAnimationFrame(() => statsReturnFocus?.focus({ preventScroll: true }))
       requestAnimationFrame(updateSeo)
     }
-
     const onKeyDown = (event: KeyboardEvent) => {
       const drawer = document.querySelector<HTMLElement>('.stats-drawer-layer.open .stats-drawer')
       if (!drawer) return
-      if (event.key === 'Escape') {
-        drawer.querySelector<HTMLButtonElement>('.stats-drawer-close')?.click()
-        return
-      }
+      if (event.key === 'Escape') { drawer.querySelector<HTMLButtonElement>('.stats-drawer-close')?.click(); return }
       if (event.key !== 'Tab') return
       const focusables = visibleFocusables(drawer)
       if (!focusables.length) return
-      const first = focusables[0]
-      const last = focusables[focusables.length - 1]
-      const active = document.activeElement
+      const first = focusables[0], last = focusables[focusables.length - 1], active = document.activeElement
       if (event.shiftKey && (active === first || !drawer.contains(active))) { event.preventDefault(); last.focus() }
       else if (!event.shiftKey && (active === last || !drawer.contains(active))) { event.preventDefault(); first.focus() }
     }
-
     const onLocation = () => requestAnimationFrame(updateSeo)
     document.addEventListener('click', onClick)
+    document.addEventListener('keydown', onKeyDown)
     document.addEventListener('masterwork:navigate', onLocation)
     window.addEventListener('popstate', onLocation)
-
-    if ('serviceWorker' in navigator && import.meta.env.PROD) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => undefined), { once: true })
-    }
-
+    const teardownSw = setupServiceWorker()
     return () => {
-      document.removeEventListener('click', onClick)
-      document.removeEventListener('masterwork:navigate', onLocation)
-      window.removeEventListener('popstate', onLocation)
+      document.removeEventListener('click', onClick); document.removeEventListener('keydown', onKeyDown); document.removeEventListener('masterwork:navigate', onLocation); window.removeEventListener('popstate', onLocation); teardownSw()
     }
   }, [])
-
   return null
 }
