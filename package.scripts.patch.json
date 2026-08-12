@@ -1,0 +1,8 @@
+{
+  "scriptsToMerge": {
+    "verify:knowledge": "node scripts/verify-knowledge.mjs",
+    "test:domain": "node --experimental-strip-types scripts/verify-domain-math.mjs",
+    "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain",
+    "build": "npm run verify:release && tsc -b && vite build"
+  }
+}

@@ -12,12 +12,12 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npm run build && npm run preview -- --host 127.0.0.1',
+    command: 'npm run preview -- --host 127.0.0.1',
     url: 'http://127.0.0.1:4173/catalog',
     reuseExistingServer: !process.env.CI,
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'phone', use: { ...devices['iPhone 13'] } },
+    { name: 'phone', use: { ...devices['Pixel 5'] } },
   ],
 })

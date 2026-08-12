@@ -5,12 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/patch-mobile-routing.mjs",
+    "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/apply-next-level-integration.mjs",
     "verify:recipes": "node scripts/verify-material-recipes.mjs",
-    "build": "npm run verify:recipes && tsc -b && vite build",
+    "verify:knowledge": "node scripts/verify-knowledge.mjs",
+    "test:domain": "node --experimental-strip-types scripts/verify-domain-math.mjs",
+    "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain",
+    "build": "npm run verify:release && tsc -b && vite build",
     "preview": "vite preview",
-    "test:e2e": "playwright test",
-    "test:e2e:update": "playwright test --update-snapshots"
+    "test:e2e": "npm run build && playwright test",
+    "test:e2e:update": "npm run build && playwright test --update-snapshots",
+    "test:quality": "npm run test:e2e"
   },
   "dependencies": {
     "gsap": "3.15.0",
