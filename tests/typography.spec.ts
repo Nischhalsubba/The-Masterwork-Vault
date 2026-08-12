@@ -1,8 +1,6 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator } from '@playwright/test'
 
-const px = (value: string) => Number.parseFloat(value)
-
-async function typeMetrics(locator: ReturnType<import('@playwright/test')['Page']['locator']>) {
+async function typeMetrics(locator: Locator) {
   return locator.evaluate((node) => {
     const style = getComputedStyle(node)
     return {
