@@ -1,42 +1,31 @@
 name: Quality
 
 on:
-  pull_request:
   push:
-    branches: [main, 'agent/**']
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
 
-concurrency:
-  group: quality-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  build-and-test:
+  release-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
-      - name: Recipe and knowledge integrity
-        run: npm run verify:release
-      - name: TypeScript and production build
-        run: npm run build
-      - name: Install browser
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Desktop, mobile, accessibility and responsive E2E
-        run: npx playwright test
-      - name: Preserve test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: masterwork-test-artifacts
-          path: |
-            playwright-report/
-            test-results/
-          if-no-files-found: ignore
-          retention-days: 14
+      - name: Run production build and browser quality suite
+        run: npm run test:quality
