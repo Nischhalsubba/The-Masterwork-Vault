@@ -55,8 +55,19 @@ test('major routes share one display scale', async ({ page }) => {
   }
 })
 
-test('mobile typography remains legible without horizontal overflow', async ({ page }) => {
+test('mobile shell and route typography remain legible without horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
+  await page.goto('/catalog')
+
+  const mobileBrandDetail = page.locator('.mobile-v4-brand small')
+  const mobileTab = page.locator('.mobile-v4-tabbar button').first()
+  await expect(mobileBrandDetail).toBeVisible()
+  await expect(mobileTab).toBeVisible()
+  expect((await typeMetrics(page.locator('body'))).fontSize).toBeGreaterThanOrEqual(16)
+  expect((await typeMetrics(mobileBrandDetail)).fontSize).toBeGreaterThanOrEqual(12)
+  expect((await typeMetrics(mobileTab)).fontSize).toBeGreaterThanOrEqual(11.5)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1)
+
   for (const route of ['/readiness', '/explore']) {
     await page.goto(route)
     const body = await typeMetrics(page.locator('body'))
