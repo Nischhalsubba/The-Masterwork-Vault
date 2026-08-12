@@ -1,0 +1,735 @@
+/*
+ * Masterwork Vault typography system
+ * Centralizes hierarchy, readability, and responsive type behavior across legacy and next-level surfaces.
+ */
+
+:root {
+  --type-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --type-mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", Consolas, "Liberation Mono", monospace;
+  --type-2xs: 0.75rem;
+  --type-xs: 0.8125rem;
+  --type-sm: 0.875rem;
+  --type-base: 0.9375rem;
+  --type-md: 1rem;
+  --type-lg: 1.125rem;
+  --type-xl: 1.375rem;
+  --type-2xl: 1.75rem;
+  --type-display: clamp(2.5rem, 4vw + 1rem, 4.25rem);
+  --type-leading-tight: 1.08;
+  --type-leading-snug: 1.32;
+  --type-leading-body: 1.6;
+  --type-leading-relaxed: 1.7;
+  --type-track-display: -0.04em;
+  --type-track-heading: -0.025em;
+  --type-track-body: -0.006em;
+  --type-track-label: 0.045em;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--type-sans);
+  font-kerning: normal;
+}
+
+body {
+  font-size: var(--type-base);
+  line-height: var(--type-leading-body);
+  letter-spacing: var(--type-track-body);
+}
+
+button,
+input,
+select,
+textarea {
+  letter-spacing: -0.004em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--type-sans);
+  font-weight: 700;
+  text-wrap: balance;
+  text-rendering: optimizeLegibility;
+}
+
+h1 {
+  line-height: var(--type-leading-tight);
+  letter-spacing: var(--type-track-display);
+}
+
+h2 {
+  line-height: 1.14;
+  letter-spacing: var(--type-track-heading);
+}
+
+h3 {
+  line-height: 1.22;
+  letter-spacing: -0.016em;
+}
+
+h4,
+h5,
+h6 {
+  line-height: var(--type-leading-snug);
+  letter-spacing: -0.01em;
+}
+
+p,
+li,
+dd,
+dt {
+  line-height: var(--type-leading-body);
+}
+
+small {
+  font-size: var(--type-2xs);
+  line-height: 1.45;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--type-mono);
+}
+
+kbd {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+::placeholder {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Primary catalog shell */
+.brand strong,
+.journey-page-brand strong,
+.mw-page-brand strong {
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+}
+
+.brand small,
+.journey-page-brand small,
+.mw-page-brand small {
+  font-size: var(--type-2xs);
+  line-height: 1.35;
+}
+
+.app nav button,
+.filters button,
+.catalog aside button {
+  font-size: var(--type-sm);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.hero-kicker,
+.eyebrow,
+.section-head > div > small,
+.mw-eyebrow {
+  font-size: var(--type-2xs);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: var(--type-track-label);
+}
+
+.hero h1 {
+  max-width: 860px;
+  font-family: var(--type-sans);
+  font-size: clamp(2.5rem, 4.2vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.042em;
+  font-weight: 700;
+}
+
+.hero p {
+  max-width: 760px;
+  font-size: clamp(1rem, 1vw + 0.72rem, 1.125rem);
+  line-height: 1.68;
+  text-wrap: pretty;
+}
+
+.metrics {
+  font-size: var(--type-xs);
+  line-height: 1.45;
+}
+
+.metrics b,
+.badge,
+.result-meta strong,
+.recipe-row > b,
+.qty b,
+.stats strong,
+.mw-hero-progress > strong,
+.mw-health-status > strong,
+.mw-summary-card strong,
+.mw-health-metrics strong,
+.mw-next-action > strong,
+.mw-big-number,
+.mw-explore-count strong,
+.mw-graph-card > b {
+  font-variant-numeric: tabular-nums;
+}
+
+.catalog aside > small {
+  font-size: var(--type-2xs);
+  line-height: 1.4;
+  letter-spacing: var(--type-track-label);
+}
+
+.search input {
+  font-size: var(--type-base);
+  line-height: 1.4;
+}
+
+.result-meta strong {
+  font-size: var(--type-sm);
+  font-weight: 650;
+}
+
+.result-meta small {
+  font-size: var(--type-2xs);
+  line-height: 1.45;
+}
+
+.item-main small,
+.item-main span,
+.plan-row small,
+.material-list small,
+.recipe-row small,
+.batches small {
+  font-size: var(--type-2xs);
+  line-height: 1.48;
+}
+
+.item-main strong {
+  font-size: 0.90625rem;
+  line-height: 1.38;
+  font-weight: 650;
+  letter-spacing: -0.006em;
+}
+
+.source,
+.pills span,
+.tags span {
+  font-size: 0.71875rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.detail-head h2 {
+  font-family: var(--type-sans);
+  font-size: clamp(1.75rem, 2vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -0.032em;
+  font-weight: 700;
+}
+
+.detail-head p {
+  font-size: var(--type-sm);
+  line-height: 1.58;
+}
+
+.seg button {
+  font-size: var(--type-xs);
+  font-weight: 600;
+}
+
+.stats span {
+  font-size: var(--type-2xs);
+  line-height: 1.4;
+}
+
+.stats strong {
+  font-size: var(--type-sm);
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+.callout strong,
+.recipe-row strong,
+.batches strong,
+.material-list strong,
+.plan-row strong,
+.provenance strong {
+  font-size: var(--type-sm);
+  line-height: 1.42;
+  font-weight: 650;
+}
+
+.callout p,
+.reference p,
+.reference li {
+  font-size: var(--type-sm);
+  line-height: 1.65;
+}
+
+.section-head h2 {
+  font-size: var(--type-xl);
+  line-height: 1.18;
+}
+
+.section-head h3,
+.subhead {
+  font-size: var(--type-lg);
+  line-height: 1.28;
+}
+
+.recipe-row small,
+.batches span,
+.provenance,
+.plan-row small,
+.material-list small {
+  font-size: var(--type-2xs);
+}
+
+.recipe-row > b,
+.batches strong,
+.batches span {
+  font-size: var(--type-xs);
+}
+
+.empty h2,
+.reference h2 {
+  font-size: var(--type-xl);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.empty p {
+  font-size: var(--type-base);
+  line-height: 1.62;
+}
+
+/* Journey */
+.journey-page-topbar nav a,
+.journey-back-link {
+  font-size: var(--type-xs);
+  font-weight: 650;
+}
+
+.journey-page-hero h1 {
+  font-size: clamp(2.75rem, 4.8vw, 4.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.046em;
+  font-weight: 700;
+}
+
+.journey-page-hero p {
+  max-width: 800px;
+  font-size: var(--type-md);
+  line-height: 1.68;
+  text-wrap: pretty;
+}
+
+.journey-page .journey-header-progress span,
+.journey-page .journey-header-progress small {
+  font-size: var(--type-2xs);
+  line-height: 1.4;
+}
+
+.journey-page .journey-header-progress strong {
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.journey-page .journey-roadmap-label strong {
+  font-size: var(--type-xs);
+  line-height: 1.35;
+}
+
+/* Next-level route shell */
+.mw-page-topbar nav a,
+.mw-back-link {
+  font-size: var(--type-xs);
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.mw-readiness-hero h1,
+.mw-health-hero h1,
+.mw-explore-hero h1,
+.mw-graph-hero h1 {
+  max-width: 860px;
+  font-size: clamp(2.5rem, 4.8vw, 4.25rem);
+  line-height: 1.03;
+  letter-spacing: -0.044em;
+  font-weight: 700;
+}
+
+.mw-readiness-hero p,
+.mw-health-hero p,
+.mw-explore-hero p,
+.mw-graph-hero p {
+  max-width: 760px;
+  font-size: var(--type-md);
+  line-height: 1.68;
+  text-wrap: pretty;
+}
+
+.mw-hero-progress > span,
+.mw-health-status > span,
+.mw-hero-progress small,
+.mw-health-status small,
+.mw-summary-card span,
+.mw-health-metrics span,
+.mw-summary-card small,
+.mw-health-metrics small,
+.mw-workshop-strip small,
+.mw-explore-count span,
+.mw-explore-count small,
+.mw-graph-summary span,
+.mw-graph-summary small {
+  font-size: var(--type-2xs);
+  line-height: 1.42;
+}
+
+.mw-hero-progress > strong,
+.mw-health-status > strong,
+.mw-explore-count strong {
+  font-size: 2.125rem;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+.mw-summary-card strong,
+.mw-health-metrics strong {
+  font-size: var(--type-lg);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.mw-next-action h2,
+.mw-section-heading h2,
+.mw-ledger h2,
+.mw-state-tools h2 {
+  font-size: var(--type-xl);
+  line-height: 1.18;
+  letter-spacing: -0.022em;
+}
+
+.mw-next-action p,
+.mw-section-heading p,
+.mw-ledger p,
+.mw-policy-card p,
+.mw-health-panel p,
+.mw-state-tools p {
+  font-size: var(--type-xs);
+  line-height: 1.62;
+}
+
+.mw-next-action > strong {
+  font-size: var(--type-xl);
+  line-height: 1.15;
+}
+
+.mw-profession-table th,
+.mw-profession-table td,
+.mw-ledger th,
+.mw-ledger td {
+  font-size: var(--type-xs);
+  line-height: 1.45;
+}
+
+.mw-profession-table thead th,
+.mw-ledger thead th {
+  font-size: 0.71875rem;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: var(--type-track-label);
+}
+
+.mw-profession-table small,
+.mw-ledger th small {
+  font-size: var(--type-2xs);
+  line-height: 1.42;
+}
+
+.mw-policy-card h3,
+.mw-health-panel h2,
+.mw-health-blockers h2 {
+  font-size: var(--type-lg);
+  line-height: 1.22;
+  letter-spacing: -0.016em;
+}
+
+.mw-policy-card a,
+.mw-state-tools button,
+.mw-file-button,
+.mw-filter-clear,
+.mw-compare-actions button {
+  font-size: var(--type-xs);
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.mw-toast {
+  font-size: var(--type-xs);
+  line-height: 1.45;
+}
+
+.mw-health-blockers li {
+  font-size: var(--type-sm);
+  line-height: 1.6;
+}
+
+.mw-health-panel > ul span,
+.mw-health-panel dt {
+  font-size: var(--type-2xs);
+  line-height: 1.4;
+}
+
+.mw-health-panel dd {
+  font-size: var(--type-sm);
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.mw-big-number {
+  font-size: clamp(2.5rem, 4vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+.mw-status-chip {
+  font-size: 0.71875rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+/* Explorer and graph density */
+.mw-explore-search input {
+  font-size: var(--type-sm);
+  line-height: 1.4;
+}
+
+.mw-filter-group legend {
+  font-size: 0.71875rem;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: var(--type-track-label);
+}
+
+.mw-filter-group label {
+  font-size: var(--type-xs);
+  line-height: 1.42;
+}
+
+.mw-explore-copy > small,
+.mw-explore-copy > span,
+.mw-explore-meta i,
+.mw-explore-meta em,
+.mw-graph-picker small,
+.mw-graph-card small,
+.mw-compare-picker small,
+.mw-compare-actions span,
+.compare-empty p {
+  font-size: var(--type-2xs);
+  line-height: 1.4;
+}
+
+.mw-explore-copy > strong,
+.mw-graph-picker strong,
+.mw-graph-card strong,
+.mw-graph-summary strong {
+  font-size: var(--type-xs);
+  line-height: 1.38;
+  font-weight: 650;
+}
+
+.mw-explore-meta em {
+  font-size: 0.71875rem;
+}
+
+.mw-graph-card > b {
+  font-size: var(--type-xs);
+  font-weight: 700;
+}
+
+.mw-explore-empty p,
+.mw-command-empty p,
+.compare-empty p {
+  font-size: var(--type-xs);
+  line-height: 1.58;
+}
+
+/* Dialogs, global search, comparison, and update surfaces */
+.mw-command-launcher {
+  font-size: var(--type-2xs);
+  font-weight: 700;
+}
+
+.mw-command-launcher kbd {
+  font-size: 0.65625rem;
+}
+
+.mw-dialog-head h2 {
+  font-size: var(--type-xl);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.mw-dialog-head p {
+  font-size: var(--type-xs);
+  line-height: 1.5;
+}
+
+.mw-command-search input {
+  font-size: var(--type-md);
+  line-height: 1.4;
+}
+
+.mw-command-results strong {
+  font-size: var(--type-sm);
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.mw-command-results small,
+.mw-compare-picker small,
+.mw-compare-picker b,
+.mw-compare-actions span {
+  font-size: var(--type-2xs);
+  line-height: 1.42;
+}
+
+.mw-update-banner strong {
+  font-size: var(--type-xs);
+  line-height: 1.35;
+}
+
+.mw-update-banner span,
+.mw-update-banner button {
+  font-size: var(--type-2xs);
+  line-height: 1.35;
+}
+
+/* Mobile text sizing: keep controls usable without inflating the dense desktop layout. */
+@media (max-width: 768px) {
+  body {
+    font-size: var(--type-md);
+    line-height: 1.62;
+  }
+
+  .brand strong,
+  .journey-page-brand strong,
+  .mw-page-brand strong {
+    font-size: var(--type-sm);
+  }
+
+  .brand small,
+  .journey-page-brand small,
+  .mw-page-brand small,
+  .stats-drawer-head small,
+  .stats-drawer-section-head small,
+  .evidence-grid span {
+    font-size: var(--type-2xs) !important;
+  }
+
+  .journey-page-hero h1,
+  .mw-readiness-hero h1,
+  .mw-health-hero h1,
+  .mw-explore-hero h1,
+  .mw-graph-hero h1 {
+    font-size: clamp(2.125rem, 10vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.036em;
+  }
+
+  .journey-page-hero p,
+  .mw-readiness-hero p,
+  .mw-health-hero p,
+  .mw-explore-hero p,
+  .mw-graph-hero p {
+    font-size: var(--type-md);
+    line-height: 1.65;
+  }
+
+  .app nav button,
+  .filters button,
+  .catalog aside button,
+  .seg button,
+  .mw-page-topbar nav a,
+  .journey-page-topbar nav a,
+  .mw-back-link,
+  .journey-back-link {
+    font-size: var(--type-xs);
+  }
+
+  .item-main strong,
+  .callout strong,
+  .recipe-row strong,
+  .material-list strong,
+  .plan-row strong,
+  .mw-command-results strong,
+  .mw-health-blockers li {
+    font-size: var(--type-sm);
+  }
+
+  .item-main small,
+  .item-main span,
+  .source,
+  .pills span,
+  .tags span,
+  .recipe-row small,
+  .material-list small,
+  .plan-row small,
+  .stats span,
+  .mw-summary-card span,
+  .mw-summary-card small,
+  .mw-health-metrics span,
+  .mw-health-metrics small,
+  .mw-profession-table small,
+  .mw-ledger th small,
+  .mw-explore-copy > small,
+  .mw-explore-copy > span,
+  .mw-explore-meta i,
+  .mw-explore-meta em,
+  .mw-graph-picker small,
+  .mw-graph-card small,
+  .mw-command-results small {
+    font-size: var(--type-2xs);
+  }
+
+  .mw-filter-group label,
+  .mw-graph-picker strong,
+  .mw-graph-card strong,
+  .mw-explore-copy > strong,
+  .mw-policy-card p,
+  .mw-health-panel p,
+  .mw-state-tools p,
+  .mw-next-action p {
+    font-size: var(--type-xs);
+  }
+}
+
+@media (min-width: 1440px) {
+  .hero p,
+  .journey-page-hero p,
+  .mw-readiness-hero p,
+  .mw-health-hero p,
+  .mw-explore-hero p,
+  .mw-graph-hero p {
+    max-width: 68ch;
+  }
+}
