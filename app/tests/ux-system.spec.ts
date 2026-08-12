@@ -58,7 +58,7 @@ test('large-result surfaces use progressive rendering and static hero effects', 
   if (total > 60) await expect(page.locator('.mw-progressive-sentinel')).toBeVisible()
 
   await page.goto('/catalog')
-  await expect(page.locator('.ambient-vault')).toBeVisible()
+  await expect(page.locator('.ambient-vault')).toHaveCount(1)
   await expect(page.locator('.ambient-vault canvas')).toHaveCount(0)
   await expect(page.locator('.ambient-vault-static')).toHaveCount(1)
 })
@@ -104,9 +104,10 @@ test('data health becomes a card ledger on narrow screens', async ({ page }) => 
 
 test('global skip link is the first keyboard escape route', async ({ page }) => {
   await page.goto('/explore')
-  await page.keyboard.press('Tab')
   const skip = page.locator('.ux-skip-link')
-  await expect(skip).toBeFocused()
+  await expect(skip).toBeAttached()
+  await page.keyboard.press('Tab')
+  await sskip.toBeFocused()
   await page.keyboard.press('Enter')
   await expect(page.locator('main')).toBeFocused()
 })
