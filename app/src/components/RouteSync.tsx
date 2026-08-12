@@ -6,6 +6,12 @@ import { announceAppRoute, type AppRouteDetail, type CampaignFilter, type CoreVi
 const catalog = catalogJson as CatalogData
 const VIEWS: CoreView[] = ['catalog', 'plan', 'materials', 'reference']
 
+type RouteHistoryState = {
+  masterworkView?: CoreView
+  scrollY?: number
+  listScroll?: number
+}
+
 const slug = (value: string) => value
   .toLowerCase()
   .replace(/\+1/g, '')
@@ -58,12 +64,48 @@ function relevantSearch(view: CoreView) {
   return query ? `?${query}` : ''
 }
 
+function currentHistoryState(): RouteHistoryState {
+  return window.history.state && typeof window.history.state === 'object' ? window.history.state as RouteHistoryState : {}
+}
+
+function saveScrollState() {
+  const current = currentHistoryState()
+  const list = document.querySelector<HTMLElement>('.items')
+  window.history.replaceState({
+    ...current,
+    scrollY: window.scrollY,
+    listScroll: list?.scrollTop || 0,
+  }, '', window.location.href)
+}
+
+function restoreScrollState() {
+  const state = currentHistoryState()
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (typeof state.scrollY === 'number') window.scrollTo({ top: state.scrollY, behavior: 'auto' })
+    const list = document.querySelector<HTMLElement>('.items')
+    if (list && typeof state.listScroll === 'number') list.scrollTop = state.listScroll
+  }))
+}
+
+function focusRoute(detail: AppRouteDetail, preserveScroll = false) {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const target = detail.itemId
+      ? document.querySelector<HTMLElement>('.detail h2, .mobile-v4-detail-title')
+      : document.querySelector<HTMLElement>('main h1, main h2, main')
+    if (!target) return
+    const hadTabIndex = target.hasAttribute('tabindex')
+    if (!hadTabIndex) target.tabIndex = -1
+    target.focus({ preventScroll: preserveScroll })
+    if (!hadTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true })
+  }))
+}
+
 function setUrl(path: string, view: CoreView, replace = false) {
   const next = `${path}${relevantSearch(view)}`
   const current = `${window.location.pathname}${window.location.search}`
   if (next === current) return
-  const state = { ...(window.history.state || {}), masterworkView: view }
-  if (replace) window.history.replaceState(state, '', next)
+  const state: RouteHistoryState = { masterworkView: view, scrollY: 0, listScroll: 0 }
+  if (replace) window.history.replaceState({ ...currentHistoryState(), ...state }, '', next)
   else window.history.pushState(state, '', next)
 }
 
@@ -76,26 +118,37 @@ function pathForItem(itemId: string) {
 
 export function RouteSync() {
   useEffect(() => {
-    const sync = () => {
+    const sync = (fromHistory = false) => {
       const route = routeFromLocation()
       if (!route.valid || window.location.pathname !== route.canonicalPath) setUrl(route.canonicalPath, route.detail.view, true)
       announceAppRoute(route.detail)
+      if (fromHistory) {
+        restoreScrollState()
+        focusRoute(route.detail, true)
+      }
     }
 
     const onRequestRoute = (event: Event) => {
       const detail = (event as CustomEvent<AppRouteDetail>).detail
       if (!detail || !VIEWS.includes(detail.view)) return
+      saveScrollState()
       const path = detail.itemId ? pathForItem(detail.itemId) : `/${detail.view}`
       setUrl(path, detail.view)
       announceAppRoute(detail)
+      focusRoute(detail)
     }
 
-    requestAnimationFrame(sync)
+    const onPopState = () => sync(true)
+    const onPageHide = () => saveScrollState()
+
+    requestAnimationFrame(() => sync(false))
     document.addEventListener('masterwork:request-route', onRequestRoute)
-    window.addEventListener('popstate', sync)
+    window.addEventListener('popstate', onPopState)
+    window.addEventListener('pagehide', onPageHide)
     return () => {
       document.removeEventListener('masterwork:request-route', onRequestRoute)
-      window.removeEventListener('popstate', sync)
+      window.removeEventListener('popstate', onPopState)
+      window.removeEventListener('pagehide', onPageHide)
     }
   }, [])
   return null

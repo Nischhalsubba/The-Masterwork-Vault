@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
 import { UpdateBanner } from './components/UpdateBanner'
+import { UXSystem } from './components/UXSystem'
 import './styles.css'
 import './drilldown.css'
 import './features.css'
@@ -23,6 +24,7 @@ import './quality-fixes.css'
 import './masterwork-next.css'
 import './typography.css'
 import './typography-mobile.css'
+import './ux-system.css'
 
 const App = lazy(() => import('./App'))
 const MobileV4Shell = lazy(() => import('./components/MobileV4Shell').then((module) => ({ default: module.MobileV4Shell })))
@@ -64,6 +66,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary name="The Masterwork Vault">
       <Suspense fallback={<PageLoading />}>
+        <UXSystem />
         <RouteContent />
         <QualitySystem />
         <CommandPalette />

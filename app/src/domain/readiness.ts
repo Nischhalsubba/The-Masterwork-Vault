@@ -20,7 +20,13 @@ export interface ProfessionReadiness {
   remainingBookAd: number
 }
 
+export interface RankedReadinessAction extends ProfessionReadiness {
+  priority: number
+  priorityReason: string
+}
+
 const prices = (profession: MasterworkProfession) => masterworkUnlockPrices[profession]
+const tierOrder: Record<ReadinessTier, number> = { level: 0, chultan1: 1, chultan2: 2, sharandar: 3, menzoberranzan: 4, complete: 5 }
 
 export function nextReadinessAction(profession: MasterworkProfession, progress: ProfessionProgress): ReadinessAction {
   const row = prices(profession)
@@ -49,6 +55,22 @@ export function readinessForProfession(profession: MasterworkProfession, progres
     spentBookAd,
     remainingBookAd: Math.max(0, total - spentBookAd),
   }
+}
+
+export function rankedReadinessActions(state: PlayerState): RankedReadinessAction[] {
+  return MASTERWORK_PROFESSIONS
+    .map((profession) => readinessForProfession(profession, state.professions[profession]))
+    .filter((row) => row.next.tier !== 'complete')
+    .map((row) => {
+      const priority = (100 - row.completion) * 100 + (5 - tierOrder[row.next.tier]) * 10 - Math.min(9, Math.floor(row.next.adCost / 1_000_000))
+      const priorityReason = row.next.tier === 'level'
+        ? `Level ${row.progress.level}/20 is the earliest recorded prerequisite still open.`
+        : row.next.adCost > 0
+          ? `${row.next.title} is the next direct unlock in this profession's recorded path.`
+          : `${row.next.title} is the next recorded prerequisite.`
+      return { ...row, priority, priorityReason }
+    })
+    .sort((a, b) => b.priority - a.priority || a.next.adCost - b.next.adCost || a.profession.localeCompare(b.profession))
 }
 
 export function readinessSummary(state: PlayerState) {

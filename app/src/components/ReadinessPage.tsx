@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { gsap } from 'gsap'
-import { BadgeCheck, BookOpen, CheckCircle2, ChevronLeft, CircleHelp, Coins, Download, FileUp, Gem, ShieldCheck, Sparkles, Wrench } from 'lucide-react'
+import { BadgeCheck, BookOpen, CheckCircle2, ChevronLeft, CircleHelp, Coins, Download, FileUp, Gem, ListChecks, ShieldCheck, Sparkles, Wrench } from 'lucide-react'
 import { masterworkProgression, masterworkUnlockPrices } from '../data/craftingKnowledgePool'
 import { loadPlayerState, MASTERWORK_PROFESSIONS, savePlayerState, type MasterworkProfession, type PlayerState, type ProfessionProgress } from '../domain/playerState'
 import { importPortableVaultState, serializePortableVaultState } from '../domain/portableState'
-import { readinessSummary } from '../domain/readiness'
+import { rankedReadinessActions, readinessSummary } from '../domain/readiness'
 import { buildDataHealthReport } from '../domain/verification'
 
 const tierLabels = [
@@ -13,6 +13,8 @@ const tierLabels = [
   ['sharandar', 'Sharandar'],
   ['menzoberranzan', 'Menzo'],
 ] as const
+
+const professionId = (profession: MasterworkProfession) => `profession-${profession.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
 
 function downloadJson() {
   const blob = new Blob([serializePortableVaultState()], { type: 'application/json' })
@@ -29,6 +31,7 @@ export function ReadinessPage() {
   const [state, setState] = useState<PlayerState>(() => loadPlayerState())
   const [notice, setNotice] = useState('')
   const summary = useMemo(() => readinessSummary(state), [state])
+  const priorities = useMemo(() => rankedReadinessActions(state).slice(0, 5), [state])
   const health = useMemo(() => buildDataHealthReport(), [])
 
   useEffect(() => { document.documentElement.dataset.density = state.density }, [state.density])
@@ -38,7 +41,7 @@ export function ReadinessPage() {
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       if (!root.current) return
       const ctx = gsap.context(() => {
-        gsap.from('.mw-readiness-hero > *, .mw-summary-card', { y: 14, autoAlpha: 0, duration: .42, ease: 'power3.out', stagger: .045, clearProps: 'transform,opacity,visibility' })
+        gsap.from('.mw-readiness-hero > *, .mw-summary-card', { y: 14, autoAlpha: 0, duration: .36, ease: 'power3.out', stagger: .035, clearProps: 'transform,opacity,visibility' })
       }, root)
       return () => ctx.revert()
     })
@@ -66,7 +69,14 @@ export function ReadinessPage() {
     if (key === 'chultan2' && nextValue) next.chultan1 = true
     if (key === 'sharandar' && nextValue) { next.chultan1 = true; next.chultan2 = true; next.level = 20 }
     if (key === 'menzoberranzan' && nextValue) { next.chultan1 = true; next.chultan2 = true; next.sharandar = true; next.level = 20 }
-    commit({ ...state, professions: { ...state.professions, [profession]: next } })
+    commit({ ...state, professions: { ...state.professions, [profession]: next } }, `${profession} readiness updated.`)
+  }
+
+  const focusProfession = (profession: MasterworkProfession) => {
+    const target = document.getElementById(professionId(profession))
+    target?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' })
+    const focusTarget = target?.querySelector<HTMLElement>('input, button')
+    window.setTimeout(() => focusTarget?.focus({ preventScroll: true }), 250)
   }
 
   const importState = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -82,13 +92,12 @@ export function ReadinessPage() {
 
   return (
     <div ref={root} className="mw-readiness-page">
-      <a className="mw-skip-link" href="#readiness-main">Skip to readiness</a>
       <header className="mw-page-topbar">
         <a href="/catalog" className="mw-page-brand"><img src="/assets/brand/masterwork-vault-mark.svg" alt="" /><span><strong>The Masterwork Vault</strong><small>Player readiness center</small></span></a>
         <nav aria-label="Primary navigation"><a href="/catalog">Catalog</a><a href="/plan">Plan</a><a href="/materials">Materials</a><a href="/journey">Journey</a><a href="/readiness" aria-current="page">Readiness</a></nav>
       </header>
 
-      <main id="readiness-main" className="mw-readiness-main">
+      <main id="main-content" className="mw-readiness-main">
         <section className="mw-readiness-hero">
           <div>
             <a className="mw-back-link" href="/catalog"><ChevronLeft size={17} />Back to Catalog</a>
@@ -109,13 +118,24 @@ export function ReadinessPage() {
         </section>
 
         <section className="mw-next-action">
-          <div><span className="mw-eyebrow">NEXT LOWEST-COMPLETION PROFESSION</span><h2>{summary.next ? `${summary.next.profession}: ${summary.next.next.title}` : 'All professions marked complete'}</h2><p>{summary.next?.next.detail || 'The tracked Masterwork progression is complete through Menzoberranzan.'}</p></div>
+          <div><span className="mw-eyebrow">NEXT RECORDED ACTION</span><h2>{summary.next ? `${summary.next.profession}: ${summary.next.next.title}` : 'All professions marked complete'}</h2><p>{summary.next?.next.detail || 'The tracked Masterwork progression is complete through Menzoberranzan.'}</p></div>
           {summary.next && <strong>{summary.next.next.adCost ? `${summary.next.next.adCost.toLocaleString()} AD` : 'No direct book cost'}</strong>}
+        </section>
+
+        <section className="mw-priority-section" aria-labelledby="priority-heading">
+          <div className="mw-section-heading"><div><span className="mw-eyebrow"><ListChecks size={14} /> ACTION QUEUE</span><h2 id="priority-heading">What should I work on next?</h2></div><p>Ranked from recorded progression only. Unknown XP thresholds, binding rules, and purchase gates are never used as hidden scoring inputs.</p></div>
+          {priorities.length ? <ol className="mw-priority-list">{priorities.map((row, index) => <li key={row.profession}>
+            <button type="button" onClick={() => focusProfession(row.profession)}>
+              <span className="mw-priority-rank">{index + 1}</span>
+              <span className="mw-priority-copy"><small>{row.profession} · {row.completion}% complete</small><strong>{row.next.title}</strong><span>{row.priorityReason}</span></span>
+              <span className="mw-priority-cost">{row.next.adCost ? `${row.next.adCost.toLocaleString()} AD` : 'Progression'}</span>
+            </button>
+          </li>)}</ol> : <div className="mw-priority-complete"><BadgeCheck size={22} /><strong>All tracked profession paths are complete.</strong></div>}
         </section>
 
         <section className="mw-workshop-strip">
           <div><Wrench size={19} /><span><strong>Workshop rank</strong><small>Track it for Workshop capacity and upgrades, not as a Masterwork purchase prerequisite.</small></span></div>
-          <div role="group" aria-label="Workshop rank">{([1,2,3,4] as const).map((rank) => <button key={rank} type="button" aria-pressed={state.workshopRank === rank} onClick={() => commit({ ...state, workshopRank: rank })}>R{rank}</button>)}</div>
+          <div role="group" aria-label="Workshop rank">{([1,2,3,4] as const).map((rank) => <button key={rank} type="button" aria-pressed={state.workshopRank === rank} onClick={() => commit({ ...state, workshopRank: rank }, `Workshop rank set to ${rank}.`)}>R{rank}</button>)}</div>
         </section>
 
         <section className="mw-profession-section">
@@ -123,7 +143,7 @@ export function ReadinessPage() {
           <div className="mw-profession-table-wrap">
             <table className="mw-profession-table">
               <thead><tr><th>Profession</th><th>Level</th>{tierLabels.map(([,label]) => <th key={label}>{label}</th>)}<th>Next action</th><th>Remaining AD</th></tr></thead>
-              <tbody>{summary.professions.map((row) => <tr key={row.profession}>
+              <tbody>{summary.professions.map((row) => <tr id={professionId(row.profession)} key={row.profession}>
                 <th><span>{row.profession}</span><small>{row.completion}% complete</small></th>
                 <td><label><span className="sr-only">{row.profession} level</span><input type="number" min="0" max="20" inputMode="numeric" value={row.progress.level} onChange={(event) => setProfessionLevel(row.profession, Math.max(0, Math.min(20, Number(event.target.value) || 0)))} /></label></td>
                 {tierLabels.map(([key,label]) => <td key={key}><button className="mw-check-toggle" type="button" aria-label={`${label} for ${row.profession}`} aria-pressed={row.progress[key]} onClick={() => toggleTier(row.profession, key)}>{row.progress[key] ? <BadgeCheck size={20} /> : <span />}</button></td>)}
@@ -132,6 +152,12 @@ export function ReadinessPage() {
               </tr>)}</tbody>
             </table>
           </div>
+
+          <div className="mw-profession-cards" aria-label="Profession readiness cards">{summary.professions.map((row) => <article id={`${professionId(row.profession)}-card`} key={row.profession}>
+            <header><div><small>{row.completion}% complete</small><h3>{row.profession}</h3></div><label><span>Level</span><input aria-label={`${row.profession} level`} type="number" min="0" max="20" inputMode="numeric" value={row.progress.level} onChange={(event) => setProfessionLevel(row.profession, Math.max(0, Math.min(20, Number(event.target.value) || 0)))} /></label></header>
+            <div className="mw-tier-card-grid" role="group" aria-label={`${row.profession} unlock tiers`}>{tierLabels.map(([key,label]) => <button key={key} type="button" aria-label={`${label} for ${row.profession}`} aria-pressed={row.progress[key]} onClick={() => toggleTier(row.profession, key)}><span>{row.progress[key] ? <BadgeCheck size={17} /> : <i />}</span><b>{label}</b></button>)}</div>
+            <div className="mw-profession-card-next"><small>Next action</small><strong>{row.next.title}</strong><span>{row.next.detail}</span><b>{row.remainingBookAd.toLocaleString()} AD remaining</b></div>
+          </article>)}</div>
         </section>
 
         <section className="mw-readiness-bottom-grid">
@@ -141,7 +167,7 @@ export function ReadinessPage() {
 
         <section className="mw-state-tools">
           <div><span className="mw-eyebrow">PORTABLE VAULT STATE</span><h2>Your progress should not belong to one browser.</h2><p>Export progression, inventory, saved plans, preferences, and other versioned Vault state. Recipe/source truth remains application-owned and is never imported from user state.</p></div>
-          <div><div className="mw-density-toggle" role="group" aria-label="Interface density"><button type="button" aria-pressed={state.density === 'comfortable'} onClick={() => commit({ ...state, density: 'comfortable' })}>Comfortable</button><button type="button" aria-pressed={state.density === 'compact'} onClick={() => commit({ ...state, density: 'compact' })}>Compact</button></div><button type="button" onClick={downloadJson}><Download size={17} />Export Vault JSON</button><label className="mw-file-button"><FileUp size={17} />Import Vault JSON<input type="file" accept="application/json,.json" onChange={importState} /></label></div>
+          <div><div className="mw-density-toggle" role="group" aria-label="Interface spacing density"><button type="button" aria-pressed={state.density === 'comfortable'} onClick={() => commit({ ...state, density: 'comfortable' })}>Comfortable</button><button type="button" aria-pressed={state.density === 'compact'} onClick={() => commit({ ...state, density: 'compact' })}>Compact</button></div><button type="button" onClick={downloadJson}><Download size={17} />Export Vault JSON</button><label className="mw-file-button"><FileUp size={17} />Import Vault JSON<input type="file" accept="application/json,.json" onChange={importState} /></label></div>
         </section>
       </main>
     </div>
