@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense, type MouseEvent, type ReactNode } from 'react'
+import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
@@ -47,6 +47,30 @@ function Guarded({ name, children }: { name: string; children: ReactNode }) {
 }
 
 function SkipLink() {
+  const linkRef = useRef<HTMLAnchorElement>(null)
+
+  useLayoutEffect(() => {
+    let pointerInteracted = false
+    let routedFirstTab = false
+
+    const onPointerDown = () => { pointerInteracted = true }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (routedFirstTab || pointerInteracted || event.key !== 'Tab' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return
+      const link = linkRef.current
+      if (!link) return
+      routedFirstTab = true
+      event.preventDefault()
+      link.focus({ preventScroll: true })
+    }
+
+    document.addEventListener('pointerdown', onPointerDown, true)
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+      document.removeEventListener('keydown', onKeyDown, true)
+    }
+  }, [])
+
   const skipToContent = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
     const target = document.querySelector<HTMLElement>('main')
@@ -57,7 +81,7 @@ function SkipLink() {
     if (!hadTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true })
   }
 
-  return <a className="ux-skip-link" href="#main-content" onClick={skipToContent}>Skip to main content</a>
+  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={skipToContent}>Skip to main content</a>
 }
 
 function RouteContent() {
