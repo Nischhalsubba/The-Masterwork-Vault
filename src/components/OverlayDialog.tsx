@@ -1,15 +1,16 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 import { X } from 'lucide-react'
 
 const FOCUSABLE = 'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
 
-export function OverlayDialog({ open, onClose, title, description, children, className = '' }: {
+export function OverlayDialog({ open, onClose, title, description, children, className = '', initialFocusRef }: {
   open: boolean
   onClose: () => void
   title: string
   description?: string
   children: ReactNode
   className?: string
+  initialFocusRef?: RefObject<HTMLElement | null>
 }) {
   const dialogRef = useRef<HTMLElement>(null)
   const returnFocus = useRef<HTMLElement | null>(null)
@@ -19,7 +20,10 @@ export function OverlayDialog({ open, onClose, title, description, children, cla
     returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    requestAnimationFrame(() => dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus({ preventScroll: true }))
+    requestAnimationFrame(() => {
+      const target = initialFocusRef?.current ?? dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE)
+      target?.focus({ preventScroll: true })
+    })
 
     const keydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') { event.preventDefault(); onClose(); return }
@@ -37,7 +41,7 @@ export function OverlayDialog({ open, onClose, title, description, children, cla
       document.body.style.overflow = previousOverflow
       requestAnimationFrame(() => returnFocus.current?.isConnected && returnFocus.current.focus({ preventScroll: true }))
     }
-  }, [open, onClose])
+  }, [open, onClose, initialFocusRef])
 
   if (!open) return null
   return (
