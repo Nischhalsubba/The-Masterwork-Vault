@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Boxes, CircleHelp, Gem, Search, Sparkles } from 'lucide-react'
 import catalogJson from '../data/catalog'
 import type { CatalogData } from '../types'
@@ -44,6 +44,7 @@ function allResults(): Result[] {
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
   const results = useMemo(() => allResults(), [])
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -70,8 +71,8 @@ export function CommandPalette() {
   return (
     <>
       <button className="mw-command-launcher" type="button" onClick={() => setOpen(true)} aria-label="Open universal search"><Search size={17} aria-hidden="true" /><span>Search Vault</span><kbd>⌘K</kbd></button>
-      <OverlayDialog open={open} onClose={close} title="Search the entire Vault" description="Items, materials, recipes, professions, progression, and tools." className="mw-command-dialog">
-        <label className="mw-command-search"><Search size={18} aria-hidden="true" /><span className="sr-only">Search everything</span><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try ‘Blacksmithing’, ‘Soul Bead’, or ‘Sharandar’…" /></label>
+      <OverlayDialog open={open} onClose={close} title="Search the entire Vault" description="Items, materials, recipes, professions, progression, and tools." className="mw-command-dialog" initialFocusRef={inputRef}>
+        <label className="mw-command-search"><Search size={18} aria-hidden="true" /><span className="sr-only">Search everything</span><input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try ‘Blacksmithing’, ‘Soul Bead’, or ‘Sharandar’…" /></label>
         <div className="mw-command-results" role="listbox" aria-label="Search results">
           {visible.length ? visible.map((result) => <button type="button" role="option" aria-selected="false" key={result.id} onClick={() => navigate(result.href)}>
             <span className="mw-command-icon">{result.type === 'Material' ? <Gem size={18} /> : result.type === 'Progression' || result.type === 'Profession' ? <Sparkles size={18} /> : result.type === 'Page' ? <Boxes size={18} /> : result.type === 'Verification' ? <CircleHelp size={18} /> : <BookOpen size={18} />}</span>
