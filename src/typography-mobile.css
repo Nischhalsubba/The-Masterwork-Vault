@@ -1,0 +1,40 @@
+/* Mobile-specific typography refinements for the authoritative phone shell. */
+
+@media (max-width: 680px) {
+  .mobile-v4-brand small {
+    font-size: var(--type-2xs);
+    line-height: 1.35;
+  }
+
+  .mobile-v4-back,
+  .mobile-v4-detail-title {
+    font-weight: 600;
+  }
+
+  .mobile-v4-tabbar button {
+    font-size: 0.71875rem;
+    line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.004em;
+  }
+
+  .mobile-v4-tabbar .badge {
+    font-size: 0.625rem;
+    font-weight: 700;
+  }
+
+  .catalog .detail .section-head small,
+  .catalog .detail .drilldown-section-head small,
+  .stats-drawer-head small,
+  .stats-drawer-section-head small,
+  .stats-drawer-grid span,
+  .evidence-grid span {
+    font-size: var(--type-2xs) !important;
+    line-height: 1.4 !important;
+  }
+
+  .stats-drawer-grid strong {
+    font-size: var(--type-md) !important;
+    line-height: 1.3 !important;
+  }
+}
