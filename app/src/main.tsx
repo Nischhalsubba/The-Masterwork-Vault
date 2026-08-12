@@ -1,8 +1,9 @@
-import { lazy, StrictMode, Suspense, type ReactNode } from 'react'
+import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
 import { UpdateBanner } from './components/UpdateBanner'
+import { UXSystem } from './components/UXSystem'
 import './styles.css'
 import './drilldown.css'
 import './features.css'
@@ -23,6 +24,7 @@ import './quality-fixes.css'
 import './masterwork-next.css'
 import './typography.css'
 import './typography-mobile.css'
+import './ux-system.css'
 
 const App = lazy(() => import('./App'))
 const MobileV4Shell = lazy(() => import('./components/MobileV4Shell').then((module) => ({ default: module.MobileV4Shell })))
@@ -44,6 +46,44 @@ function Guarded({ name, children }: { name: string; children: ReactNode }) {
   return <ErrorBoundary name={name}>{children}</ErrorBoundary>
 }
 
+function SkipLink() {
+  const linkRef = useRef<HTMLAnchorElement>(null)
+
+  useLayoutEffect(() => {
+    let pointerInteracted = false
+    let routedFirstTab = false
+
+    const onPointerDown = () => { pointerInteracted = true }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (routedFirstTab || pointerInteracted || event.key !== 'Tab' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return
+      const link = linkRef.current
+      if (!link) return
+      routedFirstTab = true
+      event.preventDefault()
+      link.focus({ preventScroll: true })
+    }
+
+    document.addEventListener('pointerdown', onPointerDown, true)
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+      document.removeEventListener('keydown', onKeyDown, true)
+    }
+  }, [])
+
+  const skipToContent = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    const target = document.querySelector<HTMLElement>('main')
+    if (!target) return
+    const hadTabIndex = target.hasAttribute('tabindex')
+    if (!hadTabIndex) target.tabIndex = -1
+    target.focus({ preventScroll: false })
+    if (!hadTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true })
+  }
+
+  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={skipToContent}>Skip to main content</a>
+}
+
 function RouteContent() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/catalog'
   if (path === '/journey') return <Guarded name="Journey"><JourneyPage /></Guarded>
@@ -62,8 +102,10 @@ function RouteContent() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <SkipLink />
     <ErrorBoundary name="The Masterwork Vault">
       <Suspense fallback={<PageLoading />}>
+        <UXSystem />
         <RouteContent />
         <QualitySystem />
         <CommandPalette />
