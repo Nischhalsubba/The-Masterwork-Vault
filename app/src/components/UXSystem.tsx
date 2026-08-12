@@ -69,19 +69,8 @@ export function UXSystem() {
     }
   }, [])
 
-  const skipToContent = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-    const target = document.querySelector<HTMLElement>('main')
-    if (!target) return
-    const hadTabIndex = target.hasAttribute('tabindex')
-    if (!hadTabIndex) target.tabIndex = -1
-    target.focus({ preventScroll: false })
-    if (!hadTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true })
-  }
 
   return <>
-    <a className="ux-skip-link" href="#main-content" onClick={skipToContent}>Skip to main content</a>
-
     <details ref={densityMenu} className="ux-density-menu">
       <summary><SlidersHorizontal size={16} aria-hidden="true" />View</summary>
       <div className="ux-density-popover" role="group" aria-label="Information density">

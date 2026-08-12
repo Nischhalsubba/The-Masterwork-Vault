@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense, type ReactNode } from 'react'
+import { lazy, StrictMode, Suspense, type MouseEvent, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
@@ -46,6 +46,20 @@ function Guarded({ name, children }: { name: string; children: ReactNode }) {
   return <ErrorBoundary name={name}>{children}</ErrorBoundary>
 }
 
+function SkipLink() {
+  const skipToContent = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    const target = document.querySelector<HTMLElement>('main')
+    if (!target) return
+    const hadTabIndex = target.hasAttribute('tabindex')
+    if (!hadTabIndex) target.tabIndex = -1
+    target.focus({ preventScroll: false })
+    if (!hadTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true })
+  }
+
+  return <a className="ux-skip-link" href="#main-content" onClick={skipToContent}>Skip to main content</a>
+}
+
 function RouteContent() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/catalog'
   if (path === '/journey') return <Guarded name="Journey"><JourneyPage /></Guarded>
@@ -64,6 +78,7 @@ function RouteContent() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <SkipLink />
     <ErrorBoundary name="The Masterwork Vault">
       <Suspense fallback={<PageLoading />}>
         <UXSystem />
