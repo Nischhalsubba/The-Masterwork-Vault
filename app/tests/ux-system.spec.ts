@@ -107,7 +107,7 @@ test('global skip link is the first keyboard escape route', async ({ page }) => 
   const skip = page.locator('.ux-skip-link')
   await expect(skip).toBeAttached()
   await page.keyboard.press('Tab')
-  await sskip.toBeFocused()
+  await expect(skip).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(page.locator('main')).toBeFocused()
 })
