@@ -22,6 +22,7 @@ import './icon-fallbacks.css'
 import './quality-fixes.css'
 import './masterwork-next.css'
 import './typography.css'
+import './typography-mobile.css'
 
 const App = lazy(() => import('./App'))
 const MobileV4Shell = lazy(() => import('./components/MobileV4Shell').then((module) => ({ default: module.MobileV4Shell })))
