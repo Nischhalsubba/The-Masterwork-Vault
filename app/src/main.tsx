@@ -84,6 +84,30 @@ function SkipLink() {
   return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={skipToContent}>Skip to main content</a>
 }
 
+function DeveloperAttribution() {
+  useLayoutEffect(() => {
+    const root = document.querySelector('#root')
+    if (!root) return
+
+    const applyAttribution = () => {
+      const footer = root.querySelector<HTMLElement>('footer')
+      const copy = footer?.querySelector<HTMLElement>('p') || footer
+      if (!copy || copy.querySelector('[data-developer-credit]')) return
+      const credit = document.createElement('span')
+      credit.dataset.developerCredit = 'true'
+      credit.textContent = ' · Developed by Neverwinter player Ar-chew.'
+      copy.appendChild(credit)
+    }
+
+    applyAttribution()
+    const observer = new MutationObserver(applyAttribution)
+    observer.observe(root, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [])
+
+  return null
+}
+
 function RouteContent() {
   const path = window.location.pathname.replace(/\/+$/, '') || '/catalog'
   if (path === '/journey') return <Guarded name="Journey"><JourneyPage /></Guarded>
@@ -107,6 +131,7 @@ createRoot(document.getElementById('root')!).render(
       <Suspense fallback={<PageLoading />}>
         <UXSystem />
         <RouteContent />
+        <DeveloperAttribution />
         <QualitySystem />
         <CommandPalette />
         <UpdateBanner />
