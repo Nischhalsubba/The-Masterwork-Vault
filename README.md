@@ -4,11 +4,7 @@
 
 **A Neverwinter masterwork crafting reference for organizing recipes, ingredients, professions, item outputs, requirements, and source-aware crafting information.**
 
-![Top language](https://img.shields.io/github/languages/top/Nischhalsubba/The-Masterwork-Vault?style=flat-square)
-![Last commit](https://img.shields.io/github/last-commit/Nischhalsubba/The-Masterwork-Vault?style=flat-square)
-![Repo size](https://img.shields.io/github/repo-size/Nischhalsubba/The-Masterwork-Vault?style=flat-square)
-
-[Browse source](https://github.com/Nischhalsubba/The-Masterwork-Vault/tree/main) · [Issues](https://github.com/Nischhalsubba/The-Masterwork-Vault/issues)
+**Developed by Neverwinter player `Ar-chew`.**
 
 </div>
 
@@ -51,7 +47,7 @@ flowchart TD
 ## Getting started
 
 ```bash
-git clone https://github.com/Nischhalsubba/The-Masterwork-Vault.git
+git clone <repository-url>
 cd The-Masterwork-Vault
 ```
 
