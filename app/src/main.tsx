@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type ReactNode } from 'react'
+import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
@@ -85,7 +85,17 @@ function SkipLink() {
     }
   }, [])
 
-  return <a ref={linkRef} className="ux-skip-link" href="#main-content">Skip to main content</a>
+  const focusMainContent = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    const target = document.getElementById('main-content')
+    if (!(target instanceof HTMLElement)) return
+
+    window.requestAnimationFrame(() => {
+      target.focus({ preventScroll: false })
+    })
+  }
+
+  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={focusMainContent}>Skip to main content</a>
 }
 
 function DeveloperAttribution() {
