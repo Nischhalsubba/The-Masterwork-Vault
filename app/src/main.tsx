@@ -71,17 +71,32 @@ function SkipLink() {
     }
   }, [])
 
-  const skipToContent = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-    const target = document.querySelector<HTMLElement>('main')
+  const focusMainContent = () => {
+    const target = document.getElementById('main-content') || document.querySelector<HTMLElement>('main')
     if (!target) return
-    const hadTabIndex = target.hasAttribute('tabindex')
-    if (!hadTabIndex) target.tabIndex = -1
-    target.focus({ preventScroll: false })
-    if (!hadTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true })
+    if (!target.hasAttribute('tabindex')) target.tabIndex = -1
+
+    const focusTarget = () => target.focus({ preventScroll: false })
+    focusTarget()
+    window.requestAnimationFrame(focusTarget)
   }
 
-  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={skipToContent}>Skip to main content</a>
+  const skipToContent = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    focusMainContent()
+  }
+
+  return <a
+    ref={linkRef}
+    className="ux-skip-link"
+    href="#main-content"
+    onClick={skipToContent}
+    onKeyDown={(event) => {
+      if (event.key !== 'Enter') return
+      event.preventDefault()
+      focusMainContent()
+    }}
+  >Skip to main content</a>
 }
 
 function DeveloperAttribution() {
