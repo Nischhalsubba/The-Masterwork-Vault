@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.2.0",
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "packageManager": "npm@10.9.2",
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/apply-next-level-integration.mjs && node scripts/apply-ux-integration.mjs",
@@ -24,10 +28,10 @@
     "three": "0.185.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.54.2",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "@types/three": "latest",
+    "@playwright/test": "1.62.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@types/three": "0.185.3",
     "@vitejs/plugin-react": "6.0.4",
     "typescript": "7.0.2",
     "vite": "8.1.5"
