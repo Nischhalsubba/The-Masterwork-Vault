@@ -35,5 +35,22 @@ jobs:
         run: npm audit --audit-level=low
       - name: Install Chromium
         run: npx --no-install playwright install --with-deps chromium
-      - name: Run production build and browser quality suite
-        run: npm run test:quality
+      - name: Build production application
+        run: npm run build
+      - name: Run browser quality suite
+        id: browser-quality
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: playwright-results.json
+        run: npx --no-install playwright test --reporter=list,json
+      - name: Upload compact browser diagnostics
+        if: steps.browser-quality.outcome == 'failure'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: masterwork-playwright-results
+          path: app/playwright-results.json
+          if-no-files-found: error
+          retention-days: 1
+      - name: Fail browser quality suite
+        if: steps.browser-quality.outcome == 'failure'
+        run: exit 1
