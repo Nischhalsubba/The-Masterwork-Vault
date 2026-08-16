@@ -6,7 +6,7 @@
   "engines": {
     "node": "24.x"
   },
-  "packageManager": "npm@10.9.2",
+  "packageManager": "npm@11.17.0",
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/apply-next-level-integration.mjs && node scripts/apply-ux-integration.mjs",
