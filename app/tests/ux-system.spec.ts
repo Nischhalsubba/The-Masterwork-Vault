@@ -109,5 +109,15 @@ test('global skip link is the first keyboard escape route', async ({ page }) => 
   await page.keyboard.press('Tab')
   await expect(skip).toBeFocused()
   await page.keyboard.press('Enter')
+  const activeElement = await page.evaluate(() => {
+    const element = document.activeElement as HTMLElement | null
+    return {
+      tagName: element?.tagName ?? null,
+      id: element?.id ?? null,
+      className: typeof element?.className === 'string' ? element.className : null,
+      text: element?.textContent?.trim().slice(0, 80) ?? null,
+    }
+  })
+  console.log('Active element after skip-link activation:', JSON.stringify(activeElement))
   await expect(page.locator('main')).toBeFocused()
 })
