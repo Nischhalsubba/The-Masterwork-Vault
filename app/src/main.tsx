@@ -87,11 +87,11 @@ function SkipLink() {
 
   const focusMainContent = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
-    const target = document.getElementById('main-content')
-    if (!(target instanceof HTMLElement)) return
-
     window.requestAnimationFrame(() => {
-      target.focus({ preventScroll: false })
+      window.requestAnimationFrame(() => {
+        const target = document.getElementById('main-content')
+        if (target instanceof HTMLElement) target.focus({ preventScroll: false })
+      })
     })
   }
 
