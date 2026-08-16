@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
+import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
@@ -46,6 +46,11 @@ function Guarded({ name, children }: { name: string; children: ReactNode }) {
   return <ErrorBoundary name={name}>{children}</ErrorBoundary>
 }
 
+function focusMainContent() {
+  const target = document.getElementById('main-content') || document.querySelector<HTMLElement>('main')
+  target?.focus({ preventScroll: false })
+}
+
 function SkipLink() {
   const linkRef = useRef<HTMLAnchorElement>(null)
 
@@ -55,9 +60,17 @@ function SkipLink() {
 
     const onPointerDown = () => { pointerInteracted = true }
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (routedFirstTab || pointerInteracted || event.key !== 'Tab' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return
       const link = linkRef.current
       if (!link) return
+
+      if (event.key === 'Enter' && document.activeElement === link) {
+        event.preventDefault()
+        event.stopPropagation()
+        focusMainContent()
+        return
+      }
+
+      if (routedFirstTab || pointerInteracted || event.key !== 'Tab' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return
       routedFirstTab = true
       event.preventDefault()
       link.focus({ preventScroll: true })
@@ -71,25 +84,12 @@ function SkipLink() {
     }
   }, [])
 
-  const focusMainContent = () => {
-    window.setTimeout(() => {
-      const target = document.getElementById('main-content') || document.querySelector<HTMLElement>('main')
-      target?.focus({ preventScroll: false })
-    }, 0)
-  }
-
   const handleActivation = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
     focusMainContent()
   }
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLAnchorElement>) => {
-    if (event.key !== 'Enter') return
-    event.preventDefault()
-    focusMainContent()
-  }
-
-  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={handleActivation} onKeyDown={handleKeyDown}>Skip to main content</a>
+  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={handleActivation}>Skip to main content</a>
 }
 
 function DeveloperAttribution() {
