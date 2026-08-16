@@ -72,9 +72,10 @@ function SkipLink() {
   }, [])
 
   const focusMainContent = () => {
-    const target = document.getElementById('main-content') || document.querySelector<HTMLElement>('main')
-    if (!target) return
-    window.setTimeout(() => target.focus({ preventScroll: false }), 0)
+    window.setTimeout(() => {
+      const target = document.getElementById('main-content') || document.querySelector<HTMLElement>('main')
+      target?.focus({ preventScroll: false })
+    }, 0)
   }
 
   const handleActivation = (event: MouseEvent<HTMLAnchorElement>) => {
