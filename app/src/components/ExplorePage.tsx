@@ -123,7 +123,7 @@ export function ExplorePage() {
 
   return <div className="mw-explore-page">
     <header className="mw-page-topbar"><a href="/catalog" className="mw-page-brand"><img src="/assets/brand/masterwork-vault-mark.svg" alt="" /><span><strong>The Masterwork Vault</strong><small>Advanced explorer</small></span></a><nav aria-label="Primary navigation"><a href="/catalog">Catalog</a><a href="/explore" aria-current="page">Explore</a><a href="/graph">Graph</a><a href="/readiness">Readiness</a></nav></header>
-    <main id="main-content" className="mw-explore-main">
+    <main id="main-content" className="mw-explore-main" tabIndex={-1}>
       <section className="mw-explore-hero"><div><a className="mw-back-link" href="/catalog"><ChevronLeft size={17} />Back to Catalog</a><span className="mw-eyebrow"><Filter size={14} /> ADVANCED EXPLORER</span><h1>Filter the Vault like a database.</h1><p>Combine campaign, profession, type, class, source confidence, recipe availability and free-text search without replacing the faster everyday Catalog.</p></div><div className="mw-explore-count"><strong>{results.length}</strong><span>matching craftables</span><small>{catalog.items.length} total catalog records</small></div></section>
       <div className="mw-explore-layout">
         <aside className="mw-explore-filters">
