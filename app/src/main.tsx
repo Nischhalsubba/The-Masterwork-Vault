@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react'
+import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
@@ -49,39 +49,70 @@ function Guarded({ name, children }: { name: string; children: ReactNode }) {
 function SkipLink() {
   const linkRef = useRef<HTMLAnchorElement>(null)
 
+  const focusMainContent = () => {
+    const target = document.getElementById('main-content')
+    if (!(target instanceof HTMLElement)) return false
+    target.focus({ preventScroll: false })
+    return document.activeElement === target
+  }
+
+  const moveFocusToMainContent = () => {
+    if (focusMainContent()) return
+
+    const root = document.getElementById('root')
+    if (!root) return
+
+    const observer = new MutationObserver(() => {
+      if (focusMainContent()) observer.disconnect()
+    })
+    observer.observe(root, { childList: true, subtree: true })
+    window.setTimeout(() => observer.disconnect(), 2000)
+  }
+
   useLayoutEffect(() => {
+    const link = linkRef.current
+    if (!link) return
+
     let pointerInteracted = false
     let routedFirstTab = false
 
-    const onPointerDown = () => { pointerInteracted = true }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (routedFirstTab || pointerInteracted || event.key !== 'Tab' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return
-      const link = linkRef.current
-      if (!link) return
+    const onPointerDown = () => {
+      pointerInteracted = true
+    }
+    const onActivate = (event: globalThis.MouseEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+      moveFocusToMainContent()
+    }
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (
+        routedFirstTab ||
+        pointerInteracted ||
+        event.key !== 'Tab' ||
+        event.shiftKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey
+      ) {
+        return
+      }
+
       routedFirstTab = true
       event.preventDefault()
       link.focus({ preventScroll: true })
     }
 
+    link.addEventListener('click', onActivate)
     document.addEventListener('pointerdown', onPointerDown, true)
     document.addEventListener('keydown', onKeyDown, true)
     return () => {
+      link.removeEventListener('click', onActivate)
       document.removeEventListener('pointerdown', onPointerDown, true)
       document.removeEventListener('keydown', onKeyDown, true)
     }
   }, [])
 
-  const skipToContent = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-    const target = document.querySelector<HTMLElement>('main')
-    if (!target) return
-    const hadTabIndex = target.hasAttribute('tabindex')
-    if (!hadTabIndex) target.tabIndex = -1
-    target.focus({ preventScroll: false })
-    if (!hadTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true })
-  }
-
-  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={skipToContent}>Skip to main content</a>
+  return <a ref={linkRef} className="ux-skip-link" href="#main-content">Skip to main content</a>
 }
 
 function DeveloperAttribution() {
