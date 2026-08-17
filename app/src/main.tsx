@@ -49,9 +49,24 @@ function Guarded({ name, children }: { name: string; children: ReactNode }) {
 function SkipLink() {
   const linkRef = useRef<HTMLAnchorElement>(null)
 
-  const moveFocusToMainContent = () => {
+  const focusMainContent = () => {
     const target = document.getElementById('main-content')
-    if (target instanceof HTMLElement) target.focus({ preventScroll: false })
+    if (!(target instanceof HTMLElement)) return false
+    target.focus({ preventScroll: false })
+    return document.activeElement === target
+  }
+
+  const moveFocusToMainContent = () => {
+    if (focusMainContent()) return
+
+    const root = document.getElementById('root')
+    if (!root) return
+
+    const observer = new MutationObserver(() => {
+      if (focusMainContent()) observer.disconnect()
+    })
+    observer.observe(root, { childList: true, subtree: true })
+    window.setTimeout(() => observer.disconnect(), 2000)
   }
 
   useLayoutEffect(() => {
@@ -67,7 +82,7 @@ function SkipLink() {
     const onActivate = (event: globalThis.MouseEvent) => {
       event.preventDefault()
       event.stopPropagation()
-      window.setTimeout(moveFocusToMainContent, 0)
+      moveFocusToMainContent()
     }
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (
