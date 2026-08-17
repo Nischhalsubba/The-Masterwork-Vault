@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
+import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
@@ -49,6 +49,11 @@ function Guarded({ name, children }: { name: string; children: ReactNode }) {
 function SkipLink() {
   const linkRef = useRef<HTMLAnchorElement>(null)
 
+  const moveFocusToMainContent = () => {
+    const target = document.getElementById('main-content')
+    if (target instanceof HTMLElement) target.focus({ preventScroll: false })
+  }
+
   useLayoutEffect(() => {
     let pointerInteracted = false
     let routedFirstTab = false
@@ -57,6 +62,15 @@ function SkipLink() {
       pointerInteracted = true
     }
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      const link = linkRef.current
+      if (!link) return
+
+      if (event.key === 'Enter' && document.activeElement === link) {
+        event.preventDefault()
+        moveFocusToMainContent()
+        return
+      }
+
       if (
         routedFirstTab ||
         pointerInteracted ||
@@ -68,9 +82,6 @@ function SkipLink() {
       ) {
         return
       }
-
-      const link = linkRef.current
-      if (!link) return
 
       routedFirstTab = true
       event.preventDefault()
@@ -85,33 +96,12 @@ function SkipLink() {
     }
   }, [])
 
-  const moveFocusToMainContent = () => {
-    const target = document.getElementById('main-content')
-    if (target instanceof HTMLElement) target.focus({ preventScroll: false })
-  }
-
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
     moveFocusToMainContent()
   }
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLAnchorElement>) => {
-    if (event.key !== 'Enter') return
-    event.preventDefault()
-    moveFocusToMainContent()
-  }
-
-  return (
-    <a
-      ref={linkRef}
-      className="ux-skip-link"
-      href="#main-content"
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-    >
-      Skip to main content
-    </a>
-  )
+  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={handleClick}>Skip to main content</a>
 }
 
 function DeveloperAttribution() {
