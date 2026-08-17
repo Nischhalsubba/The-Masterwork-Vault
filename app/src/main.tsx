@@ -67,7 +67,8 @@ function SkipLink() {
 
       if (event.key === 'Enter' && document.activeElement === link) {
         event.preventDefault()
-        moveFocusToMainContent()
+        event.stopPropagation()
+        window.requestAnimationFrame(moveFocusToMainContent)
         return
       }
 
