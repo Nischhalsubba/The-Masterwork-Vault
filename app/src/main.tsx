@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react'
+import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/CommandPalette'
@@ -55,23 +55,21 @@ function SkipLink() {
   }
 
   useLayoutEffect(() => {
+    const link = linkRef.current
+    if (!link) return
+
     let pointerInteracted = false
     let routedFirstTab = false
 
     const onPointerDown = () => {
       pointerInteracted = true
     }
+    const onActivate = (event: globalThis.MouseEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+      window.setTimeout(moveFocusToMainContent, 0)
+    }
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      const link = linkRef.current
-      if (!link) return
-
-      if (event.key === 'Enter' && document.activeElement === link) {
-        event.preventDefault()
-        event.stopPropagation()
-        window.requestAnimationFrame(moveFocusToMainContent)
-        return
-      }
-
       if (
         routedFirstTab ||
         pointerInteracted ||
@@ -89,20 +87,17 @@ function SkipLink() {
       link.focus({ preventScroll: true })
     }
 
+    link.addEventListener('click', onActivate)
     document.addEventListener('pointerdown', onPointerDown, true)
     document.addEventListener('keydown', onKeyDown, true)
     return () => {
+      link.removeEventListener('click', onActivate)
       document.removeEventListener('pointerdown', onPointerDown, true)
       document.removeEventListener('keydown', onKeyDown, true)
     }
   }, [])
 
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-    moveFocusToMainContent()
-  }
-
-  return <a ref={linkRef} className="ux-skip-link" href="#main-content" onClick={handleClick}>Skip to main content</a>
+  return <a ref={linkRef} className="ux-skip-link" href="#main-content">Skip to main content</a>
 }
 
 function DeveloperAttribution() {
