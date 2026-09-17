@@ -8,8 +8,10 @@
   },
   "packageManager": "npm@11.17.0",
   "scripts": {
+    "predev": "npm run prebuild",
     "dev": "vite",
-    "prebuild": "node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/apply-next-level-integration.mjs && node scripts/apply-ux-integration.mjs",
+    "prebuild": "npm run verify:sources && node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/apply-next-level-integration.mjs && node scripts/apply-ux-integration.mjs && node scripts/apply-material-source-integration.mjs",
+    "verify:sources": "node --experimental-strip-types scripts/verify-material-sources.mjs && node --experimental-strip-types scripts/verify-material-source-search.mjs",
     "verify:recipes": "node scripts/verify-material-recipes.mjs",
     "verify:knowledge": "node scripts/verify-knowledge.mjs",
     "test:domain": "node --experimental-strip-types scripts/verify-domain-math.mjs",

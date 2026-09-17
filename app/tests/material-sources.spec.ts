@@ -1,0 +1,71 @@
+import { expect, test, type Page } from '@playwright/test'
+
+async function openIndex(page: Page) {
+  await page.goto('/materials')
+  const trigger = page.getByRole('button', { name: /Browse material sources/ })
+  await trigger.click()
+  const dialog = page.getByRole('dialog', { name: 'Material acquisition guide', exact: true })
+  await expect(dialog).toBeVisible()
+  return { dialog, trigger }
+}
+
+test('source index searches locations, filters uncertainty and restores focus', async ({ page }) => {
+  const { dialog, trigger } = await openIndex(page)
+  await dialog.getByLabel('Find a material, location or method').fill('Narbondellyn')
+  await expect(dialog.locator('.acquisition-index > details').filter({ hasText: 'Luminescent Darklake Water' })).toHaveCount(1)
+  await dialog.getByLabel('Find a material, location or method').fill('')
+  await dialog.getByLabel('Evidence', { exact: true }).selectOption('unresolved')
+  await expect(dialog.locator('.acquisition-index > details')).toHaveCount(1)
+  await expect(dialog).toContainText('Lacquered Roth')
+  await dialog.locator('.acquisition-index > details > summary').click()
+  await expect(dialog).toContainText('Do not substitute Lacquered Aberrant Leather')
+  await expect(dialog.locator('.acquisition-route')).toHaveCount(0)
+  await page.keyboard.press('Escape')
+  await expect(dialog).not.toBeVisible()
+  await expect(trigger).toBeFocused()
+})
+
+test('source index distinguishes crafted inputs and carries source links', async ({ page }, testInfo) => {
+  const { dialog } = await openIndex(page)
+  await dialog.getByLabel('Find a material, location or method').fill('Honey')
+  const result = dialog.locator('.acquisition-index > details').filter({ hasText: 'Honey' })
+  await expect(result).toHaveCount(1)
+  await result.locator(':scope > summary').click()
+  await expect(result).toContainText('Workshop crafting')
+  await expect(result).toContainText('Beehive Chip')
+  await result.locator('.acquisition-reference > summary').click()
+  const source = result.getByRole('link', { name: /Alchemy\/Honey/ })
+  await expect(source).toHaveAttribute('href', 'https://neverwinter.fandom.com/wiki/Alchemy/Honey')
+  await expect(source).toHaveAttribute('rel', 'noopener noreferrer')
+  const bounds = await dialog.boundingBox()
+  const viewport = page.viewportSize()
+  expect(bounds).not.toBeNull()
+  expect(viewport).not.toBeNull()
+  expect(bounds!.x).toBeGreaterThanOrEqual(0)
+  expect(bounds!.width).toBeLessThanOrEqual(viewport!.width)
+  expect(await dialog.evaluate((node) => node.scrollWidth <= node.clientWidth + 1)).toBe(true)
+  await page.screenshot({ path: testInfo.outputPath(`material-sources-${testInfo.project.name}.png`), fullPage: true })
+})
+
+test('raw recipe inputs expose a working acquisition dialog', async ({ page }) => {
+  await page.goto('/catalog?campaign=Sharandar&q=Crafted%20Potion%20of%20Accuracy%20Rank%2013')
+  await page.locator('.catalog .items .item-main').filter({ hasText: 'Crafted Potion of Accuracy Rank 13' }).first().click()
+  const trigger = page.getByRole('button', { name: 'Where to get Sugar Beet', exact: true }).filter({ visible: true }).first()
+  await trigger.click()
+  const dialog = page.getByRole('dialog', { name: 'Sugar Beet', exact: true })
+  await expect(dialog).toBeVisible()
+  await expect(dialog).toContainText('Workshop gathering')
+  await expect(dialog).toContainText('Adventurer')
+  await page.keyboard.press('Escape')
+  await expect(dialog).not.toBeVisible()
+  await expect(trigger).toBeFocused()
+})
+
+test('material detail exposes acquisition without replacing recipe evidence', async ({ page }) => {
+  await page.goto('/materials')
+  await page.getByRole('textbox', { name: 'Search materials', exact: true }).fill('Mushroom Log')
+  await page.locator('.material-list > button').filter({ hasText: 'Mushroom Log' }).click()
+  await expect(page.getByRole('heading', { name: 'Where to get Mushroom Log' })).toBeVisible()
+  await expect(page.locator('.material-intelligence .acquisition-guide')).toContainText('Menzoberranzan')
+  await expect(page.locator('.material-intelligence .evidence-card > summary')).toContainText('Recipe verification')
+})
