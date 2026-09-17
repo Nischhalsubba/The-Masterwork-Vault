@@ -2,6 +2,7 @@ import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronLeft, ChevronRight, GitBranch, Hammer, Search, Wrench } from 'lucide-react'
 import catalogJson from '../data/catalog'
 import type { CatalogData, ItemEntry } from '../types'
+import { MaterialSourceButton } from './MaterialSources'
 import { buildCraftingTrees, type CraftTreeNode } from '../lib/crafting'
 
 const catalog = catalogJson as CatalogData
@@ -15,6 +16,7 @@ function GraphNode({ node, depth = 0 }: { node: CraftTreeNode; depth?: number })
       <span className="mw-graph-kind">{node.kind === 'item' ? <Wrench size={16} /> : node.craftable ? <Hammer size={16} /> : <span />}</span>
       <span><strong>{node.name}</strong><small>{node.kind === 'item' ? 'Final craft' : node.craftable ? `${node.profession || 'Crafted'} · ${node.crafts || 0} craft${node.crafts === 1 ? '' : 's'}` : 'Raw / acquired'}</small></span>
       <b>×{node.required}</b>
+      {node.kind === 'material' && !node.craftable && <MaterialSourceButton name={node.name} />}
     </div>
     {open && hasChildren && <ol>{node.children.map((child, index) => <GraphNode node={child} depth={depth + 1} key={`${child.id}:${index}`} />)}</ol>}
   </li>
@@ -68,7 +70,7 @@ export function RecipeGraphPage() {
       <section className="mw-graph-hero"><div><a className="mw-back-link" href="/catalog"><ChevronLeft size={17} />Back to Catalog</a><span className="mw-eyebrow"><GitBranch size={14} /> DEPENDENCY GRAPH</span><h1>See every craft beneath the final item.</h1><p>The graph uses the same batch-aware recipe relationships as the production planner. Expand only the branches you need; raw materials remain the leaves.</p></div>{item && <div className="mw-graph-summary"><span>{item.campaign || 'Unknown'} · {item.profession || 'Profession not recorded'}</span><strong>{item.name}</strong><small>{craftableCount} crafted intermediates · {rawCount} raw material kinds</small></div>}</section>
       <div className="mw-graph-layout">
         <aside><label className="mw-explore-search"><Search size={16} /><span className="sr-only">Search graph items</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a craftable…" /></label><div className="mw-graph-picker" aria-busy={query !== deferredQuery}>{visible.map((entry: ItemEntry) => <button type="button" className={entry.id === item?.id ? 'active' : ''} onClick={() => setItemId(entry.id)} key={entry.id}><strong>{entry.name}</strong><small>{entry.campaign || 'Unknown'} · {entry.profession || entry.kind}</small></button>)}</div></aside>
-        <section className="mw-graph-canvas" aria-label={item ? `${item.name} dependency graph` : 'Dependency graph'}>{trees.length ? <ol className="mw-graph-tree">{trees.map((tree) => <GraphNode node={tree} key={tree.id} />)}</ol> : <p>No recipe graph is available.</p>}</section>
+        <section className="mw-graph-canvas" tabIndex={0} aria-label={item ? `${item.name} dependency graph` : 'Dependency graph'}>{trees.length ? <ol className="mw-graph-tree">{trees.map((tree) => <GraphNode node={tree} key={tree.id} />)}</ol> : <p>No recipe graph is available.</p>}</section>
       </div>
     </main>
   </div>

@@ -1,4 +1,5 @@
 import catalog from './catalog'
+import { JOURNEY_BOOK_PRICES } from './journeyKnowledge'
 
 export type KnowledgeConfidence =
   | 'screenshot-backed'
@@ -46,21 +47,25 @@ export const knowledgeSources = [
     type: 'official-patch-note',
     label: 'October 19, 2021 professions / Masterwork rework',
     note: 'Masterwork recipe books became direct purchases from the Stronghold Artisan and the old Stronghold Artisan storyline ceased to be the acquisition prerequisite.',
-    confidence: 'verified-current' as const,
+    confidence: 'historical-secondary' as const,
+    url: 'https://www.playneverwinter.com/en/news-details/11500323',
+    publishedAt: '2021-10-18',
+    reviewedAt: '2026-09-17',
   },
   {
     id: 'progression-research-2026',
     type: 'cross-source-research',
-    label: '2026 current-system progression research pass',
-    note: 'Modern profession, Workshop and Masterwork rules reconciled against official patch notes, current wiki data and live-era community evidence. Unresolved fields remain null rather than inferred.',
-    confidence: 'strong-current' as const,
+    label: '17 September 2026 literature review',
+    note: 'Publisher changes and historical community references were read. This is not an in-game observation; minimum gates, binding, capacities and refill rates require current confirmation.',
+    confidence: 'historical-secondary' as const,
   },
 ] as const
 
 export const professionMechanics = {
   maxLevel: 20,
   dailyMorale: 400,
-  moraleRefillAdPerPoint: 120,
+  moraleRefillAdPerPoint: null,
+  moraleRefillCurrentVerificationRequired: true,
   trainingManualXpMultipliers: {
     tinkers: 0.5,
     makers: 1,
@@ -73,11 +78,11 @@ export const professionMechanics = {
   },
   highQualityChance: {
     formula: 'clamp((focus - minimumFocus) / (focusGoal - minimumFocus), 0, 1)',
-    confidence: 'strong-current' as KnowledgeConfidence,
+    confidence: 'historical-secondary' as KnowledgeConfidence,
   },
   craftingTime: {
     formula: 'baseInterval / (1 + speedModifier / 100)',
-    confidence: 'strong-current' as KnowledgeConfidence,
+    confidence: 'historical-secondary' as KnowledgeConfidence,
   },
   xpThresholds: null,
   xpThresholdsIgnoredForImplementation: true,
@@ -85,32 +90,34 @@ export const professionMechanics = {
 } as const
 
 export const workshopProgressionKnowledge = {
-  confidence: 'strong-current' as KnowledgeConfidence,
-  currentVerificationRequired: false,
-  note: 'Workshop Rank 4 remains useful Workshop progression but is not a modern prerequisite for purchasing Masterwork recipe books.',
+  confidence: 'historical-secondary' as KnowledgeConfidence,
+  currentVerificationRequired: true,
+  note: 'Workshop facilities and book access are separate tracks. The 2021 removal of the Artisan storyline does not establish every current Workshop or guild gate.',
   artisanCapacityByRank: {
-    1: 11,
-    2: 17,
-    3: 23,
-    4: 29,
+    1: null,
+    2: null,
+    3: null,
+    4: null,
   },
   questTriggers: [
-    { professionLevel: 5, quest: 'A Clean Start', outcome: 'Workshop Rank 2 progression' },
-    { professionLevel: 8, quest: 'Trading Company', outcome: 'Continue Workshop progression' },
-    { professionLevel: 10, quest: 'Lessons Learned', outcome: 'Continue Workshop progression' },
-    { professionLevel: 13, quest: 'A Box for Knox', outcome: 'Continue Workshop progression' },
-    { professionLevel: 15, quest: 'Facilities Upgrade', outcome: 'Workshop Rank 3 progression' },
+    { professionLevel: null, quest: 'A Clean Start', outcome: 'Workshop Rank 2 progression' },
+    { professionLevel: null, quest: 'Trading Company', outcome: 'Continue Workshop progression' },
+    { professionLevel: null, quest: 'Lessons Learned', outcome: 'Continue Workshop progression' },
+    { professionLevel: null, quest: 'A Box for Knox', outcome: 'Continue Workshop progression' },
+    { professionLevel: null, quest: 'Facilities Upgrade', outcome: 'Workshop Rank 3 progression' },
   ],
   rank4: {
-    quest: 'Grand Upgrade',
+    quest: 'The Grand Upgrade',
     southSeaTradingCompanyCredits: 2_500_000,
-    note: 'The South Sea Trading Company credit requirement was reduced from the historical 5,000,000 value to 2,500,000.',
+    note: 'Publisher patch of 18 July 2023 reduced the requirement from 5,000,000 to 2,500,000; confirm the live quest before spending.',
+    sourceUrl: 'https://www.playneverwinter.com/en/news-details/11548793',
+    publishedAt: '2023-07-18',
   },
   masterworkGate: {
     requiredWorkshopRank: null,
     supersededHistoricalRule: 4,
-    description: 'Workshop Rank 4 was a historical Masterwork-access gate. The 2021 professions rework removed the old Stronghold Artisan storyline requirement and moved books to direct purchase.',
-    currentVerificationRequired: false,
+    description: 'The 2021 publisher note removes the old Stronghold Artisan storyline requirement. The exact current Workshop-rank gate is not independently established.',
+    currentVerificationRequired: true,
   },
 } as const
 
@@ -154,13 +161,13 @@ export const masterworkUnlockPrices = Object.fromEntries(
     profession,
     {
       profession,
-      chultanMW1: 500_000,
-      chultanMW2: 500_000,
-      sharandarMW: 1_500_000,
-      menzoberranzanMW: 1_500_000,
-      confidence: 'strong-current' as const,
-      currentVerificationRequired: false,
-      source: 'Current-system research plus supplied Menzoberranzan unlock-price data',
+      chultanMW1: JOURNEY_BOOK_PRICES[0],
+      chultanMW2: JOURNEY_BOOK_PRICES[1],
+      sharandarMW: JOURNEY_BOOK_PRICES[2],
+      menzoberranzanMW: JOURNEY_BOOK_PRICES[3],
+      confidence: 'historical-secondary' as const,
+      currentVerificationRequired: true,
+      source: 'AsteR MW Unlock Prices!A1:E10; published baseline, not a live vendor quote',
     },
   ]),
 ) as Record<string, {
@@ -169,7 +176,7 @@ export const masterworkUnlockPrices = Object.fromEntries(
   chultanMW2: number
   sharandarMW: number
   menzoberranzanMW: number
-  confidence: 'strong-current'
+  confidence: 'historical-secondary'
   currentVerificationRequired: boolean
   source: string
 }>
@@ -186,23 +193,26 @@ export const masterworkProgression = {
   sharandar: {
     professionLevel: 20,
     prerequisites: ['Chultan MW1', 'Chultan MW2'] as MasterworkCampaign[],
-    allChultanRecipesRequired: true,
+    allChultanRecipesRequired: null,
+    currentVerificationRequired: true,
     vendor: 'Stryker Bronzepin',
     location: 'New Sharandar',
     pricePerProfession: 1_500_000,
-    bind: 'Character',
-    confidence: 'strong-current' as KnowledgeConfidence,
+    bind: null,
+    confidence: 'historical-secondary' as KnowledgeConfidence,
   },
   menzoberranzan: {
     professionLevel: 20,
-    allProfessionsLevel20: true,
+    allProfessionsLevel20: null,
+    currentVerificationRequired: true,
     prerequisites: ['Chultan MW1', 'Chultan MW2', 'Sharandar MW'] as MasterworkCampaign[],
-    quest: 'Drow Mastery',
+    quest: null,
+    historicalQuestLabel: 'Drow Mastery',
     vendor: 'Drow Master Artisan',
     location: 'Narbondellyn',
     pricePerProfession: 1_500_000,
-    bind: 'Character',
-    confidence: 'strong-current' as KnowledgeConfidence,
+    bind: null,
+    confidence: 'historical-secondary' as KnowledgeConfidence,
   },
 } as const
 
@@ -258,14 +268,14 @@ export const getMasterworkAccessPath = (campaign?: string | null) => {
     return {
       target: 'Sharandar MW' as const,
       steps: ['Obtain Chultan MW1', 'Obtain Chultan MW2', 'Reach profession Level 20', 'Purchase the profession Sharandar book from Stryker Bronzepin'],
-      unresolvedIgnoredFields: ['Current Chultan Choice Pack binding', 'Exact modern Stronghold purchase gate'],
+      unresolvedIgnoredFields: ['Current recipe-book binding', 'Exact modern Stronghold purchase gate', 'Minimum cross-profession prerequisites; verify the live vendor'],
     }
   }
   if (era.includes('under') || era.includes('menzo')) {
     return {
       target: 'Menzoberranzan MW' as const,
-      steps: ['Reach Level 20 in all seven professions', 'Own all Chultan Masterwork recipes', 'Own all Sharandar Masterwork books', 'Complete Drow Mastery', 'Purchase the profession book from the Drow Master Artisan in Narbondellyn'],
-      unresolvedIgnoredFields: ['Current Chultan Choice Pack binding', 'Exact modern Stronghold purchase gate'],
+      steps: ['Develop the professions needed by your recipes to Level 20', 'Review Chultan I, Chultan II and Sharandar preparation', 'Check the current introduction quest with Stryker Bronzepin', 'Confirm the profession book, prerequisites and price at the Drow Master Artisan in Narbondellyn'],
+      unresolvedIgnoredFields: ['Current recipe-book binding', 'Exact modern Stronghold purchase gate', 'Minimum cross-profession prerequisites; verify the live vendor'],
     }
   }
   return null

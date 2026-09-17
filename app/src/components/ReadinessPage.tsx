@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { gsap } from 'gsap'
 import { BadgeCheck, BookOpen, CheckCircle2, ChevronLeft, CircleHelp, Coins, Download, FileUp, Gem, ListChecks, ShieldCheck, Sparkles, Wrench } from 'lucide-react'
-import { masterworkProgression, masterworkUnlockPrices } from '../data/craftingKnowledgePool'
+import { masterworkUnlockPrices } from '../data/craftingKnowledgePool'
 import { loadPlayerState, MASTERWORK_PROFESSIONS, savePlayerState, type MasterworkProfession, type PlayerState, type ProfessionProgress } from '../domain/playerState'
 import { importPortableVaultState, serializePortableVaultState } from '../domain/portableState'
 import { rankedReadinessActions, readinessSummary } from '../domain/readiness'
@@ -161,7 +161,7 @@ export function ReadinessPage() {
         </section>
 
         <section className="mw-readiness-bottom-grid">
-          <article className="mw-policy-card"><BookOpen /><span className="mw-eyebrow">UNLOCK POLICY</span><h3>Current Masterwork unlock path</h3><p>Chultan I → Chultan II → Sharandar. Menzoberranzan then requires all seven professions at Level {masterworkProgression.menzoberranzan.professionLevel}, earlier Masterwork progression, and {masterworkProgression.menzoberranzan.quest}.</p><a href="/journey">Open full journey</a></article>
+          <article className="mw-policy-card"><BookOpen /><span className="mw-eyebrow">UNLOCK POLICY</span><h3>Published Masterwork progression</h3><p>Chultan I, Chultan II, Sharandar and Menzoberranzan form the documented path. Tracking all seven professions is a full-path preparation plan, not proof of a minimum unlock gate. Confirm live quest requirements, binding and vendor prices.</p><a href="/journey">Open full journey</a></article>
           <article className="mw-policy-card"><Gem /><span className="mw-eyebrow">DIRECT BOOK BASELINE</span><h3>{MASTERWORK_PROFESSIONS.length} professions × four unlock stages</h3><p>Per profession: {(masterworkUnlockPrices.Alchemy.chultanMW1 + masterworkUnlockPrices.Alchemy.chultanMW2).toLocaleString()} AD Chultan, {masterworkUnlockPrices.Alchemy.sharandarMW.toLocaleString()} AD Sharandar, {masterworkUnlockPrices.Alchemy.menzoberranzanMW.toLocaleString()} AD Menzoberranzan.</p><a href="/data-health">Inspect evidence health</a></article>
         </section>
 

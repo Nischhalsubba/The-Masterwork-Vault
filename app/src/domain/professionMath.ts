@@ -11,7 +11,8 @@ export function craftingDuration(baseInterval: number, speedModifier: number) {
   return baseInterval / multiplier
 }
 
-export function moraleRefillCost(points: number, adPerPoint = 120, discountRate = 0) {
+export function moraleRefillCost(points: number, adPerPoint: number, discountRate = 0) {
+  if (![points, adPerPoint, discountRate].every(Number.isFinite)) return Number.NaN
   const cleanPoints = Math.max(0, Number(points) || 0)
   const cleanRate = Math.max(0, Number(adPerPoint) || 0)
   const cleanDiscount = Math.max(0, Math.min(1, Number(discountRate) || 0))

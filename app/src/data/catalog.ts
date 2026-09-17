@@ -1,4 +1,4 @@
-import compressedCatalog from './catalog.gz.b64?raw'
+import generatedCatalog from './catalog.generated'
 import iconData from './iconData'
 import materialIconOverrides from './materialIconOverrides'
 import gatheringMaterialIconOverrides from './gatheringMaterialIconOverrides'
@@ -12,10 +12,7 @@ import {
 import { sharandarItems, sharandarRecipes } from './sharandarSupplement'
 import { sharandarIconDataUri } from './sharandarSprite'
 
-const bytes = Uint8Array.from(atob(compressedCatalog.replace(/\s+/g, '')), (char) => char.charCodeAt(0))
-const stream = new Blob([bytes.buffer as ArrayBuffer]).stream().pipeThrough(new DecompressionStream('gzip'))
-const text = await new Response(stream).text()
-const catalog = JSON.parse(text)
+const catalog = structuredClone(generatedCatalog)
 
 const slug = (name: string) => name
   .toLowerCase()

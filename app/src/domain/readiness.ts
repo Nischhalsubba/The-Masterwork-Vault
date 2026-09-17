@@ -34,7 +34,7 @@ export function nextReadinessAction(profession: MasterworkProfession, progress: 
   if (!progress.chultan1) return { tier: 'chultan1', title: 'Unlock Chultan Masterwork I', detail: 'First modern Chultan Masterwork stage.', adCost: row.chultanMW1 }
   if (!progress.chultan2) return { tier: 'chultan2', title: 'Unlock Chultan Masterwork II', detail: 'Requires Chultan Masterwork I first.', adCost: row.chultanMW2 }
   if (!progress.sharandar) return { tier: 'sharandar', title: 'Unlock Sharandar Masterwork', detail: 'Requires the Chultan progression and profession Level 20.', adCost: row.sharandarMW }
-  if (!progress.menzoberranzan) return { tier: 'menzoberranzan', title: 'Unlock Menzoberranzan Masterwork', detail: 'Account-wide prerequisites include all seven professions at Level 20 and earlier Masterwork progression.', adCost: row.menzoberranzanMW }
+  if (!progress.menzoberranzan) return { tier: 'menzoberranzan', title: 'Unlock Menzoberranzan Masterwork', detail: 'Check the current introduction quest and vendor prerequisites. This tracker records your full-path preparation, not live eligibility.', adCost: row.menzoberranzanMW }
   return { tier: 'complete', title: 'Masterwork path complete', detail: 'This profession is marked through Menzoberranzan.', adCost: 0 }
 }
 

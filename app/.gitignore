@@ -3,3 +3,8 @@ dist
 .vite
 *.local
 .DS_Store
+
+src/data/catalog.generated.ts
+test-results/
+playwright-results.json
+playwright-report/

@@ -1,4 +1,5 @@
 import catalogJson from '../data/catalog'
+import { getMaterialSourceGuide, materialSourceRecords } from '../data/materialSources'
 import { masterworkProgression, professionMechanics, workshopProgressionKnowledge } from '../data/craftingKnowledgePool'
 import type { CatalogData, ItemEntry, MaterialEntry, RecipeEntry } from '../types'
 
@@ -14,21 +15,26 @@ export interface VerificationLedgerEntry {
   value: string
   status: VerificationStatus
   lastVerified: string
+  sourceUrl?: string
   note?: string
 }
 
+// Retrieval/review date, not an in-game observation.
 export const verificationLedger: VerificationLedgerEntry[] = [
-  { id: 'profession-cap', label: 'Profession level cap', value: String(professionMechanics.maxLevel), status: 'strong-current', lastVerified: '2026-08-11' },
-  { id: 'daily-morale', label: 'Daily Workshop Morale', value: String(professionMechanics.dailyMorale), status: 'strong-current', lastVerified: '2026-08-11' },
-  { id: 'morale-cost', label: 'Morale refill base rate', value: `${professionMechanics.moraleRefillAdPerPoint} AD / Morale`, status: 'strong-current', lastVerified: '2026-08-11' },
-  { id: 'maker-manual', label: "Maker's Training Manual", value: '+100% Professions XP', status: 'strong-current', lastVerified: '2026-08-11' },
-  { id: 'philosopher-manual', label: "Philosopher's Training Manual", value: '+200% Professions XP', status: 'strong-current', lastVerified: '2026-08-11' },
-  { id: 'focus', label: 'Focus → HQ chance', value: professionMechanics.highQualityChance.formula, status: 'strong-current', lastVerified: '2026-08-11' },
-  { id: 'speed', label: 'Speed → crafting time', value: professionMechanics.craftingTime.formula, status: 'strong-current', lastVerified: '2026-08-11' },
-  { id: 'artisan-capacity', label: 'Workshop artisan capacities', value: Object.entries(workshopProgressionKnowledge.artisanCapacityByRank).map(([rank, count]) => `R${rank}:${count}`).join(' · '), status: 'strong-current', lastVerified: '2026-08-11' },
-  { id: 'xp-curve', label: 'Profession XP curve Level 1→20', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-08-11', note: 'Obsolete pre-2021 XP tables must not be reused.' },
-  { id: 'chultan-bind', label: 'Modern Chultan Choice Pack binding', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-08-11' },
-  { id: 'stronghold-gate', label: 'Exact modern Stronghold purchase gate', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-08-11' },
+  { id: 'profession-cap', label: 'Post-rescale profession cap', value: String(professionMechanics.maxLevel), status: 'historical', lastVerified: '2026-09-17', note: 'Publisher change dated 16 July 2021; not a live-server observation.', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11491453' },
+  { id: 'daily-morale', label: 'Daily Workshop Morale', value: String(professionMechanics.dailyMorale), status: 'historical', lastVerified: '2026-09-17', note: 'Community reference; confirm current capacity and reset in-game.', sourceUrl: 'https://neverwinter.fandom.com/wiki/Profession' },
+  { id: 'morale-cost', label: 'Current Morale refill rate', value: 'Current quote required', status: 'unknown', lastVerified: '2026-09-17', note: 'The previous 120 AD default had no attributable current evidence. Calculators now require an entered rate.' },
+  { id: 'maker-manual', label: "Maker's Training Manual", value: 'Exact current bonus needs confirmation', status: 'unknown', lastVerified: '2026-09-17', note: 'Read the item tooltip; no bonus is applied automatically by the Journey.' },
+  { id: 'philosopher-manual', label: "Philosopher's Training Manual", value: 'Exact current bonus needs confirmation', status: 'unknown', lastVerified: '2026-09-17' },
+  { id: 'focus', label: 'Focus model retained in calculation library', value: professionMechanics.highQualityChance.formula, status: 'historical', lastVerified: '2026-09-17', note: 'Legacy model, not independently certified in this review. Use the task preview for actual quality chance.' },
+  { id: 'speed', label: 'Speed model retained in calculation library', value: professionMechanics.craftingTime.formula, status: 'historical', lastVerified: '2026-09-17', note: 'Model behavior is unit-tested, but that is not evidence of current game mechanics. Use the live task duration.' },
+  { id: 'artisan-capacity', label: 'Workshop artisan capacities and quest gates', value: 'Current values need confirmation', status: 'unknown', lastVerified: '2026-09-17', note: 'The community page explicitly warns that its leveling gates are outdated. No mathematical rescaling is presented as a verified gate.', sourceUrl: 'https://neverwinter.fandom.com/wiki/Profession#Upgrading_the_workshop' },
+  { id: 'grand-upgrade', label: 'The Grand Upgrade credit requirement', value: workshopProgressionKnowledge.rank4.southSeaTradingCompanyCredits.toLocaleString(), status: 'historical', lastVerified: '2026-09-17', note: 'Publisher lowered it from 5,000,000 on 18 July 2023. This is credits, not AD.', sourceUrl: workshopProgressionKnowledge.rank4.sourceUrl },
+  { id: 'professions-event', label: 'Published 2x Professions rules', value: 'Half Morale cost; double Masterwork-node resources; no doubled task XP', status: 'historical', lastVerified: '2026-09-17', note: 'Publisher rules dated 21 June 2022. Check the current calendar; no event is assumed active.', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11519393' },
+  { id: 'xp-curve', label: 'Profession XP curve Level 1-20', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17', note: 'Obsolete pre-2021 XP tables must not be reused.' },
+  { id: 'chultan-bind', label: 'Modern Chultan Choice Pack binding', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17' },
+  { id: 'stronghold-gate', label: 'Exact modern Stronghold purchase gate', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17' },
+  { id: 'cross-profession-gates', label: 'Minimum later-book prerequisites and binding', value: 'Confirm the current quest and vendor', status: 'unknown', lastVerified: '2026-09-17', note: 'A demonstration buying all seven book sets does not establish the minimum necessary for one profession.' },
 ]
 
 export function artworkProvenance(entity: ItemEntry | MaterialEntry): ArtworkProvenance {
@@ -125,7 +131,7 @@ export function buildDataHealthReport() {
   const duplicateRecipes = findDuplicates(catalog.recipes.map((recipe) => recipe.name))
   const cycles = findRecipeCycles(catalog.recipes)
   const rawMaterials = catalog.materials.filter((material) => !material.craftable)
-  const explicitAcquisition = rawMaterials.filter((material) => Boolean(material.acquisition && material.acquisition.type !== 'unknown'))
+  const sourceGuides = [...new Map([...materialSourceRecords, ...rawMaterials.map((material) => getMaterialSourceGuide(material.name))].map((guide) => [guide.name, guide])).values()]
   const iconCollisions = findIconCollisions([...catalog.items, ...catalog.materials])
   const qualityVariantReview = findVariantReviewQueue(catalog.items)
   const legacySetRecords = findLegacySetQueue(catalog.items)
@@ -155,7 +161,8 @@ export function buildDataHealthReport() {
       rejectedArtwork,
       missingProfessionRecipes,
       orphanCraftableMaterials,
-      acquisitionUnknown: rawMaterials.length - explicitAcquisition.length,
+      acquisitionUnknown: sourceGuides.filter((guide) => guide.status === 'unresolved').length,
+      acquisitionTracked: sourceGuides.length,
       duplicateItems,
       duplicateMaterials,
       duplicateRecipes,
@@ -168,6 +175,10 @@ export function buildDataHealthReport() {
       masterworkProgression.chultan.purchaseBinding === null ? 'Modern Chultan Choice Pack binding' : null,
       masterworkProgression.chultan.strongholdPurchaseGate === null ? 'Exact modern Stronghold purchase gate' : null,
       professionMechanics.xpThresholds === null ? 'Profession XP thresholds Level 1→20' : null,
+      'Current Morale refill rate and Workshop capacities',
+      'Rescaled Workshop quest triggers',
+      'Minimum cross-profession gates and later-book binding',
+      'Complete standard/Chultan recipe inventories and later tiers',
     ].filter(Boolean),
   }
 }

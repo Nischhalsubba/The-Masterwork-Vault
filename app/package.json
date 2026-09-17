@@ -10,17 +10,18 @@
   "scripts": {
     "predev": "npm run prebuild",
     "dev": "vite",
-    "prebuild": "npm run verify:sources && node scripts/precompile-catalog.mjs && node scripts/apply-quality-fixes.mjs && node scripts/apply-next-level-integration.mjs && node scripts/apply-ux-integration.mjs && node scripts/apply-material-source-integration.mjs",
+    "prebuild": "npm run verify:sources && node scripts/precompile-catalog.mjs",
     "verify:sources": "node --experimental-strip-types scripts/verify-material-sources.mjs && node --experimental-strip-types scripts/verify-material-source-search.mjs",
     "verify:recipes": "node scripts/verify-material-recipes.mjs",
     "verify:knowledge": "node scripts/verify-knowledge.mjs",
     "test:domain": "node --experimental-strip-types scripts/verify-domain-math.mjs",
-    "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain",
+    "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain && npm run verify:journey",
     "build": "npm run verify:release && tsc -b && vite build",
     "preview": "vite preview",
     "test:e2e": "npm run build && playwright test",
     "test:e2e:update": "npm run build && playwright test --update-snapshots",
-    "test:quality": "npm run test:e2e"
+    "test:quality": "npm run test:e2e",
+    "verify:journey": "node --experimental-strip-types scripts/verify-journey.mjs"
   },
   "dependencies": {
     "gsap": "3.15.0",
