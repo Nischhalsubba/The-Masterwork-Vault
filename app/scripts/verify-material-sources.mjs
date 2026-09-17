@@ -1,12 +1,20 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { gunzipSync } from 'node:zlib'
-import { recoveredMaterialSpecs, recoveredMaterialRecipes } from '../src/data/extractedSupplement.ts'
 import { sharandarRecipes, sharandarItems } from '../src/data/sharandarSupplement.ts'
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8')
+// Read the two literal data arrays without importing their browser-only icon dependencies.
+const supplement = read('../src/data/extractedSupplement.ts')
+function readSupplement(name) {
+  const match = supplement.match(new RegExp(`export const ${name} = (\\[[\\s\\S]*?\\]) as const`))
+  assert.ok(match, `Missing literal data array: ${name}`)
+  return JSON.parse(match[1])
+}
+const recoveredMaterialSpecs = readSupplement('recoveredMaterialSpecs')
+const recoveredMaterialRecipes = readSupplement('recoveredMaterialRecipes')
 const base = JSON.parse(gunzipSync(Buffer.from(read('../src/data/catalog.gz.b64').replace(/\s/g, ''), 'base64')))
-const key = (name) => name.toLowerCase().replace(/\+1/g, '').replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+const key = (name) => name.toLowerCase().replace(/\+1/g, '').replace(/[\u2019']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 const recipes = [...base.recipes, ...recoveredMaterialRecipes, ...sharandarRecipes]
 const outputs = new Set(recipes.filter((row) => row.materials?.length).map((row) => key(row.name)))
 const items = [...base.items, ...sharandarItems]
@@ -42,6 +50,11 @@ for (const row of materialSourceRecords) {
 assert.equal(getMaterialSourceGuide('An unknown future material').status, 'unresolved')
 assert.equal(getMaterialSourceGuide('An unknown future material').routes.length, 0)
 assert.equal(getMaterialSourceGuide('Druegarsteel Scrap').name, getMaterialSourceGuide('Duergarsteel Scrap').name)
-assert.notEqual(normalizeMaterialSourceName('Marilith Hair'), normalizeMaterialSourceName('Perfect Marilith Hair'), 'Do not conflate different quality materials')
+assert.notEqual(normalizeMaterialSourceName('Marilith Hair'), normalizeMaterialSourceName('Perfect Marilith Hair'))
+assert.match(getMaterialSourceGuide('Marilith Hair').routes[0].location, /Advanced/)
+assert.match(getMaterialSourceGuide('Perfect Marilith Hair').routes[0].location, /Master/)
+assert.equal(getMaterialSourceGuide('Calcified Webbing').routes[0].method, 'Campaign store')
+assert.match(getMaterialSourceGuide('Mushroom Log').routes[0].location, /^Menzoberranzan$/)
+assert.match(getMaterialSourceGuide('Luminescent Darklake Water').routes[0].location, /^Narbondellyn$/)
 console.log('SOURCE_COVERAGE=' + JSON.stringify(names.reduce((acc, name) => { const status = getMaterialSourceGuide(name).status; acc[status] = (acc[status] || 0) + 1; return acc }, {})))
 console.log('Material acquisition schema, raw-material coverage, aliases and uncertainty checks passed.')
