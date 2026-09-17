@@ -3,6 +3,10 @@
 .ux-density-menu > summary { box-sizing: border-box; min-width: 44px; }
 @media (max-width: 680px) {
   .mobile-v4-topbar, .mobile-v4-topbar.detail-mode { padding-right: 112px; }
+  /* Retired Start-here launcher rules reserved a second 112px inside the brand. */
+  .mobile-v4-brand { width: auto !important; max-width: none !important; min-width: 0; }
+  .mobile-v4-brand > span { flex: 1; min-width: 0; }
+  .mobile-v4-brand strong { overflow-wrap: anywhere; }
   .mw-command-launcher { top: calc(10px + env(safe-area-inset-top, 0px)); right: 60px; bottom: auto; left: auto; width: 44px; height: 44px; border-radius: 10px; }
 }
 @media (min-width: 681px) and (max-width: 1180px) {
