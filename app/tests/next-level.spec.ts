@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test('readiness tracks seven professions and survives reload', async ({ page }) => {
   await page.goto('/readiness')
-  await expect(page.getByRole('heading', { name: 'Know exactly what unlocks next.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Plan your next crafting milestone.' })).toBeVisible()
   await expect(page.locator('.mw-profession-table tbody tr')).toHaveCount(7)
   const level = page.getByRole('spinbutton', { name: 'Alchemy level' })
   const chultan = page.getByRole('button', { name: 'Chultan I for Alchemy' })
@@ -33,7 +33,7 @@ test('data health exposes reverification queues', async ({ page }) => {
 test('readiness remains usable at small phone width', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/readiness')
-  await expect(page.getByRole('heading', { name: 'Know exactly what unlocks next.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Plan your next crafting milestone.' })).toBeVisible()
   await expect(page.locator('.mw-profession-cards')).toBeVisible()
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(1)
@@ -43,5 +43,5 @@ test('readiness remains usable at small phone width', async ({ page }) => {
 test('readiness direct route reloads through SPA fallback', async ({ page }) => {
   await page.goto('/readiness')
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Know exactly what unlocks next.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Plan your next crafting milestone.' })).toBeVisible()
 })

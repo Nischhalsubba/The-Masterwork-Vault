@@ -37,11 +37,11 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium
       - name: Build production application
         run: npm run build
-      - name: Check acquisition integration idempotency
+      - name: Verify repeat builds do not mutate authored source
         run: |
-          sha256sum src/App.tsx src/components/CraftingWorkbench.tsx > /tmp/masterwork-source-integration.sha256
-          node scripts/apply-material-source-integration.mjs
-          sha256sum --check /tmp/masterwork-source-integration.sha256
+          sha256sum src/App.tsx src/components/CraftingWorkbench.tsx src/data/catalog.ts src/main.tsx > /tmp/masterwork-authored.sha256
+          npm run build
+          sha256sum --check /tmp/masterwork-authored.sha256
       - name: Run browser quality suite
         id: browser-quality
         continue-on-error: true
@@ -56,13 +56,17 @@ jobs:
           path: app/playwright-results.json
           if-no-files-found: error
           retention-days: 1
-      - name: Upload acquisition visual previews
+      - name: Upload workspace visual previews
         if: ${{ !cancelled() && (steps.browser-quality.outcome == 'success' || steps.browser-quality.outcome == 'failure') }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: masterwork-acquisition-previews
-          path: app/test-results/**/material-sources-*.png
-          if-no-files-found: ignore
+          name: masterwork-workspace-previews
+          path: |
+            app/test-results/**/material-sources-*.png
+            app/test-results/**/workspace-*.png
+            app/test-results/**/journey-*.png
+            app/playwright-results.json
+          if-no-files-found: error
           retention-days: 1
       - name: Fail browser quality suite
         if: steps.browser-quality.outcome == 'failure'

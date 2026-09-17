@@ -25,6 +25,9 @@ import './masterwork-next.css'
 import './typography.css'
 import './typography-mobile.css'
 import './ux-system.css'
+import './responsive-workspace.css'
+import './accessibility.css'
+import './utility-placement.css'
 
 const App = lazy(() => import('./App'))
 const MobileV4Shell = lazy(() => import('./components/MobileV4Shell').then((module) => ({ default: module.MobileV4Shell })))
@@ -148,7 +151,6 @@ function RouteContent() {
   if (path === '/graph') return <Guarded name="Dependency Graph"><RecipeGraphPage /></Guarded>
   return <>
     <App />
-    <MobileV4Shell />
     <RouteSync />
     <JourneyLauncher />
     <CompareWorkbench />
@@ -161,6 +163,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary name="The Masterwork Vault">
       <Suspense fallback={<PageLoading />}>
         <UXSystem />
+        <MobileV4Shell />
         <RouteContent />
         <DeveloperAttribution />
         <QualitySystem />

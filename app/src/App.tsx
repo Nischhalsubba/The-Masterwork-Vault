@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { MaterialSourceButton } from './components/MaterialSources'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+import { requestAppRoute } from './lib/navigation'
 import { gsap } from 'gsap'
 import {
   BarChart3,
@@ -36,6 +38,9 @@ const iconIndexByName = new Map<string, number>()
 for (const item of catalog.items) if (item.iconIndex != null) iconIndexByName.set(norm(item.name), item.iconIndex)
 for (const material of catalog.materials) if (material.iconIndex != null) iconIndexByName.set(norm(material.name), material.iconIndex)
 const asset = (p: string) => `${import.meta.env.BASE_URL}${p}`
+const MAX_PLAN_QUANTITY = 999
+
+type AppRouteDetail = { view: 'catalog' | 'plan' | 'materials' | 'reference'; itemId?: string; campaign?: CampaignFilter }
 
 type MaterialTarget = { name: string; required: number }
 type OpenCraftable = (material: MaterialEntry, required: number) => void
@@ -135,7 +140,7 @@ function Recipe({ rows, onOpenCraftable }: { rows: { name: string; required: num
               <small>{material?.craftable ? `${material.profession || 'Crafted'} · yields ${material.outputQuantity || 1}` : 'Raw / acquired material'}</small>
             </div>
             <div className="recipe-row-actions">
-              <b>×{r.required}</b>
+              <b>×{r.required}</b>{!material?.craftable && <MaterialSourceButton name={r.name} />}
               {canDrill && material && (
                 <button className="craftable-indicator" onClick={() => onOpenCraftable?.(material, r.required)} aria-label={`Show crafting recipe for ${r.name}`}>
                   <Hammer size={13} aria-hidden="true" />
@@ -233,6 +238,17 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
   const [mode, setMode] = useState<'direct' | 'scratch'>('direct')
   const [materialTrail, setMaterialTrail] = useState<MaterialTarget[]>([])
   const [statsOpen, setStatsOpen] = useState(false)
+
+  useEffect(() => {
+    const current = materialTrail[materialTrail.length - 1]
+    document.dispatchEvent(new CustomEvent('masterwork:detail-state', { detail: { nested: materialTrail.length > 0, title: current?.name || item.name } }))
+  }, [materialTrail, item.name])
+
+  useEffect(() => {
+    const onBack = () => setMaterialTrail((trail) => trail.length ? trail.slice(0, -1) : trail)
+    document.addEventListener('masterwork:detail-back', onBack)
+    return () => document.removeEventListener('masterwork:detail-back', onBack)
+  }, [])
 
   useEffect(() => {
     setVariant(Math.max(0, item.variants.length - 1))
@@ -336,10 +352,10 @@ function Reference() {
       <section className="panel reference-hero">
         <div><small className="eyebrow">WORKSHOP REFERENCE</small><h2>Crafting context beyond the recipe tree</h2><p>Workshop progression, artisan mechanics, South Seas commissions, and source caveats live here so the Sharandar collection does not have to hide important context inside individual weapon cards.</p></div>
         <div className="reference-tabs" role="tablist" aria-label="Workshop reference sections">
-          <button className={tab === 'workshop' ? 'active' : ''} onClick={() => setTab('workshop')}>Workshop</button>
-          <button className={tab === 'artisans' ? 'active' : ''} onClick={() => setTab('artisans')}>Artisans</button>
-          <button className={tab === 'south-seas' ? 'active' : ''} onClick={() => setTab('south-seas')}>South Seas</button>
-          <button className={tab === 'sources' ? 'active' : ''} onClick={() => setTab('sources')}>Sources</button>
+          <button role="tab" aria-selected={tab === 'workshop'} className={tab === 'workshop' ? 'active' : ''} onClick={() => setTab('workshop')}>Workshop</button>
+          <button role="tab" aria-selected={tab === 'artisans'} className={tab === 'artisans' ? 'active' : ''} onClick={() => setTab('artisans')}>Artisans</button>
+          <button role="tab" aria-selected={tab === 'south-seas'} className={tab === 'south-seas' ? 'active' : ''} onClick={() => setTab('south-seas')}>South Seas</button>
+          <button role="tab" aria-selected={tab === 'sources'} className={tab === 'sources' ? 'active' : ''} onClick={() => setTab('sources')}>Sources</button>
         </div>
       </section>
 
@@ -379,37 +395,64 @@ function Reference() {
 export default function App() {
   const root = useRef<HTMLDivElement>(null)
   const [view, setView] = useState<'catalog' | 'plan' | 'materials' | 'reference'>('catalog')
-  const [campaign, setCampaign] = useState<CampaignFilter>('Sharandar')
-  const [cls, setCls] = useState('All')
-  const [kind, setKind] = useState('All')
-  const [q, setQ] = useState('')
+  const initialCatalogParams = useMemo(() => new URLSearchParams(window.location.search), [])
+  const initialCampaign = initialCatalogParams.get('campaign')
+  const [campaign, setCampaign] = useState<CampaignFilter>(initialCampaign === 'Sharandar' || initialCampaign === 'Underdark' || initialCampaign === 'All' ? initialCampaign : 'Sharandar')
+  const [cls, setCls] = useState(initialCatalogParams.get('class') || 'All')
+  const [kind, setKind] = useState(initialCatalogParams.get('kind') || 'All')
+  const [q, setQ] = useState(initialCatalogParams.get('q') || '')
   const initial = catalog.items.find((i) => i.campaign === 'Sharandar' && i.recipeKnown !== false)?.id || catalog.items[0].id
   const [id, setId] = useState(initial)
   const [plan, setPlan] = useState<Map<string, number>>(new Map())
   const [materialFocus, setMaterialFocus] = useState<string | undefined>()
 
   useEffect(() => {
-    const encoded = new URLSearchParams(window.location.search).get('plan')
-    if (!encoded) return
-    try {
-      const rows = JSON.parse(encoded) as Array<[string, number]>
-      if (!Array.isArray(rows)) return
-      const next = new Map<string, number>()
-      for (const row of rows) {
-        if (!Array.isArray(row) || row.length !== 2) continue
-        const [itemId, quantity] = row
-        if (typeof itemId !== 'string' || !Number.isInteger(quantity) || quantity <= 0) continue
-        const candidate = catalog.items.find((item) => item.id === itemId)
-        if (!candidate || candidate.recipeKnown === false || !candidate.materials.length) continue
-        next.set(itemId, Math.min(quantity, 999))
+    const applyLocation = (route?: AppRouteDetail) => {
+      if (route) {
+        setView(route.view)
+        if (route.itemId) {
+          const target = catalog.items.find((entry) => entry.id === route.itemId)
+          if (target) {
+            setId(target.id)
+            setCampaign((target.campaign as CampaignFilter) || 'All')
+          }
+        }
       }
-      if (next.size > 0) {
-        setPlan(next)
-        setView('plan')
+
+      const params = new URLSearchParams(window.location.search)
+      const campaignParam = params.get('campaign')
+      if (campaignParam === 'Sharandar' || campaignParam === 'Underdark' || campaignParam === 'All') setCampaign(campaignParam)
+      setCls(params.get('class') || 'All')
+      setKind(params.get('kind') || 'All')
+      setQ(params.get('q') || '')
+
+      const encoded = params.get('plan')
+      if (!encoded) return
+      try {
+        const rows = JSON.parse(encoded) as Array<[string, number]>
+        if (!Array.isArray(rows)) return
+        const next = new Map<string, number>()
+        for (const row of rows) {
+          if (!Array.isArray(row) || row.length !== 2) continue
+          const [itemId, quantity] = row
+          if (typeof itemId !== 'string' || !Number.isInteger(quantity) || quantity <= 0) continue
+          const candidate = catalog.items.find((item) => item.id === itemId)
+          if (!candidate || candidate.recipeKnown === false || !candidate.materials.length) continue
+          next.set(itemId, Math.min(quantity, MAX_PLAN_QUANTITY))
+        }
+        if (next.size > 0) {
+          setPlan(next)
+          setView('plan')
+        }
+      } catch {
+        // Malformed shared links fail closed instead of corrupting planner state.
       }
-    } catch {
-      // Ignore malformed shared-plan payloads and keep the normal app state.
     }
+
+    const onRoute = (event: Event) => applyLocation((event as CustomEvent<AppRouteDetail>).detail)
+    document.addEventListener('masterwork:navigate', onRoute)
+    applyLocation()
+    return () => document.removeEventListener('masterwork:navigate', onRoute)
   }, [])
 
   const collectionItems = useMemo(() => catalog.items.filter((item) => campaign === 'All' || item.campaign === campaign), [campaign])
@@ -421,14 +464,33 @@ export default function App() {
     if (kind !== 'All' && !availableKinds.includes(kind)) setKind('All')
   }, [availableClasses, availableKinds, cls, kind])
 
-  const filtered = useMemo(() => collectionItems.filter((item) => {
-    const classMatch = cls === 'All' || item.classes.includes(cls)
-    const kindMatch = kind === 'All' || item.kind === kind
-    const queryMatch = [item.name, item.slot, item.profession, item.campaign, ...item.classes, ...item.categories, ...item.materials.map((m) => m.name)].filter(Boolean).join(' ').toLowerCase().includes(q.toLowerCase())
-    return classMatch && kindMatch && queryMatch
-  }), [collectionItems, cls, kind, q])
+  const deferredQ = useDeferredValue(q)
+  const filtered = useMemo(() => {
+    const query = norm(deferredQ)
+    return collectionItems
+      .filter((item) => {
+        const classMatch = cls === 'All' || item.classes.includes(cls)
+        const kindMatch = kind === 'All' || item.kind === kind
+        const haystack = norm([item.name, item.slot, item.profession, item.campaign, ...item.classes, ...item.categories, ...item.materials.map((m) => m.name)].filter(Boolean).join(' '))
+        return classMatch && kindMatch && (!query || haystack.includes(query))
+      })
+      .sort((a, b) => {
+        if (!query) return a.name.localeCompare(b.name)
+        const an = norm(a.name); const bn = norm(b.name)
+        const ar = an === query ? 0 : an.startsWith(query) ? 1 : an.includes(query) ? 2 : 3
+        const br = bn === query ? 0 : bn.startsWith(query) ? 1 : bn.includes(query) ? 2 : 3
+        return ar - br || a.name.localeCompare(b.name)
+      })
+  }, [collectionItems, cls, kind, deferredQ])
 
-  const item = filtered.find((candidate) => candidate.id === id) || filtered[0] || collectionItems[0] || catalog.items[0]
+  const item = filtered.find((candidate) => candidate.id === id) || filtered[0]
+
+  useEffect(() => {
+    const routeHasItem = window.location.pathname.split('/').filter(Boolean).length >= 3
+    document.dispatchEvent(new CustomEvent('masterwork:app-state', {
+      detail: { view, planCount: plan.size, itemId: item?.id || null, itemTitle: item?.name || null, detailOpen: view === 'catalog' && routeHasItem && Boolean(item) },
+    }))
+  }, [view, plan.size, item?.id, item?.name])
   useEffect(() => {
     if (filtered.length && !filtered.some((candidate) => candidate.id === id)) setId(filtered[0].id)
   }, [filtered, id])
@@ -445,6 +507,18 @@ export default function App() {
   }
 
   const resultContext = `${campaign === 'All' ? 'All collections' : campaign} · ${cls === 'All' ? 'all classes' : cls} · ${kind === 'All' ? 'all craftables' : kind}`
+  const resetCatalogFilters = () => { setCls('All'); setKind('All'); setQ('') }
+
+  useEffect(() => {
+    if (view !== 'catalog') return
+    const url = new URL(window.location.href)
+    const setOrDelete = (key: string, value: string, empty: string) => value === empty ? url.searchParams.delete(key) : url.searchParams.set(key, value)
+    setOrDelete('campaign', campaign, 'Sharandar')
+    setOrDelete('class', cls, 'All')
+    setOrDelete('kind', kind, 'All')
+    setOrDelete('q', q.trim(), '')
+    window.history.replaceState(window.history.state, '', url)
+  }, [view, campaign, cls, kind, q])
 
   useEffect(() => {
     if (!root.current) return
@@ -484,7 +558,7 @@ export default function App() {
     <div ref={root} className="app">
       <header>
         <a href={import.meta.env.BASE_URL} className="brand"><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt="" /><span><strong>The Masterwork Vault</strong><small>Underdark + Sharandar Masterwork</small></span></a>
-        <nav>{([['catalog', BookOpen, 'Catalog'], ['plan', Boxes, 'Plan'], ['materials', Gem, 'Materials'], ['reference', CircleHelp, 'Reference']] as const).map(([v, I, l]) => <button className={view === v ? 'active' : ''} onClick={() => setView(v)} key={v}><I size={17} />{l}{v === 'plan' && <b className="badge">{plan.size}</b>}</button>)}</nav>
+        <nav>{([['catalog', BookOpen, 'Catalog'], ['plan', Boxes, 'Plan'], ['materials', Gem, 'Materials'], ['reference', CircleHelp, 'Reference']] as const).map(([v, I, l]) => <button data-view={v} className={view === v ? 'active' : ''} onClick={() => requestAppRoute({ view: v })} key={v}><I size={17} />{l}{v === 'plan' && <b className="badge">{plan.size}</b>}</button>)}</nav>
       </header>
 
       <main id="main-content">
@@ -517,10 +591,11 @@ export default function App() {
               <div className="split">
                 <section className="items">
                   <div className="result-meta"><b>{filtered.length} results</b><small>{resultContext}</small></div>
+                  {filtered.length === 0 && <div className="catalog-empty-state" role="status"><Search size={28} aria-hidden="true" /><h3>No craftables match</h3><p>Try a broader search or clear the active filters.</p><button className="ghost" onClick={resetCatalogFilters}>Clear search and filters</button></div>}
                   {filtered.map((entry) => {
                     const canPlan = entry.recipeKnown !== false && entry.materials.length > 0
-                    return <article className={entry.id === item.id ? 'selected' : ''} key={entry.id}>
-                      <button className="item-main" onClick={() => setId(entry.id)}>
+                    return <article className={entry.id === item?.id ? 'selected' : ''} key={entry.id}>
+                      <button className="item-main" data-item-id={entry.id} data-item-campaign={entry.campaign || ''} onClick={() => requestAppRoute({ view: 'catalog', itemId: entry.id })}>
                         <Icon src={entry.icon} alt={entry.name} />
                         <div className="grow"><small><IconFor k={entry.kind} />{entry.slot || entry.kind}</small><strong>{entry.name}</strong><span>{entry.classes.includes('All') ? 'All classes' : entry.classes.length ? entry.classes.join(' · ') : 'Class not captured'}</span></div>
                       </button>
@@ -528,7 +603,7 @@ export default function App() {
                     </article>
                   })}
                 </section>
-                <Detail item={item} inPlan={plan.has(item.id)} togglePlan={() => toggle(item)} />
+                {item ? <Detail item={item} inPlan={plan.has(item.id)} togglePlan={() => toggle(item)} /> : <section className="detail panel catalog-empty-detail" aria-hidden="true" />}
               </div>
             </div>
           </div>

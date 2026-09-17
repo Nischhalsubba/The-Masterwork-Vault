@@ -56,6 +56,13 @@ export function ExplorePage() {
   const [recipeOnly, setRecipeOnly] = useState(() => params.get('recipe') === 'captured')
   const [recentSearches, setRecentSearches] = useState<string[]>(() => readRecentSearches())
   const [visibleLimit, setVisibleLimit] = useState(PAGE_SIZE)
+  const [filtersOpen, setFiltersOpen] = useState(() => !window.matchMedia('(max-width: 900px)').matches)
+  useEffect(() => {
+    const viewport = window.matchMedia('(max-width: 900px)')
+    const update = () => setFiltersOpen(!viewport.matches)
+    viewport.addEventListener('change', update)
+    return () => viewport.removeEventListener('change', update)
+  }, [])
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const deferredQuery = useDeferredValue(query)
 
@@ -129,12 +136,15 @@ export function ExplorePage() {
         <aside className="mw-explore-filters">
           <label className="mw-explore-search"><Search size={17} /><span className="sr-only">Search advanced explorer</span><input value={query} onChange={(event) => setQuery(event.target.value)} onBlur={() => rememberSearch(query)} onKeyDown={(event) => { if (event.key === 'Enter') rememberSearch(query) }} placeholder="Search item, material, class…" /></label>
           {!query && recentSearches.length > 0 && <div className="mw-recent-searches" aria-label="Recent searches"><span><History size={13} />Recent</span>{recentSearches.map((entry) => <button type="button" key={entry} onClick={() => setQuery(entry)}>{entry}</button>)}<button type="button" aria-label="Clear recent searches" onClick={() => { setRecentSearches([]); try { window.localStorage.removeItem(RECENT_SEARCH_KEY) } catch { /* Storage is optional. */ } }}><X size={13} /></button></div>}
+          <button type="button" className="workspace-filter-toggle" aria-expanded={filtersOpen} aria-controls="explorer-filter-fields" onClick={() => setFiltersOpen((open) => !open)}><Filter size={17} aria-hidden="true" />{filtersOpen ? 'Hide filters' : 'Filters'}<span>{campaigns.size + kinds.size + professions.size + classes.size + Number(evidenceOnly) + Number(recipeOnly)} active</span></button>
+          <div id="explorer-filter-fields" hidden={!filtersOpen}>
           <FilterGroup label="Campaign" values={allCampaigns} selected={campaigns} onChange={setCampaigns} />
           <FilterGroup label="Type" values={allKinds} selected={kinds} onChange={setKinds} />
           <FilterGroup label="Profession" values={allProfessions} selected={professions} onChange={setProfessions} />
           <FilterGroup label="Class" values={allClasses} selected={classes} onChange={setClasses} />
           <fieldset className="mw-filter-group"><legend>Evidence</legend><label><input type="checkbox" checked={recipeOnly} onChange={(event) => setRecipeOnly(event.target.checked)} /><span>Recipe captured</span></label><label><input type="checkbox" checked={evidenceOnly} onChange={(event) => setEvidenceOnly(event.target.checked)} /><span>Verified artwork source</span></label></fieldset>
           <button className="mw-filter-clear" type="button" onClick={clear}>Clear all filters</button>
+          </div>
         </aside>
         <section className="mw-explore-results" aria-live="polite" aria-busy={query !== deferredQuery}>
           {visibleResults.length ? visibleResults.map((item) => <a className="mw-explore-card" href={itemHref(item)} key={item.id}>

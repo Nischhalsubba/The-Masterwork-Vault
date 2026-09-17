@@ -15,7 +15,7 @@ for (const viewport of viewports) {
   test(`readiness layout has no page overflow at ${viewport.width}px ${viewport.label}`, async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
     await page.goto('/readiness')
-    await expect(page.getByRole('heading', { name: 'Know exactly what unlocks next.' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Plan your next crafting milestone.' })).toBeVisible()
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
     expect(overflow).toBeLessThanOrEqual(1)
   })
@@ -24,7 +24,7 @@ for (const viewport of viewports) {
 test('phone landscape keeps readiness usable', async ({ page }) => {
   await page.setViewportSize({ width: 812, height: 375 })
   await page.goto('/readiness')
-  await expect(page.getByRole('heading', { name: 'Know exactly what unlocks next.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Plan your next crafting milestone.' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Open universal search' })).toBeVisible()
 })
 
@@ -48,7 +48,7 @@ test('reduced motion disables the ambient WebGL canvas and readiness entrance mo
   const canvas = page.locator('.ambient-vault canvas')
   if (await canvas.count()) await expect(canvas).toHaveCSS('display', 'none')
   await page.goto('/readiness')
-  await expect(page.getByRole('heading', { name: 'Know exactly what unlocks next.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Plan your next crafting milestone.' })).toBeVisible()
 })
 
 test('data health reports catalog-integrity status without crashing', async ({ page }) => {

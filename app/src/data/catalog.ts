@@ -1,4 +1,4 @@
-import compressedCatalog from './catalog.gz.b64?raw'
+import generatedCatalog from './catalog.generated'
 import iconData from './iconData'
 import materialIconOverrides from './materialIconOverrides'
 import gatheringMaterialIconOverrides from './gatheringMaterialIconOverrides'
@@ -12,10 +12,7 @@ import {
 import { sharandarItems, sharandarRecipes } from './sharandarSupplement'
 import { sharandarIconDataUri } from './sharandarSprite'
 
-const bytes = Uint8Array.from(atob(compressedCatalog.replace(/\s+/g, '')), (char) => char.charCodeAt(0))
-const stream = new Blob([bytes.buffer as ArrayBuffer]).stream().pipeThrough(new DecompressionStream('gzip'))
-const text = await new Response(stream).text()
-const catalog = JSON.parse(text)
+const catalog = structuredClone(generatedCatalog)
 
 const slug = (name: string) => name
   .toLowerCase()
@@ -288,6 +285,38 @@ for (const item of sharandarByName.values()) {
   for (const className of item.classes ?? []) if (className && className !== 'All') classNames.add(className)
 }
 catalog.classes = [...classNames].sort((a, b) => a.localeCompare(b))
+
+// Complete the material index from references in both collections. A missing sidebar
+// entry is not a missing ingredient. This does not alter any item/recipe or invent
+// an acquisition route, yield, binding, or artwork for an undocumented material.
+const finalItemNames = new Set<string>(catalog.items.map((item: any) => norm(item.name)))
+const mergedRecipeByName = new Map<string, any>(catalog.recipes.map((recipe: any) => [norm(recipe.name), recipe]))
+for (const parent of [...catalog.items, ...catalog.recipes]) {
+  for (const need of parent.materials ?? []) {
+    const key = norm(need.name)
+    if (materialByName.has(key) || finalItemNames.has(key)) continue
+    const recipe = mergedRecipeByName.get(key)
+    const icon = gatheringMaterialIconOverrides[key] ?? asRenderableUrl(materialIconOverrides[key]) ?? mappedIcon('materials', need.name).url
+    const iconIndex = verifiedIconIndex(need.name, 'materials') ?? null
+    const material = {
+      name: need.name,
+      icon,
+      iconIndex,
+      // In this catalog, craftable means a captured dependency recipe is available.
+      craftable: Boolean(recipe?.materials?.length),
+      outputQuantity: recipe?.quantityExplicit ? recipe.outputQuantity : null,
+      profession: recipe?.profession ?? null,
+      usedBy: [],
+      sourceStatus: 'catalog-recipe-reference',
+      campaign: parent.campaign ?? null,
+      campaigns: parent.campaign ? [parent.campaign] : [],
+      verification: { status: 'unknown', notes: ['Identity is referenced by a captured recipe. Acquisition and crafting details must be checked separately.'] },
+      ...(!icon && iconIndex == null ? { artwork: { provenance: 'missing' } } : {}),
+    }
+    catalog.materials.push(material)
+    materialByName.set(key, material)
+  }
+}
 
 // Rebuild used-by relationships after both campaign packs are merged.
 for (const material of catalog.materials ?? []) material.usedBy = []

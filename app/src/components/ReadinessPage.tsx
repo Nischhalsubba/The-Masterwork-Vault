@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { gsap } from 'gsap'
 import { BadgeCheck, BookOpen, CheckCircle2, ChevronLeft, CircleHelp, Coins, Download, FileUp, Gem, ListChecks, ShieldCheck, Sparkles, Wrench } from 'lucide-react'
-import { masterworkProgression, masterworkUnlockPrices } from '../data/craftingKnowledgePool'
+import { masterworkUnlockPrices } from '../data/craftingKnowledgePool'
 import { loadPlayerState, MASTERWORK_PROFESSIONS, savePlayerState, type MasterworkProfession, type PlayerState, type ProfessionProgress } from '../domain/playerState'
 import { importPortableVaultState, serializePortableVaultState } from '../domain/portableState'
 import { rankedReadinessActions, readinessSummary } from '../domain/readiness'
@@ -73,10 +73,12 @@ export function ReadinessPage() {
   }
 
   const focusProfession = (profession: MasterworkProfession) => {
-    const target = document.getElementById(professionId(profession))
+    // Both responsive representations exist in the DOM. Never target the hidden one.
+    const id = professionId(profession)
+    const target = [document.getElementById(`${id}-card`), document.getElementById(id)]
+      .find((element) => element && element.getClientRects().length > 0)
+    target?.querySelector<HTMLElement>('input, button')?.focus({ preventScroll: true })
     target?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' })
-    const focusTarget = target?.querySelector<HTMLElement>('input, button')
-    window.setTimeout(() => focusTarget?.focus({ preventScroll: true }), 250)
   }
 
   const importState = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -102,24 +104,24 @@ export function ReadinessPage() {
           <div>
             <a className="mw-back-link" href="/catalog"><ChevronLeft size={17} />Back to Catalog</a>
             <span className="mw-eyebrow"><Sparkles size={14} /> PLAYER STATE</span>
-            <h1>Know exactly what unlocks next.</h1>
-            <p>Track all seven professions, Masterwork books, Workshop rank, and remaining direct unlock cost. Unknown game facts stay unknown instead of silently becoming requirements.</p>
+            <h1>Plan your next crafting milestone.</h1>
+            <p>Track your professions, books and Workshop rank against the documented full path. This is a preparation checklist, not a live eligibility check. Confirm current quest gates and vendor prices before buying.</p>
           </div>
-          <div className="mw-hero-progress" aria-label={`${summary.completion}% overall readiness`}><span>Overall readiness</span><strong>{summary.completion}%</strong><div><i style={{ width: `${summary.completion}%` }} /></div><small>{summary.level20Count}/7 professions at Level 20</small></div>
+          <div className="mw-hero-progress" aria-label={`${summary.completion}% of tracked checkpoints recorded`}><span>Recorded checkpoints</span><strong>{summary.completion}%</strong><div><i style={{ width: `${summary.completion}%` }} /></div><small>{summary.level20Count}/7 professions at Level 20</small></div>
         </section>
 
         {notice && <div className="mw-toast" role="status" aria-live="polite">{notice}</div>}
 
         <section className="mw-summary-grid" aria-label="Readiness summary">
-          <article className="mw-summary-card"><Coins /><span>Book AD remaining</span><strong>{summary.remainingBookAd.toLocaleString()}</strong><small>Direct unlock purchases only</small></article>
-          <article className="mw-summary-card"><ShieldCheck /><span>Workshop rank</span><strong>Rank {state.workshopRank}</strong><small>Not a modern Masterwork book gate</small></article>
-          <article className="mw-summary-card"><CheckCircle2 /><span>Menzo quest posture</span><strong>{summary.readyForMenzoQuest ? 'Prereqs marked ready' : 'Still building'}</strong><small>All seven Level 20 + earlier books</small></article>
-          <article className="mw-summary-card"><CircleHelp /><span>Data blockers</span><strong>{health.blockers.length}</strong><small>{health.ignoredKnowledgeGaps.length} approved unknowns remain excluded</small></article>
+          <article className="mw-summary-card"><Coins /><span>Book budget remaining</span><strong>{summary.remainingBookAd.toLocaleString()}</strong><small>Published book-price baseline, not a live quote</small></article>
+          <article className="mw-summary-card"><ShieldCheck /><span>Workshop rank</span><strong>Rank {state.workshopRank}</strong><small>Workshop progress; current purchase gates need checking</small></article>
+          <article className="mw-summary-card"><CheckCircle2 /><span>Full-path preparation</span><strong>{summary.fullPathPrepared ? 'Checklist recorded' : 'Still building'}</strong><small>All seven tracked paths; not minimum eligibility</small></article>
+          <article className="mw-summary-card"><CircleHelp /><span>Data blockers</span><strong>{health.blockers.length}</strong><small>{health.ignoredKnowledgeGaps.length} research gaps remain explicit</small></article>
         </section>
 
         <section className="mw-next-action">
           <div><span className="mw-eyebrow">NEXT RECORDED ACTION</span><h2>{summary.next ? `${summary.next.profession}: ${summary.next.next.title}` : 'All professions marked complete'}</h2><p>{summary.next?.next.detail || 'The tracked Masterwork progression is complete through Menzoberranzan.'}</p></div>
-          {summary.next && <strong>{summary.next.next.adCost ? `${summary.next.next.adCost.toLocaleString()} AD` : 'No direct book cost'}</strong>}
+          {summary.next && <strong>{summary.next.next.adCost ? `${summary.next.next.adCost.toLocaleString()} AD` : 'Leveling costs vary'}</strong>}
         </section>
 
         <section className="mw-priority-section" aria-labelledby="priority-heading">
@@ -134,12 +136,12 @@ export function ReadinessPage() {
         </section>
 
         <section className="mw-workshop-strip">
-          <div><Wrench size={19} /><span><strong>Workshop rank</strong><small>Track it for Workshop capacity and upgrades, not as a Masterwork purchase prerequisite.</small></span></div>
+          <div><Wrench size={19} /><span><strong>Workshop rank</strong><small>Record premises upgrades separately from profession levels and books. The exact current purchase restrictions still need confirmation.</small></span></div>
           <div role="group" aria-label="Workshop rank">{([1,2,3,4] as const).map((rank) => <button key={rank} type="button" aria-pressed={state.workshopRank === rank} onClick={() => commit({ ...state, workshopRank: rank }, `Workshop rank set to ${rank}.`)}>R{rank}</button>)}</div>
         </section>
 
         <section className="mw-profession-section">
-          <div className="mw-section-heading"><div><span className="mw-eyebrow">SEVEN PROFESSIONS</span><h2>Masterwork readiness matrix</h2></div><p>Checking a later tier automatically satisfies earlier tracked tiers. It does not fill the three research fields we deliberately excluded.</p></div>
+          <div className="mw-section-heading"><div><span className="mw-eyebrow">SEVEN PROFESSIONS</span><h2>Masterwork readiness matrix</h2></div><p>This full-path tracker groups later books with earlier stages. Recording a later tier fills earlier checkpoints as a planning convention, not proof of current minimum requirements.</p></div>
           <div className="mw-profession-table-wrap">
             <table className="mw-profession-table">
               <thead><tr><th>Profession</th><th>Level</th>{tierLabels.map(([,label]) => <th key={label}>{label}</th>)}<th>Next action</th><th>Remaining AD</th></tr></thead>
@@ -156,13 +158,13 @@ export function ReadinessPage() {
           <div className="mw-profession-cards" aria-label="Profession readiness cards">{summary.professions.map((row) => <article id={`${professionId(row.profession)}-card`} key={row.profession}>
             <header><div><small>{row.completion}% complete</small><h3>{row.profession}</h3></div><label><span>Level</span><input aria-label={`${row.profession} level`} type="number" min="0" max="20" inputMode="numeric" value={row.progress.level} onChange={(event) => setProfessionLevel(row.profession, Math.max(0, Math.min(20, Number(event.target.value) || 0)))} /></label></header>
             <div className="mw-tier-card-grid" role="group" aria-label={`${row.profession} unlock tiers`}>{tierLabels.map(([key,label]) => <button key={key} type="button" aria-label={`${label} for ${row.profession}`} aria-pressed={row.progress[key]} onClick={() => toggleTier(row.profession, key)}><span>{row.progress[key] ? <BadgeCheck size={17} /> : <i />}</span><b>{label}</b></button>)}</div>
-            <div className="mw-profession-card-next"><small>Next action</small><strong>{row.next.title}</strong><span>{row.next.detail}</span><b>{row.remainingBookAd.toLocaleString()} AD remaining</b></div>
+            <div className="mw-profession-card-next"><small>Next action</small><strong>{row.next.title}</strong><span>{row.next.detail}</span><b>{row.remainingBookAd.toLocaleString()} AD book baseline remaining</b></div>
           </article>)}</div>
         </section>
 
         <section className="mw-readiness-bottom-grid">
-          <article className="mw-policy-card"><BookOpen /><span className="mw-eyebrow">UNLOCK POLICY</span><h3>Current Masterwork unlock path</h3><p>Chultan I → Chultan II → Sharandar. Menzoberranzan then requires all seven professions at Level {masterworkProgression.menzoberranzan.professionLevel}, earlier Masterwork progression, and {masterworkProgression.menzoberranzan.quest}.</p><a href="/journey">Open full journey</a></article>
-          <article className="mw-policy-card"><Gem /><span className="mw-eyebrow">DIRECT BOOK BASELINE</span><h3>{MASTERWORK_PROFESSIONS.length} professions × four unlock stages</h3><p>Per profession: {(masterworkUnlockPrices.Alchemy.chultanMW1 + masterworkUnlockPrices.Alchemy.chultanMW2).toLocaleString()} AD Chultan, {masterworkUnlockPrices.Alchemy.sharandarMW.toLocaleString()} AD Sharandar, {masterworkUnlockPrices.Alchemy.menzoberranzanMW.toLocaleString()} AD Menzoberranzan.</p><a href="/data-health">Inspect evidence health</a></article>
+          <article className="mw-policy-card"><BookOpen /><span className="mw-eyebrow">EVIDENCE AND SCOPE</span><h3>Published Masterwork progression</h3><p>Chultan I, Chultan II, Sharandar and Menzoberranzan form the documented path. Tracking all seven professions is a full-path preparation plan, not proof of a minimum unlock gate. Confirm live quest requirements, binding and vendor prices.</p><a href="/journey">Open full journey</a></article>
+          <article className="mw-policy-card"><Gem /><span className="mw-eyebrow">DIRECT BOOK BASELINE</span><h3>{MASTERWORK_PROFESSIONS.length} professions × four unlock stages</h3><p>Per profession: {(masterworkUnlockPrices.Alchemy.chultanMW1 + masterworkUnlockPrices.Alchemy.chultanMW2).toLocaleString()} AD Chultan, {masterworkUnlockPrices.Alchemy.sharandarMW.toLocaleString()} AD Sharandar, {masterworkUnlockPrices.Alchemy.menzoberranzanMW.toLocaleString()} AD Menzoberranzan. Published reference prices exclude materials, commissions, failed attempts and tools. Check current vendor quotes.</p><a href="/journey#journey-evidence">Review the price sources</a></article>
         </section>
 
         <section className="mw-state-tools">

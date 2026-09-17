@@ -1,0 +1,47 @@
+/* Global utilities belong to navigation chrome, never on top of recipe instructions. */
+.mw-command-launcher { box-sizing: border-box; min-width: 44px; z-index: 322; box-shadow: none; }
+.ux-density-menu > summary { box-sizing: border-box; min-width: 44px; }
+@media (max-width: 680px) {
+  .mobile-v4-topbar, .mobile-v4-topbar.detail-mode { padding-right: 112px; }
+  /* Retired Start-here launcher rules reserved a second 112px inside the brand. */
+  .mobile-v4-brand { width: auto !important; max-width: none !important; min-width: 0; }
+  .mobile-v4-brand > span { flex: 1; min-width: 0; }
+  .mobile-v4-brand strong { overflow-wrap: anywhere; }
+  .mw-command-launcher { top: calc(10px + env(safe-area-inset-top, 0px)); right: 60px; bottom: auto; left: auto; width: 44px; height: 44px; border-radius: 10px; }
+}
+@media (min-width: 681px) and (max-width: 1180px) {
+  .tablet-v4-sidebar { padding-bottom: 136px; }
+  .mw-command-launcher, .ux-density-menu { right: auto; left: 18px; width: 44px; }
+  .mw-command-launcher { top: auto; bottom: 20px; height: 44px; padding: 0; justify-content: center; border-radius: 10px; }
+  .mw-command-launcher :is(span, kbd) { display: none; }
+  .ux-density-menu { top: auto; bottom: 72px; }
+  .ux-density-menu > summary { width: 44px; padding: 0; justify-content: center; font-size: 0; border-radius: 10px; box-shadow: none; }
+  .ux-density-popover { left: 56px; right: auto; bottom: 0; top: auto; }
+}
+@media (min-width: 1181px) {
+  .app > header, .mw-page-topbar, .journey-page-topbar { padding-right: 136px; }
+  .mw-command-launcher { top: 14px; right: 72px; bottom: auto; left: auto; width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: 10px; }
+  .mw-command-launcher :is(span, kbd) { display: none; }
+  .ux-density-menu { top: 14px; right: 20px; bottom: auto; }
+  .ux-density-menu > summary { width: 44px; padding: 0; justify-content: center; font-size: 0; border-radius: 10px; box-shadow: none; }
+  .ux-density-popover { top: calc(100% + 8px); bottom: auto; }
+}
+/* Earlier shared styles force centered margins with !important. Match that legacy
+   priority at the shell boundary so lazily loaded page CSS cannot lose rail space. */
+@media (min-width: 681px) and (max-width: 1180px) {
+  :is(.mw-readiness-main, .mw-health-main, .mw-explore-main, .mw-graph-main, .journey-page-main) {
+    box-sizing: border-box;
+    width: calc(100% - var(--tablet-rail)) !important;
+    max-width: none !important;
+    margin-inline: var(--tablet-rail) 0 !important;
+    padding: 28px 24px 100px !important;
+  }
+}
+@media (max-width: 680px) {
+  :is(.mw-readiness-main, .mw-health-main, .mw-explore-main, .mw-graph-main, .journey-page-main) {
+    width: 100% !important;
+    margin-inline: 0 !important;
+    padding-top: calc(84px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(144px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}

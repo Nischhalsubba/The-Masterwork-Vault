@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import './material-source-evidence.css'
+import { MaterialSourceButton, MaterialSourcePanel, MaterialSourceBrowser } from './MaterialSources'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import {
   BadgeCheck,
   Boxes,
@@ -167,7 +169,7 @@ export function ItemRecipeEvidence({ item }: { item: ItemEntry }) {
         </div>
         <div className="evidence-inputs">
           <strong>Recorded direct recipe</strong>
-          {item.materials.map((row) => <span key={row.name}><b>{row.name}</b><em>×{row.required}</em></span>)}
+          {item.materials.map((row) => <span className="source-evidence-input" key={row.name}><b>{row.name}</b><em>×{row.required}</em>{!byMaterial.get(norm(row.name))?.craftable && <MaterialSourceButton name={row.name} />}</span>)}
         </div>
         {evidence.length ? <ul>{evidence.map((line) => <li key={line}>{line}</li>)}</ul> : <p>No item-specific evidence lines are attached beyond the catalog source record.</p>}
       </div>
@@ -207,7 +209,7 @@ function InventoryEditor({ inventory, setInventory }: { inventory: InventoryReco
     <section className="panel inventory-panel">
       <div className="section-head workbench-section-head">
         <div><small>YOUR MATERIALS</small><h2>Inventory</h2></div>
-        <button className="ghost" onClick={() => setInventory({})}>Clear inventory</button>
+        <button className="ghost" onClick={() => { if (Object.keys(inventory).length && !window.confirm('Clear all saved inventory quantities?')) return; setInventory({}) }}>Clear inventory</button>
       </div>
       <label className="search compact-search"><Search size={16} /><input aria-label="Search inventory materials" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find material…" /></label>
       <div className="inventory-list">
@@ -252,7 +254,7 @@ function TreeNode({ node, depth = 0, onOpenMaterial }: { node: CraftTreeNode; de
                 : 'Raw material'}
           </small>
         </div>
-        <div className="tree-quantity"><span>{node.kind === 'item' ? 'Qty' : 'Need'}</span><strong>×{node.required}</strong></div>
+        {node.kind === 'material' && !node.craftable && <MaterialSourceButton name={node.name} />}<div className="tree-quantity"><span>{node.kind === 'item' ? 'Qty' : 'Need'}</span><strong>×{node.required}</strong></div>
         {node.kind === 'material' && onOpenMaterial && (
           <button className="tree-inspect" onClick={() => onOpenMaterial(node.name)} aria-label={`Inspect ${node.name} in Materials`}>
             Inspect <ChevronRight size={14} aria-hidden="true" />
@@ -274,7 +276,7 @@ function RecipeRows({ rows, onOpenMaterial }: { rows: Array<{ name: string; requ
           <div className={`recipe-row ${canOpen ? 'has-drilldown' : ''}`} key={row.name}>
             <Icon src={material?.icon} alt={row.name} size={42} />
             <div className="recipe-row-copy"><strong>{row.name}</strong><small>{material?.craftable ? `${material.profession || 'Crafted'} · yields ${material.outputQuantity || 1}` : 'Raw material'}</small></div>
-            <div className="recipe-row-actions"><b>×{row.required}</b>{canOpen && <button className="craftable-indicator" onClick={() => onOpenMaterial?.(row.name)}><Hammer size={13} />Craftable<ChevronRight size={14} /></button>}</div>
+            <div className="recipe-row-actions"><b>×{row.required}</b>{!material?.craftable && <MaterialSourceButton name={row.name} />}{canOpen && <button className="craftable-indicator" onClick={() => onOpenMaterial?.(row.name)}><Hammer size={13} />Craftable<ChevronRight size={14} /></button>}</div>
           </div>
         )
       })}
@@ -307,7 +309,7 @@ function materialRecipeSelection(material: MaterialEntry, recipe: RecipeEntry): 
 export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { selected: Map<string, number>; setSelected: (next: Map<string, number>) => void; onOpenMaterial?: (name: string) => void }) {
   const [tab, setTab] = useState<'overview' | 'tree' | 'ready' | 'checklist' | 'professions' | 'saved'>('overview')
   const [inventory, setInventoryState] = useState<InventoryRecord>(() => loadJson(INVENTORY_KEY, {}))
-  const [savedPlans, setSavedPlans] = useState<SavedPlan[]>(() => loadJson(SAVED_PLANS_KEY, []))
+  const [savedPlans, setSavedPlans] = useState<SavedPlan[]>(() => { const value = loadJson<unknown>(SAVED_PLANS_KEY, []); return Array.isArray(value) ? value.filter((row): row is SavedPlan => Boolean(row && typeof row === 'object' && typeof (row as SavedPlan).id === 'string' && typeof (row as SavedPlan).name === 'string' && Array.isArray((row as SavedPlan).items))) : [] })
   const [saveName, setSaveName] = useState('')
   const [shareUrl, setShareUrl] = useState('')
   const [shareStatus, setShareStatus] = useState('')
@@ -339,7 +341,7 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
     .sort((a, b) => b.saved - a.saved || a.name.localeCompare(b.name))
   const totalSaved = savings.reduce((sum, row) => sum + row.saved, 0)
 
-  const readiness = useMemo(() => catalog.items.map((item) => {
+  const readiness = useMemo(() => catalog.items.filter((item) => item.recipeKnown !== false && item.materials.length > 0).map((item) => {
     const plan = calculateInventoryAwarePlan([{ item, quantity: 1 }], catalog.recipes, inventory)
     const missingUnits = plan.missingRaw.reduce((sum, row) => sum + row.required, 0)
     return { item, plan, missingUnits, ready: plan.missingRaw.length === 0 }
@@ -365,7 +367,7 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
   const changeQuantity = (id: string, quantity: number) => {
     const next = new Map(selected)
     if (quantity <= 0) next.delete(id)
-    else next.set(id, quantity)
+    else next.set(id, Math.min(999, Math.max(1, Math.floor(quantity))))
     setSelected(next)
   }
 
@@ -508,7 +510,7 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
         <section className="panel checklist-panel enter">
           <div className="section-head workbench-section-head"><div><small>SHOPPING / FARMING</small><h2>Acquisition checklist</h2></div><span className="checklist-progress"><ClipboardCheck size={15} />{checkedCount}/{shoppingRows.length}</span></div>
           {!entries.length ? <EmptyState title="No shopping list yet" body="Add craftables to the plan first." /> : shoppingRows.length === 0 ? <EmptyState title="Everything required is already covered" body="Your current inventory covers the optimized raw-material requirement." /> : (
-            <div className="shopping-list">{shoppingRows.map((row) => <label className={`shopping-row ${checklist[row.name] ? 'checked' : ''}`} key={row.name}><input type="checkbox" checked={Boolean(checklist[row.name])} onChange={(event) => setChecklist((state) => ({ ...state, [row.name]: event.target.checked }))} /><span className="checkbox-ui"><Check size={14} /></span><div className="grow"><strong>{row.name}</strong><small>need {row.required} · inventory covers {row.owned}</small></div><b>Acquire ×{row.missing}</b></label>)}</div>
+            <div className="shopping-list">{shoppingRows.map((row) => <div className="shopping-acquisition-row" key={row.name}><label className={`shopping-row ${checklist[row.name] ? 'checked' : ''}`} key={row.name}><input type="checkbox" checked={Boolean(checklist[row.name])} onChange={(event) => setChecklist((state) => ({ ...state, [row.name]: event.target.checked }))} /><span className="checkbox-ui"><Check size={14} /></span><div className="grow"><strong>{row.name}</strong><small>need {row.required} · inventory covers {row.owned}</small></div><b>Acquire ×{row.missing}</b></label><MaterialSourceButton name={row.name} /></div>)}</div>
           )}
         </section>
       )}
@@ -540,11 +542,11 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
             <div className="section-head workbench-section-head"><div><small>LOCAL PLANS</small><h2>Save this plan</h2></div><Save size={20} /></div>
             <label className="saved-name-field"><span>Plan name</span><input value={saveName} onChange={(event) => setSaveName(event.target.value)} placeholder="Barbarian armor set" /></label>
             <button className="primary full-width" disabled={!entries.length} onClick={saveCurrentPlan}><Save size={15} />Save on this device</button>
-            <div className="share-box"><div><strong>Shareable link</strong><p>Encodes item IDs and quantities only. Inventory stays private on this device.</p></div><button className="ghost-button" disabled={!entries.length} onClick={sharePlan}><Share2 size={15} />Create link</button>{shareStatus && <small>{shareStatus}</small>}{shareUrl && <div className="share-url"><input readOnly value={shareUrl} aria-label="Shareable plan URL" /><button aria-label="Copy shareable plan URL" onClick={() => navigator.clipboard.writeText(shareUrl)}><Copy size={15} /></button></div>}</div>
+            <div className="share-box"><div><strong>Shareable link</strong><p>Encodes item IDs and quantities only. Inventory stays private on this device.</p></div><button className="ghost-button" disabled={!entries.length} onClick={sharePlan}><Share2 size={15} />Create link</button>{shareStatus && <small role="status" aria-live="polite">{shareStatus}</small>}{shareUrl && <div className="share-url"><input readOnly value={shareUrl} aria-label="Shareable plan URL" /><button aria-label="Copy shareable plan URL" onClick={async () => { try { await navigator.clipboard.writeText(shareUrl); setShareStatus('Share link copied') } catch { setShareStatus('Copy failed — select the link and copy it manually') } }}><Copy size={15} /></button></div>}</div>
           </section>
           <section className="panel">
             <div className="section-head workbench-section-head"><div><small>SAVED ON DEVICE</small><h2>Saved plans</h2></div><FolderOpen size={20} /></div>
-            {!savedPlans.length ? <EmptyState title="No saved plans" body="Saved plans use browser storage, so no account or backend is required." /> : <div className="saved-plan-list">{savedPlans.map((plan) => <div className="saved-plan-row" key={plan.id}><div className="grow"><strong>{plan.name}</strong><small>{plan.items.reduce((sum, [, quantity]) => sum + quantity, 0)} craftables · saved {new Date(plan.createdAt).toLocaleDateString()}</small></div><button onClick={() => loadPlan(plan)}><FolderOpen size={14} />Load</button><button className="danger-ghost" aria-label={`Delete ${plan.name}`} onClick={() => setSavedPlans((plans) => plans.filter((row) => row.id !== plan.id))}><Trash2 size={15} /></button></div>)}</div>}
+            {!savedPlans.length ? <EmptyState title="No saved plans" body="Saved plans use browser storage, so no account or backend is required." /> : <div className="saved-plan-list">{savedPlans.map((plan) => <div className="saved-plan-row" key={plan.id}><div className="grow"><strong>{plan.name}</strong><small>{plan.items.reduce((sum, [, quantity]) => sum + quantity, 0)} craftables · saved {new Date(plan.createdAt).toLocaleDateString()}</small></div><button onClick={() => loadPlan(plan)}><FolderOpen size={14} />Load</button><button className="danger-ghost" aria-label={`Delete ${plan.name}`} onClick={() => { if (window.confirm(`Delete saved plan “${plan.name}”?`)) setSavedPlans((plans) => plans.filter((row) => row.id !== plan.id)) }}><Trash2 size={15} /></button></div>)}</div>}
           </section>
         </div>
       )}
@@ -556,6 +558,15 @@ export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }
   const [query, setQuery] = useState('')
   const [name, setName] = useState(catalog.materials[0]?.name || '')
   const [history, setHistory] = useState<string[]>([])
+  const detailHeading = useRef<HTMLHeadingElement>(null)
+  const revealSelection = useRef(false)
+  useEffect(() => {
+    if (!revealSelection.current) return
+    revealSelection.current = false
+    if (!window.matchMedia('(max-width: 900px)').matches) return
+    detailHeading.current?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    detailHeading.current?.focus({ preventScroll: true })
+  }, [name])
   const [inventory, setInventoryState] = useState<InventoryRecord>(() => loadJson(INVENTORY_KEY, {}))
 
   const setInventory = (next: InventoryRecord) => {
@@ -581,9 +592,10 @@ export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }
 
   const openMaterial = (nextName: string) => {
     if (material && material.name !== nextName) setHistory((trail) => [...trail, material.name])
+    revealSelection.current = true
     setName(nextName)
   }
-  const chooseMaterial = (nextName: string) => { setHistory([]); setName(nextName) }
+  const chooseMaterial = (nextName: string) => { setHistory([]); revealSelection.current = true; setName(nextName); if (nextName === name && window.matchMedia('(max-width: 900px)').matches) detailHeading.current?.scrollIntoView({ block: 'start' }) }
   const goBack = () => {
     const previous = history[history.length - 1]
     if (!previous) return
@@ -604,7 +616,7 @@ export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }
 
   return (
     <div className="materials materials-workbench enter">
-      <section className="panel materials-browser">
+      <section className="panel materials-browser"><MaterialSourceBrowser names={catalog.materials.filter((row) => !row.craftable && !recipeByName.has(norm(row.name))).map((row) => row.name)} />
         <label className="search"><Search size={17} /><input aria-label="Search materials" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search materials…" /></label>
         <div className="material-list">{filtered.map((row) => <button key={row.name} className={material.name === row.name ? 'active' : ''} onClick={() => chooseMaterial(row.name)}><Icon src={row.icon} alt={row.name} size={40} /><span><strong>{row.name}</strong><small>{row.craftable ? `${row.profession || 'Crafted'} · yield ${row.outputQuantity || 1}` : 'Raw material'}</small></span></button>)}</div>
       </section>
@@ -612,13 +624,13 @@ export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }
       <section className="panel material-intelligence">
         {history.length > 0 && <div className="drilldown-nav"><button className="drilldown-back" onClick={goBack}><ChevronLeft size={18} />Back</button><span>Back to {history[history.length - 1]}</span></div>}
         <div className="material-intelligence-head">
-          <div className="detail-head"><Icon src={material.icon} alt={material.name} size={76} /><div className="grow"><div className="pills"><SourceBadge value={material.sourceStatus} />{recipe && <VerificationBadge recipe={recipe} />}</div><h2>{material.name}</h2><p>{material.craftable ? `${material.profession || recipe?.profession || 'Crafted material'} · output ${material.outputQuantity || recipe?.outputQuantity || 1}` : 'Raw / acquired material'}</p></div></div>
+          <div className="detail-head"><Icon src={material.icon} alt={material.name} size={76} /><div className="grow"><div className="pills"><SourceBadge value={material.sourceStatus} />{recipe && <VerificationBadge recipe={recipe} />}</div><h2 ref={detailHeading} tabIndex={-1} className="material-selection-heading">{material.name}</h2><p>{material.craftable ? `${material.profession || recipe?.profession || 'Crafted material'} · output ${material.outputQuantity || recipe?.outputQuantity || 1}` : 'Raw / acquired material'}</p></div></div>
           <InventoryInput material={material} inventory={inventory} setInventory={setInventory} />
         </div>
 
         {recipe ? <><div className="section-head workbench-section-head"><div><small>EXACT RECIPE</small><h3>Inputs for one craft</h3></div><span className="yield-chip">Produces ×{recipe.outputQuantity}</span></div><RecipeRows rows={recipe.materials} onOpenMaterial={openMaterial} /></> : <div className="callout"><Gem size={18} /><p>Base material in the current dependency graph. No crafting recipe is recorded for it.</p></div>}
 
-        <details className="evidence-card" open={Boolean(recipe)}>
+        <>{!material.craftable && !recipe && <MaterialSourcePanel name={material.name} />}</><details className="evidence-card" open={Boolean(recipe)}>
           <summary><span><BadgeCheck size={17} />Recipe verification & evidence</span><ChevronRight size={16} /></summary>
           <div className="evidence-body">
             <div className="evidence-grid"><div><span>Recipe state</span><strong>{recipe ? (screenshotBacked ? 'Screenshot-backed' : 'Supplemental') : 'No recipe'}</strong></div><div><span>Output quantity</span><strong>{recipe ? `×${recipe.outputQuantity}` : 'N/A'}</strong></div><div><span>Quantity explicit</span><strong>{recipe ? (recipe.quantityExplicit ? 'Yes' : 'No') : 'N/A'}</strong></div><div><span>Source</span><strong>{recipe ? recipe.sourceStatus : material.sourceStatus}</strong></div></div>
