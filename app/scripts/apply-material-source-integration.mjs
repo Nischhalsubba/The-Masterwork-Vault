@@ -23,5 +23,7 @@ await patch('../src/components/CraftingWorkbench.tsx', [
   ['<section className="panel materials-browser">', '<section className="panel materials-browser"><MaterialSourceBrowser names={catalog.materials.filter((row) => !row.craftable && !recipeByName.has(norm(row.name))).map((row) => row.name)} />'],
   ['<div className="shopping-list">{shoppingRows.map((row) => <label', '<div className="shopping-list">{shoppingRows.map((row) => <div className="shopping-acquisition-row" key={row.name}><label'],
   ['<b>Acquire \u00d7{row.missing}</b></label>)}</div>', '<b>Acquire \u00d7{row.missing}</b></label><MaterialSourceButton name={row.name} /></div>)}</div>'],
+  ['<span key={row.name}><b>{row.name}</b><em>\u00d7{row.required}</em></span>', '<span className="source-evidence-input" key={row.name}><b>{row.name}</b><em>\u00d7{row.required}</em>{!byMaterial.get(norm(row.name))?.craftable && <MaterialSourceButton name={row.name} />}</span>'],
 ], "import { MaterialSourceButton, MaterialSourcePanel, MaterialSourceBrowser } from './MaterialSources'")
-console.log('Material acquisition guides integrated into recipes, raw dependency nodes, Materials and the farming checklist.')
+await patch('../src/components/CraftingWorkbench.tsx', [], "import './material-source-evidence.css'")
+console.log('Material acquisition guides integrated into recipes, item-details evidence, raw dependency nodes, Materials and the farming checklist.')

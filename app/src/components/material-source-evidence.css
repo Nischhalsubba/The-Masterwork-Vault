@@ -1,0 +1,15 @@
+/* Keep quantity readable when an acquisition action is available in the details drawer. */
+.evidence-inputs > .source-evidence-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+.source-evidence-input > b {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.source-evidence-input > .acquisition-button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
