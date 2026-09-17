@@ -33,7 +33,7 @@ export function nextReadinessAction(profession: MasterworkProfession, progress: 
   if (progress.level < 20) return { tier: 'level', title: `Reach ${profession} Level 20`, detail: `Current level ${progress.level}. Exact Level 1→20 XP thresholds remain intentionally unknown.`, adCost: 0 }
   if (!progress.chultan1) return { tier: 'chultan1', title: 'Unlock Chultan Masterwork I', detail: 'First modern Chultan Masterwork stage.', adCost: row.chultanMW1 }
   if (!progress.chultan2) return { tier: 'chultan2', title: 'Unlock Chultan Masterwork II', detail: 'Requires Chultan Masterwork I first.', adCost: row.chultanMW2 }
-  if (!progress.sharandar) return { tier: 'sharandar', title: 'Unlock Sharandar Masterwork', detail: 'Requires the Chultan progression and profession Level 20.', adCost: row.sharandarMW }
+  if (!progress.sharandar) return { tier: 'sharandar', title: 'Unlock Sharandar Masterwork', detail: 'The documented full path proceeds from Chultan books and Level 20. Confirm the current vendor\'s exact prerequisites before purchase.', adCost: row.sharandarMW }
   if (!progress.menzoberranzan) return { tier: 'menzoberranzan', title: 'Unlock Menzoberranzan Masterwork', detail: 'Check the current introduction quest and vendor prerequisites. This tracker records your full-path preparation, not live eligibility.', adCost: row.menzoberranzanMW }
   return { tier: 'complete', title: 'Masterwork path complete', detail: 'This profession is marked through Menzoberranzan.', adCost: 0 }
 }
@@ -79,9 +79,9 @@ export function readinessSummary(state: PlayerState) {
   const remainingBookAd = professions.reduce((sum, row) => sum + row.remainingBookAd, 0)
   const spentBookAd = professions.reduce((sum, row) => sum + row.spentBookAd, 0)
   const level20Count = professions.filter((row) => row.progress.level >= 20).length
-  const readyForMenzoQuest = professions.every((row) => row.progress.level >= 20 && row.progress.chultan2 && row.progress.sharandar)
+  const fullPathPrepared = professions.every((row) => row.progress.level >= 20 && row.progress.chultan2 && row.progress.sharandar)
   const next = professions
     .filter((row) => row.next.tier !== 'complete')
     .sort((a, b) => a.completion - b.completion || a.profession.localeCompare(b.profession))[0] ?? null
-  return { professions, completion, remainingBookAd, spentBookAd, level20Count, readyForMenzoQuest, next }
+  return { professions, completion, remainingBookAd, spentBookAd, level20Count, fullPathPrepared, next }
 }

@@ -7,7 +7,8 @@ test('every previously dangling ingredient has a reachable Materials record', as
   const search = page.getByRole('textbox', { name: 'Search materials', exact: true })
   for (const name of missingMaterials) {
     await search.fill(name)
-    const row = page.locator('.material-list > button').filter({ hasText: name }).first()
+    const row = page.locator('.material-list > button').filter({ has: page.getByText(name, { exact: true }) })
+    await expect(row).toHaveCount(1)
     await expect(row).toBeVisible()
     await row.click()
     await expect(page.getByRole('heading', { name: `Where to get ${name}`, exact: true })).toBeVisible()

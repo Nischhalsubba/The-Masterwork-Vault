@@ -26,6 +26,7 @@ import './typography.css'
 import './typography-mobile.css'
 import './ux-system.css'
 import './responsive-workspace.css'
+import './accessibility.css'
 
 const App = lazy(() => import('./App'))
 const MobileV4Shell = lazy(() => import('./components/MobileV4Shell').then((module) => ({ default: module.MobileV4Shell })))

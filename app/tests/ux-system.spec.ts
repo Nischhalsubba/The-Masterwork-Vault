@@ -37,6 +37,8 @@ test('advanced explorer hydrates and writes shareable filter state', async ({ pa
   await page.goto('/explore?q=Masterwork&campaign=Sharandar&recipe=captured')
   const search = page.getByPlaceholder('Search item, material, class…')
   await expect(search).toHaveValue('Masterwork')
+  const filters = page.getByRole('button', { name: /^Filters/ })
+  if (await filters.isVisible()) await filters.click()
   await expect(page.getByRole('checkbox', { name: 'Sharandar' })).toBeChecked()
   await expect(page.getByRole('checkbox', { name: 'Recipe captured' })).toBeChecked()
 
@@ -72,8 +74,8 @@ test('comparison explains compatibility, best values, and differences-only mode'
   await picker.nth(1).click()
 
   await expect(page.locator('.mw-compatibility-note')).toBeVisible()
-  await expect(page.locator('.mw-compare-legend')).toContainText('Best')
   const differences = page.getByRole('checkbox', { name: 'Differences only' })
+  await expect(page.locator('.mw-compare-legend')).toContainText('Best')
   await differences.check()
   await expect(differences).toBeChecked()
   await expect(page.locator('.compare-table:visible, .mw-compare-mobile:visible').first()).toBeVisible()
