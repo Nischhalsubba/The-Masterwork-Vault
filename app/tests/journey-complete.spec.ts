@@ -1,0 +1,81 @@
+import { expect, test } from '@playwright/test'
+
+const progressKey = 'masterwork-vault.workshop-journey.v2'
+
+test('journey preserves old milestones and deep-links the selected chapter', async ({ page }) => {
+  await page.addInitScript((key) => localStorage.setItem(key, JSON.stringify(['foundation','chultan','not-a-real-stage'])), progressKey)
+  await page.goto('/journey?stage=workshop')
+  await expect(page.locator('.journey-roadmap-step')).toHaveCount(9)
+  await expect(page.locator('.journey-personal-progress')).toContainText('2')
+  await expect(page.locator('#journey-active-heading')).toHaveText('Progress Workshop ranks and the trading-company story')
+  await expect(page.locator('.journey-chapter')).toContainText('2,500,000')
+  await expect(page.locator('.journey-chapter a[href*="11548793"]').first()).toBeVisible()
+  await page.locator('.journey-roadmap-step').filter({ hasText: 'Chultan I & II' }).click()
+  await expect(page.locator('#journey-active-heading')).toHaveText('Acquire Chultan Masterwork I, then II')
+  await expect(page.locator('.journey-milestone button')).toHaveAttribute('aria-pressed','true')
+  await expect(page).toHaveURL(/stage=chultan/)
+  await page.reload()
+  await expect(page.locator('#journey-active-heading')).toHaveText('Acquire Chultan Masterwork I, then II')
+})
+
+test('journey uses all captured outputs without inventing missing recipes', async ({ page }) => {
+  await page.goto('/journey')
+  const library = page.locator('#journey-craftables')
+  await expect(library).toContainText('105 item records')
+  await expect(library).toContainText('145 recipe records')
+  await expect(library).toContainText('not every recipe in the game')
+  await expect(library.locator('.journey-output')).toHaveCount(30)
+  await expect(library.locator('.journey-output-detail')).toHaveCount(0)
+  await library.getByRole('button', { name: /Show 30 more/ }).click()
+  await expect(library.locator('.journey-output')).toHaveCount(60)
+  await library.getByRole('searchbox').fill('Soul Bead')
+  const row = library.locator('.journey-output').filter({ has: page.locator('summary strong', { hasText: /^Soul Bead$/ }) })
+  await expect(row).toHaveCount(1)
+  await row.locator(':scope > summary').click()
+  await expect(row).toContainText('2 per successful craft')
+  await expect(row.locator('.journey-input-list li')).not.toHaveCount(0)
+  await library.getByRole('searchbox').fill('definitely-not-a-real-item')
+  await expect(library).toContainText('No captured outputs match')
+  await library.getByRole('button', { name: 'Reset craftable filters' }).click()
+  await expect(library.locator('.journey-output')).toHaveCount(30)
+})
+
+test('journey budgets are published scenarios and paid morale needs an entered rate', async ({ page }) => {
+  await page.goto('/journey#journey-planning')
+  const planning = page.locator('#journey-planning')
+  await expect(planning).toContainText('28,000,000 AD')
+  await planning.getByRole('spinbutton', { name: 'Professions to budget for' }).fill('1')
+  await expect(planning.locator('.journey-planning-total').first()).toContainText('4,000,000 AD')
+  await expect(planning).toContainText('Enter the live quote')
+  await planning.getByRole('spinbutton', { name: 'Current AD per point' }).fill('100')
+  await expect(planning).toContainText('10,000 AD')
+  await planning.getByRole('checkbox').check()
+  await expect(planning.locator('.journey-planning-total').nth(1)).toContainText('80')
+  await expect(planning).toContainText('does not double task XP')
+})
+
+test('source-backed and uncertain rules are distinguished in the evidence ledger', async ({ page }) => {
+  await page.goto('/data-health')
+  await expect(page.locator('.mw-ledger')).toContainText('Current quote required')
+  await expect(page.locator('.mw-ledger')).toContainText('Reviewed')
+  await expect(page.locator('.mw-ledger')).not.toContainText('120 AD / Morale')
+  await expect(page.locator('.mw-ledger tr').filter({ hasText: 'Current Morale refill rate' }).locator('.mw-status-chip')).toHaveText('unknown')
+})
+
+for (const width of [320,768,1440]) {
+  test(`journey guide and expanded recipe stay usable at ${width}px`, async ({ page },testInfo) => {
+    test.skip(testInfo.project.name === 'phone', 'Explicit viewport matrix runs once')
+    await page.setViewportSize({ width, height:900 })
+    await page.goto('/journey?stage=menzoberranzan')
+    await expect(page.locator('#journey-active-heading')).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1)
+    await page.screenshot({ path:testInfo.outputPath(`journey-overview-${width}.png`) })
+    const library=page.locator('#journey-craftables')
+    await library.getByRole('searchbox').fill('Soul Bead')
+    const row=library.locator('.journey-output').filter({ has: page.locator('summary strong',{hasText:/^Soul Bead$/}) })
+    await row.locator(':scope > summary').click()
+    await row.scrollIntoViewIfNeeded()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1)
+    await page.screenshot({ path:testInfo.outputPath(`journey-recipe-${width}.png`) })
+  })
+}
