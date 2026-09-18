@@ -4,6 +4,7 @@ import {
   filterProfessionRecipes, parseProfessionReference, professionReferenceHref, REFERENCE_PROFESSIONS,
   type ProfessionRecipeReference, type ProfessionReferenceSnapshot, type ReferenceMaterial,
 } from '../domain/professionReference'
+import { GATHERING_REVIEWED_AT, gatheringReferenceTasks } from '../data/gatheringReference'
 import './profession-reference.css'
 
 const snapshotUrl = new URL('../data/professionReference.snapshot.json', import.meta.url).href
@@ -50,6 +51,7 @@ export function ProfessionReference() {
   const [data,setData] = useState<ProfessionReferenceSnapshot | null>(null)
   const [error,setError] = useState(false)
   const [attempt,setAttempt] = useState(0)
+  const [mode,setMode] = useState<'crafting'|'gathering'>('crafting')
   const [query,setQuery] = useState('')
   const [profession,setProfession] = useState('All')
   const [level,setLevel] = useState('All')
@@ -78,19 +80,35 @@ export function ProfessionReference() {
   }
 
   return <section className="profession-reference" aria-labelledby="profession-reference-heading">
-    <div className="journey-section-intro"><span className="journey-kicker">STANDARD PROFESSIONS / REFERENCE COLLECTION</span><h2 id="profession-reference-heading">From your first craft to level 20.</h2><p>Explore the published community task list across all seven crafting professions. Search outputs or ingredients, inspect the recorded inputs, and follow the original records.</p></div>
+    <div className="journey-section-intro"><span className="journey-kicker">STANDARD PROFESSIONS / REFERENCE COLLECTION</span><h2 id="profession-reference-heading">From your first craft to level 20.</h2><p>Explore the published community task lists across all seven crafting professions plus Gathering. Search crafting outputs and ingredients, or switch to the complete recorded Level 1-20 Gathering route.</p></div>
     <p className="journey-data-note"><strong>Reference, not verified planner data.</strong> This community database was introduced in April 2024, and its author asks for error checks. The snapshot was reviewed on 18 September 2026; that is not its game-version date. All output yields are unrecorded, two task levels are missing, and three level/category conflicts are flagged. It does not include an exhaustive Chultan or current-game Masterwork inventory.</p>
     {error ? <div className="profession-reference-load-error" role="alert"><p>The reference could not be loaded or validated. Your saved plans and the Masterwork catalog have not changed.</p><button type="button" onClick={() => setAttempt(value=>value+1)}>Retry reference</button></div> : !data ? <p role="status">Loading the profession reference…</p> : <>
-      <div className="journey-coverage" aria-label="Standard profession reference coverage"><span><strong>{data.recipes.length}</strong> source task records</span><span><strong>{REFERENCE_PROFESSIONS.length}</strong> crafting professions</span><span><strong>{data.materials.length}</strong> linked ingredients</span><span><strong>{data.recipes.reduce((sum,row)=>sum+row.inputs.length,0).toLocaleString('en-US')}</strong> resolved input links</span></div>
-      <div className="journey-library-filters profession-reference-filters">
-        <label className="journey-library-search"><span>Search standard tasks or ingredients</span><span><Search size={17} aria-hidden="true" /><input ref={searchRef} type="search" value={query} onChange={event=>update(setQuery,event.target.value)} placeholder="Try Honey or Beehive Chip" /></span></label>
-        <label><span>Reference profession</span><select aria-label="Reference profession" value={profession} onChange={event=>update(setProfession,event.target.value)}><option value="All">All professions</option>{REFERENCE_PROFESSIONS.map(name=><option key={name} value={name}>{name} ({data.professionCounts[name]})</option>)}</select></label>
-        <label><span>Recorded task level</span><select aria-label="Recorded task level" value={level} onChange={event=>update(setLevel,event.target.value)}><option value="All">All levels</option>{Array.from({length:20},(_,index)=><option key={index+1} value={index+1}>Level {index+1}</option>)}<option value="unknown">Not recorded</option></select></label>
+      <div className="journey-coverage" aria-label="Standard profession reference coverage"><span><strong>{data.recipes.length + gatheringReferenceTasks.length}</strong> source task records</span><span><strong>{REFERENCE_PROFESSIONS.length + 1}</strong> professions including Gathering</span><span><strong>{data.materials.length}</strong> linked crafting ingredients</span><span><strong>{data.recipes.reduce((sum,row)=>sum+row.inputs.length,0).toLocaleString('en-US')}</strong> resolved crafting input links</span></div>
+      <div className="profession-reference-mode" role="group" aria-label="Standard profession reference view">
+        <button type="button" aria-pressed={mode==='crafting'} onClick={()=>setMode('crafting')}>Crafting tasks ({data.recipes.length})</button>
+        <button type="button" aria-pressed={mode==='gathering'} onClick={()=>setMode('gathering')}>Gathering ({gatheringReferenceTasks.length})</button>
       </div>
-      <div className="journey-library-result"><p role="status" aria-atomic="true">{visible.length} matching tasks / {data.recipes.length} source records</p>{(query || profession!=='All' || level!=='All') && <button type="button" onClick={reset}>Reset reference filters</button>}</div>
-      {visible.length ? <div className="profession-reference-list">{visible.slice(0,limit).map(row=><ReferenceRow key={row.id} row={row} materials={materials} onSearch={searchIngredient} />)}</div> : <p className="journey-data-note">No reference tasks match. Reset filters or try another ingredient name.</p>}
-      {visible.length>limit && <button className="journey-load-more" type="button" onClick={()=>setLimit(value=>value+pageSize)}>Show {Math.min(pageSize,visible.length-limit)} more tasks ({limit} of {visible.length} shown)</button>}
-      <div className="journey-output-actions"><a href={data.sourceUrl} target="_blank" rel="noopener noreferrer">Browse original community database<ArrowUpRight size={16} aria-hidden="true" /></a><a href={data.sourceAnnouncementUrl} target="_blank" rel="noopener noreferrer">Author’s release notes and limitations<ArrowUpRight size={16} aria-hidden="true" /></a></div>
+      {mode==='crafting' ? <>
+        <div className="journey-library-filters profession-reference-filters">
+          <label className="journey-library-search"><span>Search standard tasks or ingredients</span><span><Search size={17} aria-hidden="true" /><input ref={searchRef} type="search" value={query} onChange={event=>update(setQuery,event.target.value)} placeholder="Try Honey or Beehive Chip" /></span></label>
+          <label><span>Reference profession</span><select aria-label="Reference profession" value={profession} onChange={event=>update(setProfession,event.target.value)}><option value="All">All professions</option>{REFERENCE_PROFESSIONS.map(name=><option key={name} value={name}>{name} ({data.professionCounts[name]})</option>)}</select></label>
+          <label><span>Recorded task level</span><select aria-label="Recorded task level" value={level} onChange={event=>update(setLevel,event.target.value)}><option value="All">All levels</option>{Array.from({length:20},(_,index)=><option key={index+1} value={index+1}>Level {index+1}</option>)}<option value="unknown">Not recorded</option></select></label>
+        </div>
+        <div className="journey-library-result"><p role="status" aria-atomic="true">{visible.length} matching crafting tasks / {data.recipes.length} source records</p>{(query || profession!=='All' || level!=='All') && <button type="button" onClick={reset}>Reset reference filters</button>}</div>
+        {visible.length ? <div className="profession-reference-list">{visible.slice(0,limit).map(row=><ReferenceRow key={row.id} row={row} materials={materials} onSearch={searchIngredient} />)}</div> : <p className="journey-data-note">No reference tasks match. Reset filters or try another ingredient name.</p>}
+        {visible.length>limit && <button className="journey-load-more" type="button" onClick={()=>setLimit(value=>value+pageSize)}>Show {Math.min(pageSize,visible.length-limit)} more tasks ({limit} of {visible.length} shown)</button>}
+        <div className="journey-output-actions"><a href={data.sourceUrl} target="_blank" rel="noopener noreferrer">Browse original community database<ArrowUpRight size={16} aria-hidden="true" /></a><a href={data.sourceAnnouncementUrl} target="_blank" rel="noopener noreferrer">Author’s release notes and limitations<ArrowUpRight size={16} aria-hidden="true" /></a></div>
+      </> : <>
+        <p className="journey-data-note"><strong>Community wiki snapshot reviewed 18 September 2026.</strong> The Level 1-20 Gathering table records 25 tasks. Each listed task returns 12 units at Tier 1 or Tier 2 quality and consumes no ingredient. The wiki does not distinguish PC/console game state, so current tool and availability requirements still need in-game confirmation.</p>
+        <div className="journey-library-result"><p role="status" aria-atomic="true">{gatheringReferenceTasks.length} gathering tasks / Level 1-20 recorded coverage</p></div>
+        <div className="gathering-reference-list">{gatheringReferenceTasks.map(row=><article className="gathering-reference-row" key={row.id}>
+          <div><small>Gathering / Level {row.level}</small><h3>{row.name}</h3></div>
+          <dl><div><dt>Recorded yield</dt><dd>×{row.outputQuantity}</dd></div><div><dt>Consumed ingredients</dt><dd>No consumed ingredients</dd></div></dl>
+          <p>{row.platformContext}</p>
+          <a href={row.sourceUrl} target="_blank" rel="noopener noreferrer">Gathering source<ArrowUpRight size={14} aria-hidden="true" /></a>
+        </article>)}</div>
+      </>}
+
     </>}
   </section>
 }
