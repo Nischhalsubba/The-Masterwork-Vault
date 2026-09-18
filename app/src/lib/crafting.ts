@@ -72,7 +72,7 @@ export function buildRecipeMap(recipes: RecipeEntry[]) {
   return new Map(recipes.map((recipe) => [normalize(recipe.name), recipe]))
 }
 
-export function isRecipePlannable(recipe?: RecipeEntry | null): recipe is RecipeEntry {
+export function isRecipePlannable(recipe?: RecipeEntry | null): boolean {
   return Boolean(
     recipe &&
     recipe.quantityExplicit === true &&
