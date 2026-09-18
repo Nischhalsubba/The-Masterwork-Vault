@@ -7,9 +7,9 @@ async function addFeywoodBroadSlab(page) {
   const add = card.locator('.item-foot > button')
   await expect(add).toBeVisible()
   await add.click()
-  const mobilePlan = page.locator('.mobile-v4-tabbar').getByRole('button', { name: 'Plan', exact: true })
-  if (await mobilePlan.isVisible()) await mobilePlan.click()
-  else await page.locator('header nav button[data-view="plan"]').click()
+  // This spec validates the crafting-tree redesign, not global navigation. Route
+  // directly so desktop and phone exercise the same persisted plan state.
+  await page.goto('/plan')
   await expect(page).toHaveURL(/\/plan$/)
 }
 
