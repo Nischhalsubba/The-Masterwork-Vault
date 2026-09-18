@@ -7,7 +7,8 @@ async function addFeywoodBroadSlab(page) {
   const add = card.locator('.item-foot > button')
   await expect(add).toBeVisible()
   await add.click()
-  await page.goto('/plan')
+  await page.locator('header nav button[data-view="plan"]').click()
+  await expect(page).toHaveURL(/\/plan$/)
 }
 
 test('approved coded crafting-tree layout is used in Plan & Craft', async ({ page }) => {
