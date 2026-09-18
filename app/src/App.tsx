@@ -573,6 +573,13 @@ export default function App() {
               </div>
             </section>
             <div className="catalog">
+            <section className="collection-switcher panel" aria-label="Masterwork collection">
+              <div><small>COLLECTION</small><strong>{campaign === 'All' ? 'All Masterwork' : `${campaign} Masterwork`}</strong><span>{collectionItems.length} craftables · {activeMaterials} materials · {activeRecipes} recipes</span></div>
+              <div className="collection-seg" role="group" aria-label="Choose source collection">
+                {(['Sharandar', 'Underdark', 'All'] as CampaignFilter[]).map((value) => <button className={campaign === value ? 'active' : ''} aria-pressed={campaign === value} onClick={() => selectCampaign(value)} key={value}>{value === 'All' ? 'All' : value}</button>)}
+              </div>
+            </section>
+
             <aside>
               <small>CLASSES</small>
               <button className={cls === 'All' ? 'active' : ''} onClick={() => selectClass('All')}>All craftables</button>
@@ -580,13 +587,6 @@ export default function App() {
             </aside>
 
             <div className="workspace">
-              <section className="collection-switcher panel" aria-label="Masterwork collection">
-                <div><small>COLLECTION</small><strong>{campaign === 'All' ? 'All Masterwork' : `${campaign} Masterwork`}</strong><span>{collectionItems.length} craftables · {activeMaterials} materials · {activeRecipes} recipes</span></div>
-                <div className="collection-seg" role="group" aria-label="Choose source collection">
-                  {(['Sharandar', 'Underdark', 'All'] as CampaignFilter[]).map((value) => <button className={campaign === value ? 'active' : ''} aria-pressed={campaign === value} onClick={() => selectCampaign(value)} key={value}>{value === 'All' ? 'All' : value}</button>)}
-                </div>
-              </section>
-
               <div className="toolbar panel">
                 <label className="search"><Search size={17} /><input aria-label="Search catalog" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search item, material, profession…" /></label>
                 <div className="filters">{availableKinds.map((value) => <button className={kind === value ? 'active' : ''} onClick={() => setKind(value)} key={value}>{value}</button>)}</div>
