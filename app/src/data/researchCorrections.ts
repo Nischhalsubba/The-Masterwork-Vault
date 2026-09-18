@@ -42,7 +42,7 @@ export const masterworkResearchCorrections: ResearchCorrection[] = [
     id: 'sharandar-plus-one-accessories',
     title: 'Sharandar +1 accessory coverage',
     status: 'coverage-gap',
-    summary: 'The same publisher patch names five Sharandar Masterwork +1 accessories and raises each from Item Level 1200 to 1300.',
+    summary: "The same publisher patch names Thorned Amulet +1, Feywood Amulet +1, Thorned Sash +1, Feywood Sash +1, and Dawn's Light Sash +1, raising each from Item Level 1200 to 1300.",
     impact: 'These items should be represented in the catalog as publisher-confirmed records even while recipe, stats, bind, and authentic artwork remain uncaptured.',
     sourceUrl: APRIL_2023_MASTERWORK_PATCH,
     sourceLabel: 'Neverwinter Patch Notes for 4/20/23',
