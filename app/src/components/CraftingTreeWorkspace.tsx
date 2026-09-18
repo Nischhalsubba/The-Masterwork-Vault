@@ -118,9 +118,12 @@ function findNode(root: CraftTreeNode | undefined, id: string | null): CraftTree
 
 function firstMaterialRoot(root: CraftTreeNode | undefined) {
   if (!root) return undefined
-  return root.children.find((child) => child.craftable && child.children.length > 0)
-    || root.children.find((child) => child.craftable)
-    || root.children[0]
+  const craftable = root.children
+    .filter((child) => child.craftable)
+    .sort((a, b) => a.name.localeCompare(b.name))
+  return craftable.find((child) => child.children.length > 0)
+    || craftable[0]
+    || [...root.children].sort((a, b) => a.name.localeCompare(b.name))[0]
 }
 
 function nodeKey(node: CraftTreeNode) {
