@@ -59,6 +59,12 @@ for (const row of chultanHistoricalTaskRows) {
 const historicalLichstone = chultanHistoricalTaskRows.find(row=>row.profession==='Artificing' && row.historicalTier==='IV' && row.name==='Lichstone Enamel')
 assert.equal(historicalLichstone?.outputQuantity,3)
 assert.deepEqual(historicalLichstone?.materials,[{name:'Lichstone',quantity:1},{name:"Artisan's Enamel",quantity:4}])
+const formulaSignature = (outputQuantity, inputs) => JSON.stringify({ outputQuantity, inputs:[...inputs].map(input=>({name:input.name.toLowerCase(),quantity:input.quantity})).sort((a,b)=>a.name.localeCompare(b.name)) })
+const historicalFormulaConflicts = chultanIntermediateFormulas.filter(formula => {
+  const matches = chultanHistoricalTaskRows.filter(row=>row.name===formula.name)
+  return matches.length && matches.some(row=>formulaSignature(row.outputQuantity,row.materials)!==formulaSignature(formula.outputQuantity,formula.inputs))
+}).map(formula=>formula.name).sort()
+assert.deepEqual(historicalFormulaConflicts,['Brilliant Bead','Chultan Silk Thread','Fanged Ornament','Lacquered Dinosaur Leather','Lion Fur'])
 assert.equal(new Set(chultanIntermediateFormulas.map(row=>row.name)).size,17)
 const lichstoneEnamel = chultanIntermediateFormulas.find(row=>row.name==='Lichstone Enamel')
 assert.equal(lichstoneEnamel?.outputQuantity,3)
