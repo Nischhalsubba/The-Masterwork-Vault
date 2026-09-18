@@ -340,20 +340,24 @@ for (const material of catalog.materials ?? []) material.usedBy.sort((a: string,
 for (const item of catalog.items ?? []) {
   if (!item.icon && item.iconIndex == null) {
     item.icon = referenceIconDataUri(referenceIconKindForEntity(item.kind, item.slot))
-    item.artwork = item.artwork ?? {
-      provenance: 'reference-derived',
-      sourceId: 'app-reference-icon:auto',
-      lastVerified: '2026-09-18',
+    if (!item.artwork || item.artwork.provenance === 'missing') {
+      item.artwork = {
+        provenance: 'reference-derived',
+        sourceId: 'app-reference-icon:auto',
+        lastVerified: '2026-09-18',
+      }
     }
   }
 }
 for (const material of catalog.materials ?? []) {
   if (!material.icon && material.iconIndex == null) {
     material.icon = referenceIconDataUri('material')
-    material.artwork = material.artwork ?? {
-      provenance: 'reference-derived',
-      sourceId: 'app-reference-icon:auto',
-      lastVerified: '2026-09-18',
+    if (!material.artwork || material.artwork.provenance === 'missing') {
+      material.artwork = {
+        provenance: 'reference-derived',
+        sourceId: 'app-reference-icon:auto',
+        lastVerified: '2026-09-18',
+      }
     }
   }
 }
