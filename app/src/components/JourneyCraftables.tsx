@@ -53,7 +53,7 @@ export function JourneyCraftables() {
   return <section id="journey-craftables" className="journey-library journey-library-collection" aria-label="Craftable library collections">
     <div className="journey-library-switch" role="group" aria-label="Recipe library collection">
       <button type="button" aria-pressed={collection==='vault'} onClick={()=>setCollection('vault')}>Masterwork catalog</button>
-      <button type="button" aria-pressed={collection==='standard'} onClick={()=>setCollection('standard')}>Standard + Gathering (932)</button>
+      <button type="button" aria-pressed={collection==='standard'} onClick={()=>setCollection('standard')}>Standard professions + Gathering evidence</button>
       <button type="button" aria-pressed={collection==='research'} onClick={()=>setCollection('research')}>Masterwork research</button>
     </div>
     {collection==='vault' ? <CapturedCraftables /> : collection==='standard' ? <ProfessionReference /> : <MasterworkResearchReference />}

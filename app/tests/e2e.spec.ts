@@ -17,6 +17,33 @@ test('zero-result search has a real empty state', async ({ page }) => {
   await expect(search).toHaveValue('')
 })
 
+test('publisher-confirmed Sharandar accessories are visible with reference icons and honest recipe state', async ({ page }) => {
+  const items = ['Thorned Amulet +1','Feywood Amulet +1','Thorned Sash +1','Feywood Sash +1',"Dawn's Light Sash +1"]
+  for (const name of items) {
+    await page.goto(`/catalog?campaign=Sharandar&q=${encodeURIComponent(name)}`)
+    const row = page.locator('.catalog .items .item-main').filter({ hasText: name }).first()
+    await expect(row).toBeVisible()
+    await expect(row.locator('img.thumb')).toBeVisible()
+    await row.click()
+    await expect(page.getByRole('main')).toContainText('Recipe not captured')
+    await page.getByRole('button', { name: /Details/ }).click()
+    const details = page.getByRole('dialog')
+    await expect(details).toContainText('1,300')
+    await page.keyboard.press('Escape')
+  }
+})
+
+test("Hermit's Incense +1 reflects the publisher correction to item level 95", async ({ page }) => {
+  await page.goto('/catalog?campaign=Sharandar&q=Hermit%27s%20Incense')
+  const row = page.locator('.catalog .items .item-main').filter({ hasText: "Hermit's Incense" }).first()
+  await expect(row).toBeVisible()
+  await row.click()
+  await page.getByRole('button', { name: /Details/ }).click()
+  const details = page.getByRole('dialog', { name: /Hermit's Incense details/i })
+  await expect(details).toContainText('95')
+  await expect(details.locator('a[href*="11542223"]')).not.toHaveCount(0)
+})
+
 test('catalog filters are reflected in the URL', async ({ page }) => {
   await page.goto('/catalog')
   await page.getByRole('textbox', { name: 'Search catalog' }).fill('sword')

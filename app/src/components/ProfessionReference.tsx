@@ -4,7 +4,7 @@ import {
   filterProfessionRecipes, parseProfessionReference, professionReferenceHref, REFERENCE_PROFESSIONS,
   type ProfessionRecipeReference, type ProfessionReferenceSnapshot, type ReferenceMaterial,
 } from '../domain/professionReference'
-import { GATHERING_REVIEWED_AT, gatheringReferenceTasks } from '../data/gatheringReference'
+import { GATHERING_COMPRESSION_SOURCE_URL, GATHERING_MAPPING_STATUS, GATHERING_REVIEWED_AT, GATHERING_SOURCE_SCALE, gatheringReferenceTasks } from '../data/gatheringReference'
 import './profession-reference.css'
 
 const snapshotUrl = new URL('../data/professionReference.snapshot.json', import.meta.url).href
@@ -80,13 +80,13 @@ export function ProfessionReference() {
   }
 
   return <section className="profession-reference" aria-labelledby="profession-reference-heading">
-    <div className="journey-section-intro"><span className="journey-kicker">STANDARD PROFESSIONS / REFERENCE COLLECTION</span><h2 id="profession-reference-heading">From your first craft to level 20.</h2><p>Explore the published community task lists across all seven crafting professions plus Gathering. Search crafting outputs and ingredients, or switch to the complete recorded Level 1-20 Gathering route.</p></div>
-    <p className="journey-data-note"><strong>Reference, not verified planner data.</strong> This community database was introduced in April 2024, and its author asks for error checks. The snapshot was reviewed on 18 September 2026; that is not its game-version date. All output yields are unrecorded, two task levels are missing, and three level/category conflicts are flagged. It does not include an exhaustive Chultan or current-game Masterwork inventory.</p>
+    <div className="journey-section-intro"><span className="journey-kicker">STANDARD PROFESSIONS / REFERENCE COLLECTION</span><h2 id="profession-reference-heading">From your first craft to level 20.</h2><p>Explore the published community task lists across all seven crafting professions. Gathering is kept as a separate legacy evidence sample because its source table still uses the old 1–80 profession scale.</p></div>
+    <p className="journey-data-note"><strong>Reference, not verified planner data.</strong> The crafting database was introduced in April 2024, and its author asks for error checks. The Gathering rows come from a different community table that retains the pre-2021 level scale. The snapshot review date is not a live-game certification. Missing output yields, task conflicts, and post-compression mappings are never inferred.</p>
     {error ? <div className="profession-reference-load-error" role="alert"><p>The reference could not be loaded or validated. Your saved plans and the Masterwork catalog have not changed.</p><button type="button" onClick={() => setAttempt(value=>value+1)}>Retry reference</button></div> : !data ? <p role="status">Loading the profession reference…</p> : <>
       <div className="journey-coverage" aria-label="Standard profession reference coverage"><span><strong>{data.recipes.length + gatheringReferenceTasks.length}</strong> source task records</span><span><strong>{REFERENCE_PROFESSIONS.length + 1}</strong> professions including Gathering</span><span><strong>{data.materials.length}</strong> linked crafting ingredients</span><span><strong>{data.recipes.reduce((sum,row)=>sum+row.inputs.length,0).toLocaleString('en-US')}</strong> resolved crafting input links</span></div>
       <div className="profession-reference-mode" role="group" aria-label="Standard profession reference view">
         <button type="button" aria-pressed={mode==='crafting'} onClick={()=>setMode('crafting')}>Crafting tasks ({data.recipes.length})</button>
-        <button type="button" aria-pressed={mode==='gathering'} onClick={()=>setMode('gathering')}>Gathering ({gatheringReferenceTasks.length})</button>
+        <button type="button" aria-pressed={mode==='gathering'} onClick={()=>setMode('gathering')}>Gathering evidence ({gatheringReferenceTasks.length})</button>
       </div>
       {mode==='crafting' ? <>
         <div className="journey-library-filters profession-reference-filters">
@@ -99,13 +99,19 @@ export function ProfessionReference() {
         {visible.length>limit && <button className="journey-load-more" type="button" onClick={()=>setLimit(value=>value+pageSize)}>Show {Math.min(pageSize,visible.length-limit)} more tasks ({limit} of {visible.length} shown)</button>}
         <div className="journey-output-actions"><a href={data.sourceUrl} target="_blank" rel="noopener noreferrer">Browse original community database<ArrowUpRight size={16} aria-hidden="true" /></a><a href={data.sourceAnnouncementUrl} target="_blank" rel="noopener noreferrer">Author’s release notes and limitations<ArrowUpRight size={16} aria-hidden="true" /></a></div>
       </> : <>
-        <p className="journey-data-note"><strong>Community wiki snapshot reviewed 18 September 2026.</strong> The Level 1-20 Gathering table records 25 tasks. Each listed task returns 12 units at Tier 1 or Tier 2 quality and consumes no ingredient. The wiki does not distinguish PC/console game state, so current tool and availability requirements still need in-game confirmation.</p>
-        <div className="journey-library-result"><p role="status" aria-atomic="true">{gatheringReferenceTasks.length} gathering tasks / Level 1-20 recorded coverage</p></div>
+        <div className="profession-reference-legacy-note" role="note">
+          <span className="journey-kicker">LEGACY EVIDENCE / MODERN MAPPING UNRESOLVED</span>
+          <h3>Legacy pre-compression Gathering sample</h3>
+          <p>The community Gathering table uses the old 1–80 profession scale. Neverwinter's 2021 profession update compressed those levels into 20 four-level buckets, so these first 25 source rows are <strong>not</strong> a complete modern Level 1–20 Gathering route.</p>
+          <p>Source scale: <code>{GATHERING_SOURCE_SCALE}</code> · mapping status: <code>{GATHERING_MAPPING_STATUS}</code> · reviewed {GATHERING_REVIEWED_AT}.</p>
+          <div className="journey-output-actions"><a href={GATHERING_COMPRESSION_SOURCE_URL} target="_blank" rel="noopener noreferrer">Read the 2021 profession compression<ArrowUpRight size={14} aria-hidden="true" /></a><a href={gatheringReferenceTasks[0]?.sourceUrl} target="_blank" rel="noopener noreferrer">Open the legacy Gathering table<ArrowUpRight size={14} aria-hidden="true" /></a></div>
+        </div>
+        <div className="journey-library-result"><p role="status" aria-atomic="true">{gatheringReferenceTasks.length} legacy-source rows / modern Level 1–20 mapping unresolved</p></div>
         <div className="gathering-reference-list">{gatheringReferenceTasks.map(row=><article className="gathering-reference-row" key={row.id}>
-          <div><small>Gathering / Level {row.level}</small><h3>{row.name}</h3></div>
-          <dl><div><dt>Recorded yield</dt><dd>×{row.outputQuantity}</dd></div><div><dt>Consumed ingredients</dt><dd>No consumed ingredients</dd></div></dl>
+          <div><small>Gathering / legacy source level {row.level}</small><h3>{row.name}</h3></div>
+          <dl><div><dt>Historical recorded yield</dt><dd>×{row.outputQuantity}</dd></div><div><dt>Planner eligibility</dt><dd>Reference only</dd></div></dl>
           <p>{row.platformContext}</p>
-          <a href={row.sourceUrl} target="_blank" rel="noopener noreferrer">Gathering source<ArrowUpRight size={14} aria-hidden="true" /></a>
+          <a href={row.sourceUrl} target="_blank" rel="noopener noreferrer">Legacy Gathering source<ArrowUpRight size={14} aria-hidden="true" /></a>
         </article>)}</div>
       </>}
 

@@ -19,6 +19,7 @@ export interface BatchStep {
 export interface CraftingPlan {
   direct: MaterialNeed[]
   raw: MaterialNeed[]
+  unresolved: MaterialNeed[]
   batches: BatchStep[]
 }
 
@@ -71,6 +72,29 @@ export function buildRecipeMap(recipes: RecipeEntry[]) {
   return new Map(recipes.map((recipe) => [normalize(recipe.name), recipe]))
 }
 
+export function isRecipePlannable(recipe?: RecipeEntry | null): boolean {
+  return Boolean(
+    recipe &&
+    recipe.quantityExplicit === true &&
+    Number.isInteger(recipe.outputQuantity) &&
+    recipe.outputQuantity > 0,
+  )
+}
+
+function splitResolvedDemand(
+  demand: Map<string, { name: string; quantity: number }>,
+  recipeMap: Map<string, RecipeEntry>,
+) {
+  const raw = new Map<string, { name: string; quantity: number }>()
+  const unresolved = new Map<string, { name: string; quantity: number }>()
+  for (const [key, need] of demand.entries()) {
+    const recipe = recipeMap.get(key)
+    if (recipe && !isRecipePlannable(recipe)) addNeed(unresolved, need.name, need.quantity)
+    else addNeed(raw, need.name, need.quantity)
+  }
+  return { raw, unresolved }
+}
+
 function addNeed(target: Map<string, { name: string; quantity: number }>, name: string, quantity: number) {
   if (!Number.isFinite(quantity) || quantity <= 0) return
   const key = normalize(name)
@@ -116,13 +140,13 @@ export function calculateCraftingPlan(selections: PlanSelection[], recipes: Reci
 
   while (true) {
     const candidates = [...demand.entries()]
-      .filter(([key]) => recipeMap.has(key) && !processed.has(key))
+      .filter(([key]) => isRecipePlannable(recipeMap.get(key)) && !processed.has(key))
       .sort((a, b) => recipeDepth(b[1].name, recipeMap, depthMemo) - recipeDepth(a[1].name, recipeMap, depthMemo))
 
     if (!candidates.length) break
     const [key, need] = candidates[0]
     const recipe = recipeMap.get(key)!
-    const outputPerCraft = Math.max(1, recipe.outputQuantity || 1)
+    const outputPerCraft = recipe.outputQuantity
     const crafts = Math.ceil(need.quantity / outputPerCraft)
     const produced = crafts * outputPerCraft
 
@@ -142,9 +166,11 @@ export function calculateCraftingPlan(selections: PlanSelection[], recipes: Reci
     recipe.materials.forEach((material) => addNeed(demand, material.name, material.required * crafts))
   }
 
+  const split = splitResolvedDemand(demand, recipeMap)
   return {
     direct: toSortedNeeds(directMap),
-    raw: toSortedNeeds(demand),
+    raw: toSortedNeeds(split.raw),
+    unresolved: toSortedNeeds(split.unresolved),
     batches: batches.sort((a, b) => b.crafts - a.crafts || a.name.localeCompare(b.name)),
   }
 }
@@ -190,7 +216,7 @@ export function calculateInventoryAwarePlan(selections: PlanSelection[], recipes
 
   while (true) {
     const candidates = [...demand.entries()]
-      .filter(([key]) => recipeMap.has(key) && !processed.has(key))
+      .filter(([key]) => isRecipePlannable(recipeMap.get(key)) && !processed.has(key))
       .sort((a, b) => recipeDepth(b[1].name, recipeMap, depthMemo) - recipeDepth(a[1].name, recipeMap, depthMemo))
 
     if (!candidates.length) break
@@ -203,7 +229,7 @@ export function calculateInventoryAwarePlan(selections: PlanSelection[], recipes
     processed.add(key)
     if (remaining <= 0) continue
 
-    const outputPerCraft = Math.max(1, recipe.outputQuantity || 1)
+    const outputPerCraft = recipe.outputQuantity
     const crafts = Math.ceil(remaining / outputPerCraft)
     const produced = crafts * outputPerCraft
 
@@ -221,15 +247,25 @@ export function calculateInventoryAwarePlan(selections: PlanSelection[], recipes
     recipe.materials.forEach((material) => addNeed(demand, material.name, material.required * crafts))
   }
 
-  const rawDemand = new Map(demand)
+  const rawDemand = new Map<string, { name: string; quantity: number }>()
+  const unresolvedDemand = new Map<string, { name: string; quantity: number }>()
   const missing = new Map<string, { name: string; quantity: number }>()
   const availability: InventoryAvailability[] = []
 
-  for (const [key, need] of rawDemand.entries()) {
+  for (const [key, need] of demand.entries()) {
     const owned = consumeStock(key, need.name, need.quantity)
     const missingQuantity = need.quantity - owned
+    if (missingQuantity <= 0) continue
+
+    const recipe = recipeMap.get(key)
+    if (recipe && !isRecipePlannable(recipe)) {
+      addNeed(unresolvedDemand, need.name, missingQuantity)
+      continue
+    }
+
+    addNeed(rawDemand, need.name, missingQuantity)
     availability.push({ name: need.name, required: need.quantity, owned, missing: missingQuantity })
-    if (missingQuantity > 0) addNeed(missing, need.name, missingQuantity)
+    addNeed(missing, need.name, missingQuantity)
   }
 
   availability.sort((a, b) => b.missing - a.missing || b.required - a.required || a.name.localeCompare(b.name))
@@ -237,6 +273,7 @@ export function calculateInventoryAwarePlan(selections: PlanSelection[], recipes
   return {
     direct: toSortedNeeds(directMap),
     raw: toSortedNeeds(rawDemand),
+    unresolved: toSortedNeeds(unresolvedDemand),
     batches: batches.sort((a, b) => b.crafts - a.crafts || a.name.localeCompare(b.name)),
     availability,
     inventoryUsed: toSortedNeeds(used),
@@ -307,7 +344,8 @@ export function buildDependencyCraftSequence(selections: PlanSelection[], batche
 }
 
 export function canCraftSelection(selection: PlanSelection, recipes: RecipeEntry[], inventory: InventoryRecord) {
-  return calculateInventoryAwarePlan([selection], recipes, inventory).missingRaw.length === 0
+  const plan = calculateInventoryAwarePlan([selection], recipes, inventory)
+  return plan.missingRaw.length === 0 && plan.unresolved.length === 0
 }
 
 function buildMaterialTree(name: string, required: number, recipeMap: Map<string, RecipeEntry>, path: Set<string>): CraftTreeNode {
@@ -326,7 +364,20 @@ function buildMaterialTree(name: string, required: number, recipeMap: Map<string
     }
   }
 
-  const outputPerCraft = Math.max(1, recipe.outputQuantity || 1)
+  if (!isRecipePlannable(recipe)) {
+    return {
+      id: `material:${key}:${required}`,
+      name: recipe.name,
+      required,
+      kind: 'material',
+      craftable: true,
+      profession: recipe.profession,
+      sourceStatus: recipe.sourceStatus,
+      children: [],
+    }
+  }
+
+  const outputPerCraft = recipe.outputQuantity
   const crafts = Math.ceil(required / outputPerCraft)
   const produced = crafts * outputPerCraft
   const nextPath = new Set(path)

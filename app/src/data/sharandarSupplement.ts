@@ -1,3 +1,6 @@
+import { APRIL_2023_MASTERWORK_PATCH, publisherSharandarItemCorrections } from './researchCorrections.ts'
+import { referenceIconDataUri } from './referenceIcons.ts'
+
 export type SharandarNeed = { name: string; required: number }
 
 export type SharandarRecipe = {
@@ -161,6 +164,56 @@ const provenance = (path: string, note?: string) => ({
   evidence: note ? [`Sharandar.zip · ${path}`, note] : [`Sharandar.zip · ${path}`],
 })
 
+const publisherSharandarItems = publisherSharandarItemCorrections.map((row) => ({
+  id: `sharandar-${row.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`,
+  name: row.name,
+  kind: 'Accessory',
+  classes: ['All'],
+  slot: row.slot,
+  categories: ['Sharandar', 'Masterwork', 'Publisher-confirmed', 'Recipe not captured'],
+  profession: null,
+  variants: [{
+    quality: '+1',
+    itemLevel: row.itemLevel,
+    source: APRIL_2023_MASTERWORK_PATCH,
+    verification: {
+      status: 'historical',
+      lastVerified: '2026-09-18',
+      gameEra: '2023 publisher patch',
+      sourceIds: [APRIL_2023_MASTERWORK_PATCH],
+      notes: [`Publisher patch raised Item Level from ${row.previousItemLevel} to ${row.itemLevel}; current 2026 recipe, stats, bind and authentic artwork still need in-game capture.`],
+    },
+  }],
+  itemLevel: row.itemLevel,
+  materials: [],
+  icon: referenceIconDataUri(row.slot === 'Neck' ? 'amulet' : 'sash'),
+  sourceStatus: 'publisher-patch',
+  campaign: 'Sharandar',
+  recipeKnown: false,
+  verification: {
+    status: 'historical',
+    lastVerified: '2026-09-18',
+    gameEra: '2023 publisher patch',
+    sourceIds: [APRIL_2023_MASTERWORK_PATCH],
+    notes: ['Publisher-confirmed item identity and +1 item level only. Recipe, stats, binding and live 2026 availability remain uncaptured.'],
+  },
+  artwork: {
+    provenance: 'reference-derived',
+    sourceId: 'app-reference-icon:publisher-accessory',
+    lastVerified: '2026-09-18',
+  },
+  provenance: {
+    gameData: 'Neverwinter publisher patch notes',
+    recipe: null,
+    image: 'App-generated reference icon; authentic game artwork not captured',
+    evidence: [
+      APRIL_2023_MASTERWORK_PATCH,
+      `Publisher correction: ${row.name} Item Level ${row.itemLevel}, up from ${row.previousItemLevel}.`,
+      'Reference icon is category-derived UI art and is not presented as authentic Neverwinter item artwork.',
+    ],
+  },
+}))
+
 export const sharandarItems: Array<Record<string, unknown>> = [
   ...weaponPairs.map(([className, name, path]) => ({
     id: `sharandar-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`,
@@ -265,11 +318,23 @@ export const sharandarItems: Array<Record<string, unknown>> = [
     provenance: provenance('Supplements/1.png + Supplements/2.png + Supplements/3.png', 'Normal: item level 105, +125 Focus. +1: item level 110, +150 Focus. Requires profession level 20.'),
   },
   {
-    id: 'sharandar-hermits-incense', name: "Hermit's Incense", kind: 'Supplement', classes: ['All'], slot: null, categories: ['Sharandar', 'Masterwork', 'Supplement'], profession: 'Alchemy', levelRequirement: 20,
-    variants: [{ quality: 'Normal', itemLevel: 90, stats: { Proficiency: 125 } }, { quality: '+1', itemLevel: 90, stats: { Proficiency: 150 } }],
-    materials: recipeByName.get("Hermit's Incense")?.materials ?? [], sourceStatus: 'sharandar-screenshot', campaign: 'Sharandar', recipeKnown: true,
-    provenance: provenance('Supplements/4.png + Supplements/5.png + Supplements/6.png', 'Normal: item level 90, +125 Proficiency. +1: item level 90, +150 Proficiency. Requires profession level 20.'),
+    id: 'sharandar-hermits-incense', name: "Hermit's Incense", kind: 'Supplement', classes: ['All'], slot: null, categories: ['Sharandar', 'Masterwork', 'Supplement', 'Publisher-corrected'], profession: 'Alchemy', levelRequirement: 20,
+    variants: [
+      { quality: 'Normal', itemLevel: 90, stats: { Proficiency: 125 }, source: 'Sharandar.zip · Supplements/5.png' },
+      { quality: '+1', itemLevel: 95, stats: { Proficiency: 150 }, source: APRIL_2023_MASTERWORK_PATCH, verification: { status: 'historical', lastVerified: '2026-09-18', gameEra: '2023 publisher patch', sourceIds: [APRIL_2023_MASTERWORK_PATCH], notes: ['Publisher patch increased +1 Item Level from 90 to 95.'] } },
+    ],
+    materials: recipeByName.get("Hermit's Incense")?.materials ?? [], sourceStatus: 'publisher-patch-corrected', campaign: 'Sharandar', recipeKnown: true,
+    verification: { status: 'historical', lastVerified: '2026-09-18', gameEra: '2023 publisher patch', sourceIds: [APRIL_2023_MASTERWORK_PATCH], notes: ['Recipe/proficiency stats remain screenshot-backed; +1 item level is superseded by the 2023 publisher correction.'] },
+    provenance: {
+      ...provenance('Supplements/4.png + Supplements/5.png + Supplements/6.png', 'Screenshot pack records Normal Item Level 90 and +1 Proficiency 150. The 19 April 2023 publisher patch supersedes the screenshot +1 item level, raising it from 90 to 95.'),
+      evidence: [
+        'Sharandar.zip · Supplements/4.png + Supplements/5.png + Supplements/6.png',
+        APRIL_2023_MASTERWORK_PATCH,
+        'Publisher correction: Hermit\'s Incense +1 Item Level 95, up from 90.',
+      ],
+    },
   },
+  ...publisherSharandarItems,
 ]
 
 export const sharandarWorkshopReference = {

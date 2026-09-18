@@ -1,7 +1,7 @@
 import { expect,test,type Page } from '@playwright/test'
 async function openReference(page:Page) {
   await page.goto('/journey#journey-craftables')
-  await page.getByRole('button',{name:'Standard + Gathering (932)',exact:true}).click()
+  await page.getByRole('button',{name:'Standard professions + Gathering evidence',exact:true}).click()
   const reference=page.getByRole('region',{name:'From your first craft to level 20.'})
   await expect(reference.getByRole('status')).toContainText('907 matching crafting tasks')
   return reference
@@ -21,16 +21,18 @@ test('standard reference resolves exact ingredients without inventing a yield',a
   await expect(reference.getByLabel('Search standard tasks or ingredients')).toBeFocused()
 })
 
-test('standard reference includes the level 1-20 Gathering route with recorded yields',async({page})=>{
+test('standard reference keeps legacy Gathering evidence separate from modern Level 1-20 claims',async({page})=>{
   const reference=await openReference(page)
-  await reference.getByRole('button',{name:'Gathering (25)',exact:true}).click()
-  await expect(reference.getByRole('status')).toContainText('25 gathering tasks')
+  await reference.getByRole('button',{name:'Gathering evidence (25)',exact:true}).click()
+  await expect(reference.getByRole('status')).toContainText('25 legacy-source rows')
   const aegwyrt=reference.locator('.gathering-reference-row').filter({has:page.getByText('Aegwyrt',{exact:true})})
-  await expect(aegwyrt).toContainText('Level 20')
+  await expect(aegwyrt).toContainText('legacy source level 20')
   await expect(aegwyrt).toContainText('×12')
-  await expect(aegwyrt).toContainText('No consumed ingredients')
-  await expect(aegwyrt.getByRole('link',{name:'Gathering source'})).toHaveAttribute('href','https://neverwinter.fandom.com/wiki/Gathering')
-  await expect(reference).toContainText('Community wiki snapshot reviewed 18 September 2026')
+  await expect(aegwyrt).toContainText('Reference only')
+  await expect(aegwyrt.getByRole('link',{name:'Legacy Gathering source'})).toHaveAttribute('href','https://neverwinter.fandom.com/wiki/Gathering')
+  await expect(reference).toContainText('Legacy pre-compression Gathering sample')
+  await expect(reference).toContainText('modern Level 1–20 mapping unresolved')
+  await expect(reference).not.toContainText('complete recorded Level 1-20 Gathering route')
 })
 
 
@@ -38,7 +40,7 @@ for (const width of [320,768,1440]) test(`gathering reference reflows at ${width
   test.skip(testInfo.project.name === 'phone','Explicit viewport matrix runs once')
   await page.setViewportSize({width,height:900})
   const reference=await openReference(page)
-  await reference.getByRole('button',{name:'Gathering (25)',exact:true}).click()
+  await reference.getByRole('button',{name:'Gathering evidence (25)',exact:true}).click()
   const aegwyrt=reference.locator('.gathering-reference-row').filter({has:page.getByText('Aegwyrt',{exact:true})})
   await aegwyrt.scrollIntoViewIfNeeded()
   await expect(aegwyrt).toBeVisible()
@@ -73,7 +75,7 @@ test('failed reference load offers a working retry',async({page})=>{
   let fail=true
   await page.route('**/professionReference.snapshot-*.json',route=> fail ? route.abort() : route.continue())
   await page.goto('/journey#journey-craftables')
-  await page.getByRole('button',{name:'Standard + Gathering (932)',exact:true}).click()
+  await page.getByRole('button',{name:'Standard professions + Gathering evidence',exact:true}).click()
   await expect(page.getByRole('alert')).toContainText('could not be loaded')
   fail=false
   await page.getByRole('button',{name:'Retry reference'}).click()
