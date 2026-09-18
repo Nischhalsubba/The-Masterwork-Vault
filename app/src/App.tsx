@@ -567,7 +567,10 @@ export default function App() {
                 <h1>Find the craftable you actually need.</h1>
                 <p>Filter by collection, class and type, then inspect the recipe without losing your place.</p>
               </div>
-              <a href="/explore">Advanced explorer <ChevronRight size={15} aria-hidden="true" /></a>
+              <div className="mw-core-page-actions">
+                <button type="button" aria-label="Compare items" onClick={() => document.dispatchEvent(new CustomEvent('masterwork:open-compare'))}><BarChart3 size={15} aria-hidden="true" />Compare items</button>
+                <a href="/explore">Advanced explorer <ChevronRight size={15} aria-hidden="true" /></a>
+              </div>
             </section>
             <div className="catalog">
             <aside>
