@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ClipboardCheck,
   Copy,
+  ExternalLink,
   FolderOpen,
   Gem,
   GitBranch,
@@ -157,6 +158,13 @@ function VerificationBadge({ recipe }: { recipe?: RecipeEntry }) {
   )
 }
 
+function EvidenceValue({ value }: { value: string }) {
+  if (/^https:\/\//i.test(value)) {
+    return <a href={value} target="_blank" rel="noopener noreferrer">Open source <ExternalLink size={13} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+  }
+  return <>{value}</>
+}
+
 export function ItemRecipeEvidence({ item }: { item: ItemEntry }) {
   const evidence = item.provenance.evidence ?? []
   const sourceRecord = item.provenance.recipe || item.provenance.gameData || 'Catalog source record'
@@ -173,10 +181,10 @@ export function ItemRecipeEvidence({ item }: { item: ItemEntry }) {
           <div><span>Source record</span><strong>{sourceRecord}</strong></div>
         </div>
         <div className="evidence-inputs">
-          <strong>Recorded direct recipe</strong>
-          {item.materials.map((row) => <span className="source-evidence-input" key={row.name}><b>{row.name}</b><em>×{row.required}</em>{!byMaterial.get(norm(row.name))?.craftable && <MaterialSourceButton name={row.name} />}</span>)}
+          <strong>{item.recipeKnown === false ? 'Recipe not captured' : 'Recorded direct recipe'}</strong>
+          {item.recipeKnown === false ? <span className="source-evidence-input"><b>Inputs and output yield remain unresolved.</b><em>Reference only</em></span> : item.materials.map((row) => <span className="source-evidence-input" key={row.name}><b>{row.name}</b><em>×{row.required}</em>{!byMaterial.get(norm(row.name))?.craftable && <MaterialSourceButton name={row.name} />}</span>)}
         </div>
-        {evidence.length ? <ul>{evidence.map((line) => <li key={line}>{line}</li>)}</ul> : <p>No item-specific evidence lines are attached beyond the catalog source record.</p>}
+        {evidence.length ? <ul>{evidence.map((line) => <li key={line}><EvidenceValue value={String(line)} /></li>)}</ul> : <p>No item-specific evidence lines are attached beyond the catalog source record.</p>}
       </div>
     </details>
   )
