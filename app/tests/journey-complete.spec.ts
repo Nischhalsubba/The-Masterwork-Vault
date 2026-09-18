@@ -77,6 +77,24 @@ for (const width of [320, 768, 1440]) {
   })
 }
 
+test('masterwork research exposes the historical Chultan task-table snapshot without calling it current', async ({ page }) => {
+  await page.goto('/journey#journey-craftables')
+  const library = page.locator('#journey-craftables')
+  await library.getByRole('button', { name: /Masterwork research/ }).click()
+  await expect(library).toContainText('76 historical IV/V task rows')
+  await expect(library).toContainText('Historical Chultan task-table snapshot')
+  const search = library.getByRole('searchbox', { name: 'Search Chultan evidence' })
+  await search.fill('Commissioned Tyrannosaur Barding')
+  const task = library.locator('.masterwork-historical-task').filter({ hasText: 'Commissioned Tyrannosaur Barding' })
+  await expect(task).toHaveCount(1)
+  await expect(task).toContainText('Armorsmithing · Masterwork IV')
+  await task.locator(':scope > summary').click()
+  await expect(task).toContainText('Titansteel Plate')
+  await expect(task).toContainText('×3')
+  await expect(task.getByRole('link', { name: /Open profession task table/ })).toHaveAttribute('href', 'https://neverwinter.fandom.com/wiki/Masterwork_Armorsmithing_page_2')
+  await expect(task).toContainText('Historical reference only')
+})
+
 test('journey budgets are published scenarios and paid morale needs an entered rate', async ({ page }) => {
   await page.goto('/journey#journey-planning')
   const planning = page.locator('#journey-planning')
