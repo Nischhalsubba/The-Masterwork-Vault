@@ -191,6 +191,50 @@ body {
   line-height: 1.5 !important;
 }
 
+/* Crafting Tree is a planner view at every breakpoint, never a second app shell. */
+.masterwork-tree-shell {
+  position: static !important;
+  inset: auto !important;
+  z-index: auto !important;
+  width: 100% !important;
+  overflow: visible !important;
+  background: transparent !important;
+  color: var(--mw-shell-text) !important;
+  font-family: inherit !important;
+}
+
+.masterwork-tree-frame {
+  width: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  display: block !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.masterwork-tree-content {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.masterwork-tree-page-header h2 {
+  margin: 2px 0 5px;
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: -.03em;
+}
+
+.mw-tree-context {
+  display: block;
+  color: #98a2b3;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
 /* Desktop: the tablet navigation component becomes the authoritative app rail. */
 @media (min-width: 1181px) {
   .mobile-v4-topbar,
