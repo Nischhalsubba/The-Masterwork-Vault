@@ -148,7 +148,7 @@ export const masterworkTierAssessment = {
 }
 
 export const masterworkResearchLimits = [
-  'A 76-row post-2018 Masterwork IV / V profession task-table snapshot is now preserved as historical Chultan lineage evidence, but it is not a sufficiently current source for a complete September 2026 Chultan I / II final-output inventory.',
+  'The current complete Chultan I / II final-output inventory is not established by a sufficiently current, attributable public source. A 76-row post-2018 Masterwork IV / V profession task-table snapshot is preserved as historical lineage evidence only.',
   "The 18 Chultan weapon-slot formulas and 16 of the 17 intermediate recipes below come from the community worksheet; Lichstone Enamel comes from the Masterwork Artificing task table. Five worksheet ratios conflict with at least one profession task-table row, so neither source is silently promoted into planner math.",
   'Current Stronghold rank gates, book binding and minimum one-profession versus all-seven prerequisites remain source-dependent and are not converted into hard eligibility rules.',
   'A 2021 publisher rework changed Masterwork acquisition and recipes, so pre-rework Masterwork IV / V tables are historical references rather than current Chultan truth.',
