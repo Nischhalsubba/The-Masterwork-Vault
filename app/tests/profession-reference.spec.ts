@@ -1,9 +1,9 @@
 import { expect,test,type Page } from '@playwright/test'
 async function openReference(page:Page) {
   await page.goto('/journey#journey-craftables')
-  await page.getByRole('button',{name:'Standard professions (907)',exact:true}).click()
+  await page.getByRole('button',{name:'Standard + Gathering (932)',exact:true}).click()
   const reference=page.getByRole('region',{name:'From your first craft to level 20.'})
-  await expect(reference.getByRole('status')).toContainText('907 matching tasks')
+  await expect(reference.getByRole('status')).toContainText('907 matching crafting tasks')
   return reference
 }
 test('standard reference resolves exact ingredients without inventing a yield',async({page})=>{
@@ -20,6 +20,19 @@ test('standard reference resolves exact ingredients without inventing a yield',a
   await expect(reference.getByLabel('Search standard tasks or ingredients')).toHaveValue('Beehive Chip')
   await expect(reference.getByLabel('Search standard tasks or ingredients')).toBeFocused()
 })
+
+test('standard reference includes the level 1-20 Gathering route with recorded yields',async({page})=>{
+  const reference=await openReference(page)
+  await reference.getByRole('button',{name:'Gathering (25)',exact:true}).click()
+  await expect(reference.getByRole('status')).toContainText('25 gathering tasks')
+  const aegwyrt=reference.locator('.gathering-reference-row').filter({has:page.getByText('Aegwyrt',{exact:true})})
+  await expect(aegwyrt).toContainText('Level 20')
+  await expect(aegwyrt).toContainText('×12')
+  await expect(aegwyrt).toContainText('No consumed ingredients')
+  await expect(aegwyrt.getByRole('link',{name:'Gathering source'})).toHaveAttribute('href','https://neverwinter.fandom.com/wiki/Gathering')
+  await expect(reference).toContainText('Community wiki snapshot reviewed 18 September 2026')
+})
+
 test('reference filters preserve unknown and conflicting levels',async({page})=>{
   const reference=await openReference(page)
   await reference.getByLabel('Recorded task level',{exact:true}).selectOption('unknown')
@@ -50,7 +63,7 @@ test('failed reference load offers a working retry',async({page})=>{
   await expect(page.getByRole('alert')).toContainText('could not be loaded')
   fail=false
   await page.getByRole('button',{name:'Retry reference'}).click()
-  await expect(page.locator('.profession-reference').getByRole('status')).toContainText('907 matching tasks')
+  await expect(page.locator('.profession-reference').getByRole('status')).toContainText('907 matching crafting tasks')
 })
 for (const width of [320,390,768,1024,1440]) test(`standard recipe layout reflows at ${width}px`,async({page},testInfo)=>{
   await page.setViewportSize({width,height:900})
