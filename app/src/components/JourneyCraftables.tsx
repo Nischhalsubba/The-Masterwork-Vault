@@ -4,7 +4,7 @@ import catalogJson from '../data/catalog'
 import type { CatalogData } from '../types'
 import { buildJourneyCraftables, journeyItemHref, matchesJourneyCraftable, type JourneyCraftable } from '../domain/journeyCatalog'
 import { MaterialSourceButton } from './MaterialSources'
-import { ProfessionReference } from './ProfessionReference'
+import { ProfessionReference } from './ProfessionReference'\nimport { MasterworkResearchReference } from './MasterworkResearchReference'
 
 const catalog = catalogJson as CatalogData
 const pageSize = 30
@@ -48,12 +48,12 @@ function CapturedCraftables() {
 }
 
 export function JourneyCraftables() {
-  const [collection,setCollection] = useState<'vault' | 'standard'>('vault')
+  const [collection,setCollection] = useState<'vault' | 'standard' | 'research'>('vault')
   return <section id="journey-craftables" className="journey-library journey-library-collection" aria-label="Craftable library collections">
     <div className="journey-library-switch" role="group" aria-label="Recipe library collection">
       <button type="button" aria-pressed={collection==='vault'} onClick={()=>setCollection('vault')}>Masterwork catalog</button>
-      <button type="button" aria-pressed={collection==='standard'} onClick={()=>setCollection('standard')}>Standard professions (907)</button>
+      <button type="button" aria-pressed={collection==='standard'} onClick={()=>setCollection('standard')}>Standard professions (907)</button>\n      <button type="button" aria-pressed={collection==='research'} onClick={()=>setCollection('research')}>Masterwork research</button>
     </div>
-    {collection==='vault' ? <CapturedCraftables /> : <ProfessionReference />}
+    {collection==='vault' ? <CapturedCraftables /> : collection==='standard' ? <ProfessionReference /> : <MasterworkResearchReference />}
   </section>
 }
