@@ -31,6 +31,7 @@ export const verificationLedger: VerificationLedgerEntry[] = [
   { id: 'artisan-capacity', label: 'Workshop artisan capacities and quest gates', value: 'Current values need confirmation', status: 'unknown', lastVerified: '2026-09-17', note: 'The community page explicitly warns that its leveling gates are outdated. No mathematical rescaling is presented as a verified gate.', sourceUrl: 'https://neverwinter.fandom.com/wiki/Profession#Upgrading_the_workshop' },
   { id: 'grand-upgrade', label: 'The Grand Upgrade credit requirement', value: workshopProgressionKnowledge.rank4.southSeaTradingCompanyCredits.toLocaleString(), status: 'historical', lastVerified: '2026-09-17', note: 'Publisher lowered it from 5,000,000 on 18 July 2023. This is credits, not AD.', sourceUrl: workshopProgressionKnowledge.rank4.sourceUrl },
   { id: 'professions-event', label: 'Published 2x Professions rules', value: 'Half Morale cost; double Masterwork-node resources; no doubled task XP', status: 'historical', lastVerified: '2026-09-17', note: 'Publisher rules dated 21 June 2022. Check the current calendar; no event is assumed active.', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11519393' },
+  { id: 'masterwork-book-prices', label: 'Published Masterwork book prices', value: 'Stronghold/Chultan: 500,000 AD; Sharandar: 1,500,000 AD', status: 'historical', lastVerified: '2026-09-18', sourceUrl: 'https://www.playneverwinter.com/ru/news-details/11500323', note: '2021 publisher baseline, not a live 2026 quote. The same patch documents ordered per-profession purchases and removal of the old Artisan storyline; it does not certify current binding, guild-rank eligibility, discounts or Menzoberranzan pricing.' },
   { id: 'xp-curve', label: 'Profession XP curve Level 1-20', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17', note: 'Obsolete pre-2021 XP tables must not be reused.' },
   { id: 'chultan-bind', label: 'Modern Chultan Choice Pack binding', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17' },
   { id: 'stronghold-gate', label: 'Exact modern Stronghold purchase gate', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17' },
@@ -178,7 +179,7 @@ export function buildDataHealthReport() {
       'Current Morale refill rate and Workshop capacities',
       'Rescaled Workshop quest triggers',
       'Minimum cross-profession gates and later-book binding',
-      'Complete standard/Chultan recipe inventories and later tiers',
+      'Complete current Chultan recipe inventory and any post-Menzoberranzan tiers',
     ].filter(Boolean),
   }
 }
