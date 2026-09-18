@@ -69,12 +69,15 @@ export function CompareWorkbench() {
       const detail = (event as CustomEvent<{ view?: string }>).detail || {}
       if (detail.view) setCatalogVisible(detail.view === 'catalog')
     }
+    const openCompare = () => setOpen(true)
     document.addEventListener('masterwork:app-state', syncFromState)
     document.addEventListener('masterwork:navigate', syncFromPath)
+    document.addEventListener('masterwork:open-compare', openCompare)
     window.addEventListener('popstate', syncFromPath)
     return () => {
       document.removeEventListener('masterwork:app-state', syncFromState)
       document.removeEventListener('masterwork:navigate', syncFromPath)
+      document.removeEventListener('masterwork:open-compare', openCompare)
       window.removeEventListener('popstate', syncFromPath)
     }
   }, [])
@@ -128,7 +131,7 @@ export function CompareWorkbench() {
   }
 
   return <>
-    {catalogVisible && <button className="compare-launcher" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"><BarChart3 size={17} aria-hidden="true" />Compare items{ids.length > 0 && <b>{ids.length}</b>}</button>}
+    {catalogVisible && <span className="compare-launcher-state" aria-hidden="true" data-selected={ids.length} />}
     <OverlayDialog open={open} onClose={() => setOpen(false)} title="Compare craftables" description="Stats, crafting burden, restrictions, and progression context side by side." className="mw-compare-dialog">
       <div className="mw-compare-body">
         <aside>
