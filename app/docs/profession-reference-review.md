@@ -39,3 +39,13 @@ Legacy Masterwork references (including Alchemy, Artificing, Blacksmithing and A
 `professionReference.ts` validates the bundled snapshot at its loading boundary and supplies pure immutable filters. The snapshot loads from the app's own static asset only after selecting Standard professions. Failed download/validation has an explicit retry state; unmount cancels the request. Only 30 summaries initially render; details mount on expansion. Reference tasks have no Add to plan action.
 
 Tests cover the 907/227/2604 inventory, exact Honey/Beehive Chip link, absence of invented yields, unknown/conflicting levels, malformed data rejection, immutable filters, lazy result rendering, retry behavior and 320/390/768/1024/1440px reflow. Existing inventory and saved-plan code is untouched. Temporary network-capture and snapshot-write workflow files are removed before merge.
+
+## Masterwork research extension
+
+A third Journey collection, **Masterwork research**, now keeps historical/rework evidence separate from the planner. It records sixteen Chultan intermediate recipe ratios and eighteen class weapon-slot formulas from the replacement `Chultan Masterwork Weapons` worksheet. The predecessor worksheet was explicitly marked “THIS IS OUTDATED DON'T USE” and was rejected as a current source; the replacement sheet is still treated as historical/community evidence because it does not provide a reliable 2026 live-game version marker.
+
+The October 19, 2021 professions patch is the authoritative lineage change used by the reference: Masterwork IV/V became Chultan Masterwork, recipe books moved to direct Stronghold Artisan purchases, and recipes/resources changed. Therefore, pre-rework IV/V inventories are never silently promoted to current Chultan data.
+
+A September 18, 2026 search of the Arc Games Neverwinter roadmap and the Biting Cold and Monoliths of Madness release articles did not reveal a Masterwork tier newer than Menzoberranzan. The interface says **“latest positively documented”**, not “latest guaranteed tier”: Menzoberranzan is documented in 2023 release-era evidence, while no later tier was verified in the reviewed set. Any newer in-game recipe book/vendor takes precedence.
+
+The complete current Chultan I/II final-output inventory, current Stronghold rank restrictions, book binding, and minimum one-profession-versus-all-seven gates remain unresolved. Those gaps are visible in the UI and are not converted into planner eligibility. The source-bounded formulas are useful for research and cross-checking only.
