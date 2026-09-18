@@ -77,10 +77,12 @@ Purpose: fast discovery + inspection.
 
 Structure:
 1. compact page purpose,
-2. class filter rail,
-3. collection + search + type filters,
+2. collection context,
+3. class/type/search refinements,
 4. result list,
 5. persistent detail/recipe inspector.
+
+On phone, collection context appears before refinement controls so the user knows which Masterwork era is being searched before narrowing results.
 
 ### Plan & Craft
 Purpose: execute a plan.
