@@ -26,7 +26,10 @@ test('publisher-confirmed Sharandar accessories are visible with reference icons
     await expect(row.locator('img.thumb')).toBeVisible()
     await row.click()
     await expect(page.getByRole('main')).toContainText('Recipe not captured')
-    await expect(page.getByRole('main')).toContainText('Item Level 1300')
+    await page.getByRole('button', { name: /Details/ }).click()
+    const details = page.getByRole('dialog')
+    await expect(details).toContainText('1,300')
+    await page.keyboard.press('Escape')
   }
 })
 
@@ -35,8 +38,10 @@ test("Hermit's Incense +1 reflects the publisher correction to item level 95", a
   const row = page.locator('.catalog .items .item-main').filter({ hasText: "Hermit's Incense" }).first()
   await expect(row).toBeVisible()
   await row.click()
-  await expect(page.getByRole('main')).toContainText('Item Level 95')
-  await expect(page.getByRole('main').locator('a[href*="11542223"]')).not.toHaveCount(0)
+  await page.getByRole('button', { name: /Details/ }).click()
+  const details = page.getByRole('dialog', { name: /Hermit's Incense details/i })
+  await expect(details).toContainText('95')
+  await expect(details.locator('a[href*="11542223"]')).not.toHaveCount(0)
 })
 
 test('catalog filters are reflected in the URL', async ({ page }) => {
