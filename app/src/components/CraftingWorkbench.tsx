@@ -645,7 +645,7 @@ export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }
       <section className="panel material-intelligence">
         {history.length > 0 && <div className="drilldown-nav"><button className="drilldown-back" onClick={goBack}><ChevronLeft size={18} />Back</button><span>Back to {history[history.length - 1]}</span></div>}
         <div className="material-intelligence-head">
-          <div className="detail-head"><Icon src={material.icon} alt={material.name} size={76} /><div className="grow"><div className="pills"><SourceBadge value={material.sourceStatus} />{recipe && <VerificationBadge recipe={recipe} />}</div><h2 ref={detailHeading} tabIndex={-1} className="material-selection-heading">{material.name}</h2><p>{material.craftable ? `${material.profession || recipe?.profession || 'Crafted material'} · ${isRecipePlannable(recipe) ? `output ${recipe.outputQuantity}` : 'output yield unresolved'}` : 'Raw / acquired material'}</p></div></div>
+          <div className="detail-head"><Icon src={material.icon} alt={material.name} size={76} /><div className="grow"><div className="pills"><SourceBadge value={material.sourceStatus} />{recipe && <VerificationBadge recipe={recipe} />}</div><h2 ref={detailHeading} tabIndex={-1} className="material-selection-heading">{material.name}</h2><p>{material.craftable ? `${material.profession || recipe?.profession || 'Crafted material'} · ${recipe && isRecipePlannable(recipe) ? `output ${recipe.outputQuantity}` : 'output yield unresolved'}` : 'Raw / acquired material'}</p></div></div>
           <InventoryInput material={material} inventory={inventory} setInventory={setInventory} />
         </div>
 
