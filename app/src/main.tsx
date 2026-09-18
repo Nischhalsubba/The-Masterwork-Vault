@@ -36,7 +36,6 @@ const RouteSync = lazy(() => import('./components/RouteSync').then((module) => (
 const QualitySystem = lazy(() => import('./components/QualitySystem').then((module) => ({ default: module.QualitySystem })))
 const CompareWorkbench = lazy(() => import('./components/CompareWorkbench').then((module) => ({ default: module.CompareWorkbench })))
 const JourneyPage = lazy(() => import('./components/JourneyPage').then((module) => ({ default: module.JourneyPage })))
-const JourneyLauncher = lazy(() => import('./components/JourneyPage').then((module) => ({ default: module.JourneyLauncher })))
 const ReadinessPage = lazy(() => import('./components/ReadinessPage').then((module) => ({ default: module.ReadinessPage })))
 const DataHealthPage = lazy(() => import('./components/DataHealthPage').then((module) => ({ default: module.DataHealthPage })))
 const ExplorePage = lazy(() => import('./components/ExplorePage').then((module) => ({ default: module.ExplorePage })))
@@ -153,7 +152,6 @@ function RouteContent() {
   return <>
     <App />
     <RouteSync />
-    <JourneyLauncher />
     <CompareWorkbench />
   </>
 }
