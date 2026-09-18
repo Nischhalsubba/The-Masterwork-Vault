@@ -30,7 +30,7 @@ function NavButton({
   active?: boolean
 }) {
   return (
-    <button className={`masterwork-tree-nav-item ${active ? 'active' : ''}`} type="button" onClick={onClick} aria-current={active ? 'page' : undefined}>
+    <button className={`masterwork-tree-nav-item ${active ? 'active' : ''}`} type="button" onClick={onClick} aria-label={label} aria-current={active ? 'page' : undefined}>
       <Icon size={15} aria-hidden="true" />
       <span>{label}</span>
     </button>
