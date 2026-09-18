@@ -4,7 +4,8 @@
 .journey-library-switch button[aria-pressed="true"] { background:var(--selected); border-color:var(--interactive); color:var(--interactive); }
 .journey-library-collection > .journey-library { margin:0; padding:0; border:0; }
 .profession-reference { min-width:0; }
-.profession-reference-filters { grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr); }
+/* Component scope deliberately outranks the shared four-column Journey filter rule. */
+.profession-reference .profession-reference-filters { grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr); }
 .profession-reference-inputs { list-style:none; padding:0; margin:0; }
 .profession-reference-inputs li { border-bottom:1px solid var(--separator); padding:14px 0; }
 .profession-reference-input-name { display:flex; justify-content:space-between; gap:16px; font-size:14px; line-height:1.6; }
@@ -18,6 +19,15 @@
 .profession-reference-load-error { padding:20px; border:1px solid var(--separator-strong); border-radius:10px; }
 .profession-reference-load-error p { font-size:14px; line-height:1.7; }
 .profession-reference-load-error button { min-height:44px; padding:8px 16px; font:inherit; color:var(--interactive); background:var(--surface); border:1px solid var(--separator-strong); border-radius:8px; cursor:pointer; }
-@media(max-width:900px) { .profession-reference-filters { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }.profession-reference-filters .journey-library-search { grid-column:1/-1; } }
-@media(max-width:680px) { .journey-library-switch { display:grid; grid-template-columns:1fr; gap:8px; }.journey-library-switch button { text-align:left; font-size:14px; }.profession-reference-filters label:last-child { grid-column:auto; }.profession-reference-input-actions { gap:4px 12px; }.profession-reference-input-name { font-size:13px; } }
-@media(max-width:360px) { .profession-reference-filters { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:900px) {
+  .profession-reference .profession-reference-filters { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .profession-reference-filters .journey-library-search { grid-column:1/-1; }
+}
+@media(max-width:680px) {
+  .journey-library-switch { display:grid; grid-template-columns:1fr; gap:8px; }
+  .journey-library-switch button { text-align:left; font-size:14px; }
+  .profession-reference .profession-reference-filters { grid-template-columns:minmax(0,1fr); }
+  .profession-reference .profession-reference-filters > label { grid-column:1/-1; }
+  .profession-reference-input-actions { gap:4px 12px; }
+  .profession-reference-input-name { font-size:13px; }
+}
