@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { journeyPhases, journeySources, journeyProfessionGuides, JOURNEY_REVIEWED_AT, JOURNEY_BOOK_PRICES } from '../src/data/journeyKnowledge.ts'
 
 import { chultanIntermediateFormulas, chultanWeaponSlots, masterworkResearchSources, masterworkTierAssessment, masterworkResearchLimits } from '../src/data/masterworkResearch.ts'
+import { chultanHistoricalTaskRows } from '../src/data/chultanHistoricalTasks.ts'
 import { buildJourneyCraftables, matchesJourneyCraftable, journeyItemHref } from '../src/domain/journeyCatalog.ts'
 import { sharandarRecipes } from '../src/data/sharandarSupplement.ts'
 assert.equal(journeyPhases.length, 9)
@@ -47,6 +48,17 @@ for (const name of ['Crafted Potion of Accuracy Rank 13','Crafted Potion of Crit
 assert.equal(sharandarRecipes.filter(recipe=>!recipe.quantityExplicit).length,5)
 assert.equal(chultanIntermediateFormulas.length,17)
 assert.equal(chultanWeaponSlots.length,18)
+assert.equal(chultanHistoricalTaskRows.length,76)
+assert.deepEqual(Object.fromEntries([...new Set(chultanHistoricalTaskRows.map(row=>row.profession))].sort().map(profession=>[profession,chultanHistoricalTaskRows.filter(row=>row.profession===profession).length])), {Alchemy:7,Armorsmithing:13,Artificing:13,Blacksmithing:20,Jewelcrafting:8,Leatherworking:7,Tailoring:8})
+for (const row of chultanHistoricalTaskRows) {
+  assert.ok(row.name && row.profession && ['IV','V'].includes(row.historicalTier))
+  assert.ok(row.outputQuantity > 0 && Number.isInteger(row.outputQuantity))
+  assert.ok(row.materials.length > 0)
+  assert.equal(new URL(row.sourceUrl).protocol,'https:')
+}
+const historicalLichstone = chultanHistoricalTaskRows.find(row=>row.profession==='Artificing' && row.historicalTier==='IV' && row.name==='Lichstone Enamel')
+assert.equal(historicalLichstone?.outputQuantity,3)
+assert.deepEqual(historicalLichstone?.materials,[{name:'Lichstone',quantity:1},{name:"Artisan's Enamel",quantity:4}])
 assert.equal(new Set(chultanIntermediateFormulas.map(row=>row.name)).size,17)
 const lichstoneEnamel = chultanIntermediateFormulas.find(row=>row.name==='Lichstone Enamel')
 assert.equal(lichstoneEnamel?.outputQuantity,3)
@@ -63,5 +75,5 @@ assert.equal(masterworkTierAssessment.latestPositivelyDocumented,'Menzoberranzan
 assert.equal(masterworkTierAssessment.laterTierStatus,'unresolved')
 assert.ok(masterworkTierAssessment.note.includes('not proof'))
 assert.ok(masterworkResearchLimits.some(text=>text.includes('current complete Chultan I / II final-output inventory is not established')))
-console.log('Masterwork research: 17 intermediate formulas, 18 weapon slots, source URLs and unresolved-later-tier boundary passed.')
+console.log('Masterwork research: 17 intermediate formulas, 18 weapon slots, 76 historical IV/V task rows, source URLs and unresolved-later-tier boundary passed.')
 console.log('Journey: 9 sourced chapters, legacy IDs, eight professions, book-price arithmetic, quality identities, unknown yields and immutable catalog joins passed.')
