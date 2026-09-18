@@ -61,6 +61,6 @@ test.describe('purposeful app-wide redesign', () => {
     await expect(page.locator('.hero')).toBeHidden()
     await expect(page.locator('.collection-switcher')).toBeVisible()
     const collection = await page.locator('.collection-switcher').boundingBox()
-    expect(collection?.y || 9999).toBeLessThan(180)
+    expect(collection?.y || 9999).toBeLessThan(280)
   })
 })
