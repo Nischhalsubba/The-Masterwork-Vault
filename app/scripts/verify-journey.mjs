@@ -3,6 +3,7 @@ import { journeyPhases, journeySources, journeyProfessionGuides, JOURNEY_REVIEWE
 
 import { chultanIntermediateFormulas, chultanWeaponSlots, masterworkResearchSources, masterworkTierAssessment, masterworkResearchLimits } from '../src/data/masterworkResearch.ts'
 import { buildJourneyCraftables, matchesJourneyCraftable, journeyItemHref } from '../src/domain/journeyCatalog.ts'
+import { sharandarRecipes } from '../src/data/sharandarSupplement.ts'
 assert.equal(journeyPhases.length, 9)
 assert.equal(new Set(journeyPhases.map(p => p.id)).size, 9)
 for (const id of ['foundation', 'workshop', 'chultan', 'sharandar', 'menzoberranzan']) assert.ok(journeyPhases.some(p => p.id === id), `Preserve legacy milestone ${id}`)
@@ -36,6 +37,14 @@ assert.ok(matchesJourneyCraftable(rows.find(r=>r.name==='Test output'),'barbaria
 assert.ok(!matchesJourneyCraftable(rows[0],'not-a-real-output'))
 assert.equal(buildJourneyCraftables({...data,recipes:[{...recipe,materials:[{name:'Other ore',required:8}]}]}).find(r=>r.name==='Test output').outputQuantity,null,'Conflicting recipe inputs must not silently supply a yield')
 assert.ok(journeyItemHref(item).startsWith('/catalog/underdark/test-id/'))
+const unresolvedSharandarYields = sharandarRecipes.filter(recipe=>!recipe.quantityExplicit).map(recipe=>recipe.name).sort()
+assert.deepEqual(unresolvedSharandarYields, ['Feywood Bark','Feywood Bark Barbute','Feywood Buckler','Feywood Shield','Feywood Sprouts'].sort())
+for (const name of ['Crafted Potion of Accuracy Rank 13','Crafted Potion of Critical Strike Rank 13','Crafted Potion of Defense Rank 13','Crafted Potion of Deflect Rank 13','Crafted Potion of Power Rank 13']) {
+  const recipe = sharandarRecipes.find(row=>row.name===name)
+  assert.ok(recipe?.quantityExplicit, `${name}: Wiki-backed yield must be explicit`)
+  assert.equal(recipe?.outputQuantity,12, `${name}: recorded Sharandar task yield`)
+}
+assert.equal(sharandarRecipes.filter(recipe=>!recipe.quantityExplicit).length,5)
 assert.equal(chultanIntermediateFormulas.length,16)
 assert.equal(chultanWeaponSlots.length,18)
 assert.equal(new Set(chultanIntermediateFormulas.map(row=>row.name)).size,16)
