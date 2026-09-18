@@ -336,7 +336,7 @@ body {
 
   .tablet-v4-brand small {
     color: var(--mw-shell-text-muted);
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .tablet-v4-nav {
@@ -808,7 +808,7 @@ body {
     background: transparent;
     color: var(--m-text-2);
     font: inherit;
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 650;
     line-height: 1.05;
     text-align: center;
