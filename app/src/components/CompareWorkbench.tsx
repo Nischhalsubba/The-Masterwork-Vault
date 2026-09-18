@@ -59,9 +59,25 @@ export function CompareWorkbench() {
   const [ids, setIds] = useState<string[]>(() => parseSharedIds())
   const [copied, setCopied] = useState(false)
   const [differencesOnly, setDifferencesOnly] = useState(false)
+  const [catalogVisible, setCatalogVisible] = useState(() => (window.location.pathname.split('/').filter(Boolean)[0] || 'catalog') === 'catalog')
   const deferredQuery = useDeferredValue(query)
 
   useEffect(() => { if (ids.length >= 2 && new URLSearchParams(window.location.search).has('compare')) setOpen(true) }, [])
+  useEffect(() => {
+    const syncFromPath = () => setCatalogVisible((window.location.pathname.split('/').filter(Boolean)[0] || 'catalog') === 'catalog')
+    const syncFromState = (event: Event) => {
+      const detail = (event as CustomEvent<{ view?: string }>).detail || {}
+      if (detail.view) setCatalogVisible(detail.view === 'catalog')
+    }
+    document.addEventListener('masterwork:app-state', syncFromState)
+    document.addEventListener('masterwork:navigate', syncFromPath)
+    window.addEventListener('popstate', syncFromPath)
+    return () => {
+      document.removeEventListener('masterwork:app-state', syncFromState)
+      document.removeEventListener('masterwork:navigate', syncFromPath)
+      window.removeEventListener('popstate', syncFromPath)
+    }
+  }, [])
 
   const visible = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase()
@@ -112,7 +128,7 @@ export function CompareWorkbench() {
   }
 
   return <>
-    <button className="compare-launcher" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"><BarChart3 size={17} aria-hidden="true" />Compare items{ids.length > 0 && <b>{ids.length}</b>}</button>
+    {catalogVisible && <button className="compare-launcher" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"><BarChart3 size={17} aria-hidden="true" />Compare items{ids.length > 0 && <b>{ids.length}</b>}</button>}
     <OverlayDialog open={open} onClose={() => setOpen(false)} title="Compare craftables" description="Stats, crafting burden, restrictions, and progression context side by side." className="mw-compare-dialog">
       <div className="mw-compare-body">
         <aside>
