@@ -6,7 +6,6 @@ import {
   BarChart3,
   BadgeCheck,
   BookOpen,
-  Boxes,
   ChevronLeft,
   ChevronRight,
   CircleHelp,
@@ -27,7 +26,6 @@ import { sharandarIconIndex, sharandarSprite } from './data/sharandarSprite'
 import { sharandarWorkshopReference } from './data/sharandarSupplement'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
 import { calculateCraftingPlan, expandSingleMaterial, isRecipePlannable } from './lib/crafting'
-import { AmbientVault } from './components/AmbientVault'
 import { CraftingWorkbench, ItemRecipeEvidence, MaterialsWorkbench } from './components/CraftingWorkbench'
 
 const catalog = catalogJson as CatalogData
@@ -37,7 +35,6 @@ const recipeByName = new Map(catalog.recipes.map((r) => [norm(r.name), r]))
 const iconIndexByName = new Map<string, number>()
 for (const item of catalog.items) if (item.iconIndex != null) iconIndexByName.set(norm(item.name), item.iconIndex)
 for (const material of catalog.materials) if (material.iconIndex != null) iconIndexByName.set(norm(material.name), material.iconIndex)
-const asset = (p: string) => `${import.meta.env.BASE_URL}${p}`
 const MAX_PLAN_QUANTITY = 999
 
 type AppRouteDetail = { view: 'catalog' | 'plan' | 'materials' | 'reference'; itemId?: string; campaign?: CampaignFilter }
@@ -555,23 +552,12 @@ export default function App() {
   }
 
   const IconFor = ({ k }: { k: string }) => k === 'Weapon' ? <Sword size={15} /> : k === 'Armor' ? <Shield size={15} /> : k === 'Accessory' || k === 'Consumable' || k === 'Supplement' ? <Gem size={15} /> : <Hammer size={15} />
-  const sharandarCount = catalog.items.filter((entry) => entry.campaign === 'Sharandar').length
-  const underdarkCount = catalog.items.filter((entry) => entry.campaign === 'Underdark').length
   const activeRecipes = catalog.recipes.filter((entry) => campaign === 'All' || entry.campaign === campaign).length
   const activeMaterials = catalog.materials.filter((entry) => campaign === 'All' || entry.campaigns?.includes(campaign) || entry.campaign === campaign).length
 
   return (
     <div ref={root} className="app">
-      <header>
-        <a href={import.meta.env.BASE_URL} className="brand"><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt="" /><span><strong>The Masterwork Vault</strong><small>Underdark + Sharandar Masterwork</small></span></a>
-        <nav>{([['catalog', BookOpen, 'Catalog'], ['plan', Boxes, 'Plan'], ['materials', Gem, 'Materials'], ['reference', CircleHelp, 'Reference']] as const).map(([v, I, l]) => <button data-view={v} className={view === v ? 'active' : ''} onClick={() => requestAppRoute({ view: v })} key={v}><I size={17} />{l}{v === 'plan' && <b className="badge">{plan.size}</b>}</button>)}</nav>
-      </header>
-
       <main id="main-content">
-        <section className="hero">
-          <AmbientVault />
-          <div><span className="hero-kicker"><Sparkles size={15} /> MASTERWORK COLLECTIONS</span><h1>Two Masterwork eras. One crafting dependency graph.</h1><p>Switch between the existing Underdark catalogue and the new Sharandar screenshot pack without mixing source claims. Direct recipes, from-scratch expansion, workshop context, and extracted item art stay traceable to their evidence.</p><div className="metrics"><span><b>{sharandarCount}</b> Sharandar craftables</span><span><b>{underdarkCount}</b> Underdark craftables</span><span><b>{catalog.recipes.length}</b> recipe records</span></div></div>
-        </section>
 
         {view === 'catalog' && (
           <div className="catalog">
@@ -620,7 +606,6 @@ export default function App() {
         {view === 'reference' && <div className="page"><Reference /></div>}
       </main>
 
-      <footer><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt="" /><p><strong>The Masterwork Vault</strong> · Underdark and Sharandar Masterwork reference. Screenshot evidence remains the source of truth for item and recipe data.</p></footer>
     </div>
   )
 }
