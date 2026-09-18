@@ -36,14 +36,14 @@ test('standard reference includes the level 1-20 Gathering route with recorded y
 test('reference filters preserve unknown and conflicting levels',async({page})=>{
   const reference=await openReference(page)
   await reference.getByLabel('Recorded task level',{exact:true}).selectOption('unknown')
-  await expect(reference.getByRole('status')).toContainText('2 matching tasks')
+  await expect(reference.getByRole('status')).toContainText('2 matching crafting tasks')
   await reference.getByRole('button',{name:'Reset reference filters'}).click()
   await reference.getByLabel('Search standard tasks or ingredients').fill('Linseed Oil')
   const row=reference.locator('.profession-reference-row').filter({has:page.getByText('Linseed Oil',{exact:true})}).first()
   await row.locator('summary').first().click()
   await expect(row).toContainText('Source conflict: the Level field says 5')
   await reference.getByLabel('Reference profession',{exact:true}).selectOption('Tailoring')
-  await expect(reference.getByRole('status')).toContainText('0 matching tasks')
+  await expect(reference.getByRole('status')).toContainText('0 matching crafting tasks')
 })
 test('reference delays mounting rows and keeps captured catalog separate',async({page})=>{
   const reference=await openReference(page)
