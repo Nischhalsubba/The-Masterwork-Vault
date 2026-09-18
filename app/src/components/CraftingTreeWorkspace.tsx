@@ -144,13 +144,13 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
             )}
           </section>
 
-          <footer className="masterwork-tree-legend" aria-label="Crafting source legend">
-            <span><i className="crafted" />Crafted material</span>
-            <span><i className="raw" />Raw material</span>
-            <span><i className="gathered" />Gathered</span>
-            <span><i className="dungeon" />Dungeon drop</span>
-            <span><i className="vendor" />Vendor / Other</span>
-          </footer>
+          <div className="masterwork-tree-legend" role="list" aria-label="Crafting source legend">
+            <span role="listitem"><i className="crafted" />Crafted material</span>
+            <span role="listitem"><i className="raw" />Raw material</span>
+            <span role="listitem"><i className="gathered" />Gathered</span>
+            <span role="listitem"><i className="dungeon" />Dungeon drop</span>
+            <span role="listitem"><i className="vendor" />Vendor / Other</span>
+          </div>
         </main>
       </div>
     </div>
