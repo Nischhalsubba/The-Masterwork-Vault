@@ -36,6 +36,14 @@ The public claim ledger, dates, primary publisher links, creator sources and lim
 
 ## 18 September 2026 research-completion addendum
 
-The Journey library now has three deliberately separated collections: the screenshot-backed Masterwork catalog, the 907-task standard-professions community snapshot, and a source-bounded Masterwork research reference. The Masterwork reference adds 16 Chultan intermediate ratios and 18 class weapon-slot formulas from the replacement community worksheet, but does not feed those historical formulas into planner calculations.
+The Journey library now has three deliberately separated collections: the screenshot-backed Masterwork catalog, the 907-task standard-professions community snapshot, and a source-bounded Masterwork research reference. The Masterwork reference now exposes 17 Chultan intermediate ratios, 18 class weapon-slot formulas, and a 76-row post-2018 Masterwork IV/V profession task-table snapshot across all seven professions represented by the reviewed pages. Sixteen intermediate rows and the weapon formulas come from the replacement community worksheet; Lichstone Enamel is separately sourced to the Masterwork Artificing IV task table. The task-table snapshot is historical lineage evidence, not a claim of complete September 2026 Chultan coverage, and none of these historical formulas feed planner calculations.
 
 Targeted 2026 publisher review did not verify a Masterwork tier after Menzoberranzan. The UI therefore uses the narrower wording “latest positively documented tier” and explicitly says that absence from the reviewed roadmap/release articles is not proof that a later tier does not exist. Current Chultan final-output completeness and several current access/binding gates remain honest unknowns instead of guessed requirements.
+
+
+The reviewed profession task tables conflict with the worksheet on five named Chultan components: Brilliant Bead, Chultan Silk Thread, Fanged Ornament, Lacquered Dinosaur Leather, and Lion Fur. The Journey exposes that disagreement instead of collapsing it into a single asserted current recipe. Likely continuation-page names were checked during the 18 September review; aside from the known Armorsmithing page 2, those guessed page-2 URLs were not present, so the 76 rows remain a bounded snapshot rather than a completeness claim.
+
+
+## 18 September 2026 resumed-work checkpoint
+
+The timed-out prior session was recovered rather than restarted. A test-first slice added the sourced Lichstone Enamel ratio, then expanded the evidence layer with the 76-row historical IV/V task snapshot and a searchable Journey reference. Desktop and phone browser tests now require the historical task view, direct profession source links, and the five-source-conflict warning. Current Stronghold eligibility, binding, and a post-Menzoberranzan tier remain unresolved because the reviewed 2025-2026 search did not establish stronger current evidence; they stay verification-sensitive instead of becoming hard rules.

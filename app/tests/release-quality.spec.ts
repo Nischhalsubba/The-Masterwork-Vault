@@ -60,6 +60,16 @@ test('data health reports catalog-integrity status without crashing', async ({ p
   else await expect(status).toHaveClass(/clean/)
 })
 
+
+test('data health distinguishes published Masterwork book baselines from live 2026 eligibility', async ({ page }) => {
+  await page.goto('/data-health')
+  await expect(page.getByText('Published Masterwork book prices')).toBeVisible()
+  await expect(page.getByText('Stronghold/Chultan: 500,000 AD; Sharandar: 1,500,000 AD')).toBeVisible()
+  await expect(page.getByText(/2021 publisher baseline.*not a live 2026 quote/i)).toBeVisible()
+  await expect(page.getByText('Complete current Chultan recipe inventory and any post-Menzoberranzan tiers')).toBeVisible()
+  await expect(page.getByText('Complete standard/Chultan recipe inventories and later tiers')).toHaveCount(0)
+})
+
 test('new route set survives direct reloads', async ({ page }) => {
   for (const path of ['/readiness', '/data-health', '/explore', '/graph', '/journey']) {
     await page.goto(path)

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { parseProfessionReference, filterProfessionRecipes } from '../src/domain/professionReference.ts'
+import { gatheringReferenceTasks, GATHERING_SOURCE_URL } from '../src/data/gatheringReference.ts'
 const data = JSON.parse(readFileSync(new URL('../src/data/professionReference.snapshot.json', import.meta.url), 'utf8'))
 const snapshot = parseProfessionReference(data)
 assert.equal(snapshot.recipes.length, 907)
@@ -23,4 +24,10 @@ assert.equal(filterProfessionRecipes(snapshot.recipes,{query:'impossible no such
 assert.equal(filterProfessionRecipes(snapshot.recipes,{query:'',profession:'All',level:'unknown'}).length,2)
 assert.equal(JSON.stringify(snapshot),before)
 for(const altered of [null,{}, {...data,plannerEligible:true},{...data,recipes:[...data.recipes,data.recipes[0]]},{...data,recipes:[{...data.recipes[0],level:70},...data.recipes.slice(1)]},{...data,recipes:[{...data.recipes[0],outputQuantity:1},...data.recipes.slice(1)]}]) assert.throws(()=>parseProfessionReference(altered))
-console.log('Profession reference: 907 tasks, all 7 professions, 2604 linked inputs, 227 materials, null yields, missing/conflicting levels, immutable filters and fail-closed schema passed.')
+assert.equal(gatheringReferenceTasks.length,25)
+assert.equal(new Set(gatheringReferenceTasks.map(row=>row.name)).size,25)
+assert.ok(gatheringReferenceTasks.every(row=>row.profession==='Gathering' && row.level>=1 && row.level<=20))
+assert.ok(gatheringReferenceTasks.every(row=>row.outputQuantity===12 && row.inputs.length===0 && row.plannerEligible===false))
+assert.ok(gatheringReferenceTasks.every(row=>row.sourceUrl===GATHERING_SOURCE_URL))
+assert.equal(gatheringReferenceTasks.find(row=>row.name==='Aegwyrt')?.level,20)
+console.log('Profession reference: 907 crafting tasks + 25 Level 1-20 Gathering tasks, source-bounded yields, 2604 linked inputs, 227 materials, immutable filters and fail-closed schema passed.')

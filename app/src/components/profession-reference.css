@@ -85,3 +85,24 @@
   .masterwork-reference-search>button { align-self:flex-start; }
   .masterwork-research-sources article>div { flex-direction:column; gap:8px; }
 }
+
+
+.profession-reference-mode { display:flex; flex-wrap:wrap; gap:8px; margin:22px 0; }
+.profession-reference-mode button { min-height:44px; padding:9px 14px; border:1px solid var(--separator-strong); border-radius:999px; background:var(--surface); color:var(--label-secondary); font:inherit; font-size:13px; font-weight:650; cursor:pointer; }
+.profession-reference-mode button[aria-pressed="true"] { border-color:var(--interactive); color:var(--label); background:var(--surface-secondary); }
+.gathering-reference-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.gathering-reference-row { min-width:0; padding:16px; border:1px solid var(--separator); border-radius:10px; background:var(--surface); }
+.gathering-reference-row small { color:var(--label-secondary); font-size:11px; font-weight:650; letter-spacing:.03em; text-transform:uppercase; }
+.gathering-reference-row h3 { margin:5px 0 13px; font-size:16px; line-height:1.35; }
+.gathering-reference-row dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0 0 12px; }
+.gathering-reference-row dl>div { min-width:0; padding:10px; border-radius:8px; background:var(--surface-secondary); }
+.gathering-reference-row dt { color:var(--label-secondary); font-size:11px; }
+.gathering-reference-row dd { margin:4px 0 0; font-size:13px; font-weight:650; overflow-wrap:anywhere; }
+.gathering-reference-row p { margin:0; color:var(--label-secondary); font-size:12px; line-height:1.6; }
+.gathering-reference-row a { display:inline-flex; align-items:center; gap:5px; min-height:44px; margin-top:8px; color:var(--interactive); font-size:13px; }
+@media(max-width:900px) { .gathering-reference-list { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:620px) {
+  .profession-reference-mode { display:grid; grid-template-columns:minmax(0,1fr); }
+  .profession-reference-mode button { width:100%; border-radius:8px; }
+  .gathering-reference-list { grid-template-columns:minmax(0,1fr); }
+}
