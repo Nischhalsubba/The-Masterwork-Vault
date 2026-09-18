@@ -115,9 +115,13 @@ function Source({ value }: { value: string }) {
       ? 'Latest screenshot'
       : value === 'spreadsheet-supplemental'
         ? 'Supplemental'
-        : value.includes('final-zip')
-          ? 'Underdark ZIP'
-          : value
+        : value === 'publisher-patch-corrected'
+          ? 'Publisher-corrected'
+          : value === 'publisher-patch'
+            ? 'Publisher patch'
+            : value.includes('final-zip')
+              ? 'Underdark ZIP'
+              : value
   return <span className={`source ${value === 'spreadsheet-supplemental' ? 'supplemental' : ''} ${isSharandar ? 'sharandar-source' : ''}`}>{label}</span>
 }
 
@@ -137,7 +141,7 @@ function Recipe({ rows, onOpenCraftable }: { rows: { name: string; required: num
             <Icon src={material?.icon} alt={r.name} size={42} />
             <div className="recipe-row-copy">
               <strong>{r.name}</strong>
-              <small>{material?.craftable ? `${material.profession || 'Crafted'} · yields ${material.outputQuantity || 1}` : 'Raw / acquired material'}</small>
+              <small>{material?.craftable ? (isRecipePlannable(recipeByName.get(norm(material.name))) ? `${material.profession || 'Crafted'} · yields ${recipeByName.get(norm(material.name))?.outputQuantity}` : `${material.profession || 'Crafted'} · yield unresolved`) : 'Raw / acquired material'}</small>
             </div>
             <div className="recipe-row-actions">
               <b>×{r.required}</b>{!material?.craftable && <MaterialSourceButton name={r.name} />}
