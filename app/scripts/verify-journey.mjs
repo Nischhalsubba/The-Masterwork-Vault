@@ -45,9 +45,12 @@ for (const name of ['Crafted Potion of Accuracy Rank 13','Crafted Potion of Crit
   assert.equal(recipe?.outputQuantity,12, `${name}: recorded Sharandar task yield`)
 }
 assert.equal(sharandarRecipes.filter(recipe=>!recipe.quantityExplicit).length,5)
-assert.equal(chultanIntermediateFormulas.length,16)
+assert.equal(chultanIntermediateFormulas.length,17)
 assert.equal(chultanWeaponSlots.length,18)
-assert.equal(new Set(chultanIntermediateFormulas.map(row=>row.name)).size,16)
+assert.equal(new Set(chultanIntermediateFormulas.map(row=>row.name)).size,17)
+const lichstoneEnamel = chultanIntermediateFormulas.find(row=>row.name==='Lichstone Enamel')
+assert.equal(lichstoneEnamel?.outputQuantity,3)
+assert.deepEqual(lichstoneEnamel?.inputs,[{name:'Lichstone',quantity:1},{name:"Artisan's Enamel",quantity:4}])
 assert.equal(new Set(chultanWeaponSlots.map(row=>row.slot)).size,18)
 for (const row of [...chultanIntermediateFormulas,...chultanWeaponSlots]) {
   assert.ok(row.inputs.length > 0, `${'name' in row ? row.name : row.slot}: research row needs inputs`)
@@ -60,5 +63,5 @@ assert.equal(masterworkTierAssessment.latestPositivelyDocumented,'Menzoberranzan
 assert.equal(masterworkTierAssessment.laterTierStatus,'unresolved')
 assert.ok(masterworkTierAssessment.note.includes('not proof'))
 assert.ok(masterworkResearchLimits.some(text=>text.includes('current complete Chultan I / II final-output inventory is not established')))
-console.log('Masterwork research: 16 intermediate formulas, 18 weapon slots, source URLs and unresolved-later-tier boundary passed.')
+console.log('Masterwork research: 17 intermediate formulas, 18 weapon slots, source URLs and unresolved-later-tier boundary passed.')
 console.log('Journey: 9 sourced chapters, legacy IDs, eight professions, book-price arithmetic, quality identities, unknown yields and immutable catalog joins passed.')
