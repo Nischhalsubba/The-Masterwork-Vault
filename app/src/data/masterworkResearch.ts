@@ -30,8 +30,8 @@ export const masterworkResearchSources: MasterworkResearchSource[] = [
     url: 'https://www.playneverwinter.com/en/news-details/11500323',
     publishedAt: '2021-10-19',
     status: 'publisher-documented',
-    supports: 'The 2021 rework renamed Masterwork IV and V to Chultan Masterwork, moved recipe books to direct Stronghold Artisan purchases, and removed the old Artisan storyline as the acquisition path.',
-    limitation: 'This publication documents the rework date, not every 2026 vendor restriction, binding rule, price or recipe row.',
+    supports: 'The 2021 rework renamed Masterwork IV and V to Chultan Masterwork, moved books to the Stronghold Artisan, published 500,000 AD per Stronghold/Chultan book and 1,500,000 AD per Sharandar book, removed the old Artisan storyline, and required books to be purchased in order within each profession.',
+    limitation: 'These are publisher-documented 2021 baselines. The note does not certify 2026 binding, guild-rank eligibility, discounts, Menzoberranzan pricing or every current recipe row.',
   },
   {
     id: 'chultan-weapon-sheet',
