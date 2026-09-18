@@ -8,6 +8,29 @@ import {
   masterworkResearchSources,
   masterworkTierAssessment,
 } from '../data/masterworkResearch'
+import {
+  CHULTAN_HISTORICAL_TASKS_NOTICE,
+  chultanHistoricalTaskRows,
+} from '../data/chultanHistoricalTasks'
+
+const historicalTaskSourceCount = new Set(chultanHistoricalTaskRows.map((row) => row.sourceUrl)).size
+
+const formulaSignature = (outputQuantity: number, inputs: { name: string; quantity: number }[]) =>
+  JSON.stringify({
+    outputQuantity,
+    inputs: [...inputs]
+      .map((input) => ({ name: input.name.toLocaleLowerCase('en'), quantity: input.quantity }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  })
+
+const historicalFormulaConflicts = chultanIntermediateFormulas
+  .filter((formula) => {
+    const matches = chultanHistoricalTaskRows.filter((row) => row.name === formula.name)
+    if (!matches.length) return false
+    const worksheetSignature = formulaSignature(formula.outputQuantity, formula.inputs)
+    return matches.some((row) => formulaSignature(row.outputQuantity, row.materials) !== worksheetSignature)
+  })
+  .map((formula) => formula.name)
 
 function SourceLink({ id }: { id: string }) {
   const source = masterworkResearchSources.find((row) => row.id === id)
@@ -20,18 +43,26 @@ export function MasterworkResearchReference() {
   const search = query.trim().toLocaleLowerCase('en')
   const formulas = useMemo(() => chultanIntermediateFormulas.filter((row) => !search || [row.name, ...row.inputs.map((item) => item.name)].join(' ').toLocaleLowerCase('en').includes(search)), [search])
   const weaponSlots = useMemo(() => chultanWeaponSlots.filter((row) => !search || [row.slot, ...row.inputs.map((item) => item.name)].join(' ').toLocaleLowerCase('en').includes(search)), [search])
+  const historicalTasks = useMemo(() => chultanHistoricalTaskRows.filter((row) => !search || [
+    row.name,
+    row.profession,
+    `Masterwork ${row.historicalTier}`,
+    ...row.materials.map((item) => item.name),
+  ].join(' ').toLocaleLowerCase('en').includes(search)), [search])
 
   return <section className="masterwork-research" aria-labelledby="masterwork-research-heading">
     <div className="journey-section-intro">
       <span className="journey-kicker">MASTERWORK / EVIDENCE MAP</span>
       <h2 id="masterwork-research-heading">Masterwork lineage and Chultan evidence</h2>
-      <p>Follow what is publisher-documented, what is preserved from post-rework community formulas, and what still needs an in-game verification. Historical rows never enter planner totals automatically.</p>
+      <p>Follow what is publisher-documented, what is preserved from post-rework community formulas and profession task tables, and what still needs an in-game verification. Historical rows never enter planner totals automatically.</p>
     </div>
 
     <div className="journey-coverage" aria-label="Masterwork research coverage">
       <span><strong>{chultanWeaponSlots.length}</strong> weapon-slot formulas</span>
       <span><strong>{chultanIntermediateFormulas.length}</strong> intermediate recipes</span>
-      <span><strong>{masterworkResearchSources.length}</strong> attributable sources</span>
+      <span><strong>{chultanHistoricalTaskRows.length}</strong> historical IV/V task rows</span>
+      <span><strong>{historicalTaskSourceCount}</strong> profession task-table sources</span>
+      <span><strong>{masterworkResearchSources.length}</strong> claim-ledger sources</span>
       <span><strong>{MASTERWORK_RESEARCH_REVIEWED_AT}</strong> research review</span>
     </div>
 
@@ -58,7 +89,7 @@ export function MasterworkResearchReference() {
     </aside>
 
     <div className="masterwork-reference-search">
-      <label><span>Search Chultan formulas</span><span className="journey-library-search"><Search size={17} aria-hidden="true" /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try Soulfired Obsidian or Barbarian" /></span></label>
+      <label><span>Search Chultan evidence</span><span className="journey-library-search"><Search size={17} aria-hidden="true" /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try Soulfired Obsidian, Armorsmithing or Tyrannosaur" /></span></label>
       {query && <button type="button" onClick={() => setQuery('')}>Clear search</button>}
     </div>
 
@@ -74,6 +105,30 @@ export function MasterworkResearchReference() {
         {formulas.map((row) => <details className="journey-output" key={row.name}>
           <summary><span><small>Chultan / historical worksheet formula</small><strong>{row.name}</strong><small>Recorded yield ×{row.outputQuantity}</small></span><span className="journey-recipe-state">Reference only</span><ChevronDown size={18} aria-hidden="true" /></summary>
           <div className="journey-output-detail"><h4>Inputs for one recorded batch</h4><ul className="journey-input-list">{row.inputs.map((input) => <li key={input.name}><span><strong>{input.name}</strong><b>×{input.quantity}</b></span></li>)}</ul><p className="journey-data-note">Do not use this historical worksheet ratio as a live 2026 cost until the recipe is confirmed in-game.</p></div>
+        </details>)}
+      </div>
+    </section>
+
+    <section aria-labelledby="chultan-historical-tasks-heading">
+      <div className="journey-section-intro compact">
+        <span className="journey-kicker">HISTORICAL PROFESSION TASK TABLES</span>
+        <h3 id="chultan-historical-tasks-heading">Historical Chultan task-table snapshot</h3>
+        <p>{CHULTAN_HISTORICAL_TASKS_NOTICE}</p>
+      </div>
+      <aside className="masterwork-research-warning" role="note">
+        <h3>Source conflict audit</h3>
+        <p>{historicalFormulaConflicts.length} worksheet ratios disagree with at least one historical profession task row: {historicalFormulaConflicts.join(', ')}. Neither source is silently promoted as the current recipe; verify the live workstation before using those ratios for costs.</p>
+      </aside>
+      <p className="journey-library-result" role="status">{historicalTasks.length} matching historical task rows / {chultanHistoricalTaskRows.length}</p>
+      <div className="masterwork-research-list">
+        {historicalTasks.map((row) => <details className="journey-output masterwork-historical-task" key={`${row.profession}:${row.historicalTier}:${row.name}`}>
+          <summary><span><small>{row.profession} · Masterwork {row.historicalTier}</small><strong>{row.name}</strong><small>Recorded Tier 1 yield ×{row.outputQuantity}</small></span><span className="journey-recipe-state">Reference only</span><ChevronDown size={18} aria-hidden="true" /></summary>
+          <div className="journey-output-detail">
+            <h4>Materials for one recorded task</h4>
+            <ul className="journey-input-list">{row.materials.map((input) => <li key={input.name}><span><strong>{input.name}</strong><b>×{input.quantity}</b></span></li>)}</ul>
+            <div className="journey-output-actions"><a href={row.sourceUrl} target="_blank" rel="noopener noreferrer">Open profession task table<ArrowUpRight size={14} aria-hidden="true" /><span className="acquisition-sr-only"> (opens in a new tab)</span></a></div>
+            <p className="journey-data-note">Historical reference only. This post-2018 IV/V task row is evidence for the renamed Chultan lineage, not a September 2026 live-recipe certification and not planner input.</p>
+          </div>
         </details>)}
       </div>
     </section>
