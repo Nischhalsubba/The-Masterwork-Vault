@@ -12,6 +12,7 @@ import {
   CHULTAN_HISTORICAL_TASKS_NOTICE,
   chultanHistoricalTaskRows,
 } from '../data/chultanHistoricalTasks'
+import { masterworkResearchCorrections } from '../data/researchCorrections'
 
 const historicalTaskSourceCount = new Set(chultanHistoricalTaskRows.map((row) => row.sourceUrl)).size
 
@@ -71,6 +72,25 @@ export function MasterworkResearchReference() {
       <h3 id="masterwork-tier-status-heading">{masterworkTierAssessment.latestPositivelyDocumented}</h3>
       <p>{masterworkTierAssessment.note}</p>
       <div className="masterwork-source-links"><SourceLink id="menzoberranzan-2023-forum" /><SourceLink id="arc-2026-roadmap" /><SourceLink id="arc-2026-biting-cold" /><SourceLink id="arc-2026-monoliths" /></div>
+    </section>
+
+    <section className="masterwork-corrections" aria-labelledby="masterwork-corrections-heading">
+      <div className="journey-section-intro compact">
+        <span className="journey-kicker">PUBLISHER OVERRIDES / COVERAGE AUDIT</span>
+        <h3 id="masterwork-corrections-heading">Publisher corrections & coverage gaps</h3>
+        <p>Newer publisher evidence takes priority over older screenshots, task tables and worksheets. These records explain exactly what changed and what still remains uncaptured.</p>
+      </div>
+      <div className="masterwork-corrections-grid">
+        {masterworkResearchCorrections.map((correction) => <article key={correction.id}>
+          <div className="masterwork-correction-head">
+            <strong>{correction.title}</strong>
+            <span className={`mw-status-chip ${correction.status === 'publisher-correction' ? 'reviewed' : correction.status === 'coverage-gap' ? 'unknown' : 'historical'}`}>{correction.status.replaceAll('-', ' ')}</span>
+          </div>
+          <p>{correction.summary}</p>
+          <small>{correction.impact}</small>
+          <a href={correction.sourceUrl} target="_blank" rel="noopener noreferrer">{correction.sourceLabel}<ArrowUpRight size={14} aria-hidden="true" /><span className="acquisition-sr-only"> (opens in a new tab)</span></a>
+        </article>)}
+      </div>
     </section>
 
     <section className="masterwork-lineage" aria-labelledby="masterwork-lineage-heading">
