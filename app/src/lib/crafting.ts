@@ -229,7 +229,7 @@ export function calculateInventoryAwarePlan(selections: PlanSelection[], recipes
     processed.add(key)
     if (remaining <= 0) continue
 
-    const outputPerCraft = Math.max(1, recipe.outputQuantity || 1)
+    const outputPerCraft = recipe.outputQuantity
     const crafts = Math.ceil(remaining / outputPerCraft)
     const produced = crafts * outputPerCraft
 
