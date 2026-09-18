@@ -21,7 +21,7 @@ test('journey preserves old milestones and deep-links the selected chapter', asy
 test('journey uses all captured outputs without inventing missing recipes', async ({ page }) => {
   await page.goto('/journey')
   const library = page.locator('#journey-craftables')
-  await expect(library).toContainText('105 item records')
+  await expect(library).toContainText('110 item records')
   await expect(library).toContainText('145 recipe records')
   await expect(library).toContainText('not every recipe in the game')
   await expect(library.locator('.journey-output')).toHaveCount(30)
@@ -40,6 +40,33 @@ test('journey uses all captured outputs without inventing missing recipes', asyn
   await expect(library.locator('.journey-output')).toHaveCount(30)
 })
 
+
+test('standard reference labels Gathering as a legacy pre-compression sample', async ({ page }) => {
+  await page.goto('/journey#journey-craftables')
+  const library = page.locator('#journey-craftables')
+  await library.getByRole('button', { name: /Standard professions/ }).click()
+  await library.getByRole('button', { name: /Gathering/ }).click()
+  await expect(library).toContainText('Legacy pre-compression Gathering sample')
+  await expect(library).toContainText('old 1–80 profession scale')
+  await expect(library).toContainText('2021 compression')
+  await expect(library).not.toContainText('complete recorded Level 1-20 Gathering route')
+})
+
+test('masterwork research shows publisher corrections and coverage gaps', async ({ page }) => {
+  await page.goto('/journey#journey-craftables')
+  const library = page.locator('#journey-craftables')
+  await library.getByRole('button', { name: /Masterwork research/ }).click()
+  await expect(library.getByRole('heading', { name: 'Publisher corrections & coverage gaps' })).toBeVisible()
+  await expect(library).toContainText("Hermit's Incense +1")
+  await expect(library).toContainText('Item Level 95')
+  await expect(library).toContainText('Thorned Amulet +1')
+  await expect(library).toContainText('Feywood Amulet +1')
+  await expect(library).toContainText("Dawn's Light Sash +1")
+  await expect(library).toContainText('Lichstone')
+  await expect(library).toContainText('3 Lichstones')
+  await expect(library.locator('a[href*="11542223"]')).not.toHaveCount(0)
+  await expect(library.locator('a[href*="11500323"]')).not.toHaveCount(0)
+})
 
 test('masterwork research reference exposes Chultan formulas without overstating current coverage', async ({ page }) => {
   await page.goto('/journey#journey-craftables')
