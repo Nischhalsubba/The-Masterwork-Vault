@@ -33,6 +33,20 @@ test('standard reference includes the level 1-20 Gathering route with recorded y
   await expect(reference).toContainText('Community wiki snapshot reviewed 18 September 2026')
 })
 
+
+for (const width of [320,768,1440]) test(`gathering reference reflows at ${width}px`,async({page},testInfo)=>{
+  test.skip(testInfo.project.name === 'phone','Explicit viewport matrix runs once')
+  await page.setViewportSize({width,height:900})
+  const reference=await openReference(page)
+  await reference.getByRole('button',{name:'Gathering (25)',exact:true}).click()
+  const aegwyrt=reference.locator('.gathering-reference-row').filter({has:page.getByText('Aegwyrt',{exact:true})})
+  await aegwyrt.scrollIntoViewIfNeeded()
+  await expect(aegwyrt).toBeVisible()
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
+  expect(await reference.evaluate(element=>element.scrollWidth<=element.clientWidth+1)).toBe(true)
+  await page.screenshot({path:testInfo.outputPath(`journey-gathering-${width}.png`),fullPage:true})
+})
+
 test('reference filters preserve unknown and conflicting levels',async({page})=>{
   const reference=await openReference(page)
   await reference.getByLabel('Recorded task level',{exact:true}).selectOption('unknown')
