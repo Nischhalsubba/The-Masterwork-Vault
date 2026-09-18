@@ -7,7 +7,9 @@ async function addFeywoodBroadSlab(page) {
   const add = card.locator('.item-foot > button')
   await expect(add).toBeVisible()
   await add.click()
-  await page.locator('header nav button[data-view="plan"]').click()
+  const mobilePlan = page.locator('.mobile-v4-tabbar').getByRole('button', { name: 'Plan', exact: true })
+  if (await mobilePlan.isVisible()) await mobilePlan.click()
+  else await page.locator('header nav button[data-view="plan"]').click()
   await expect(page).toHaveURL(/\/plan$/)
 }
 
@@ -35,8 +37,9 @@ test('approved coded crafting-tree layout is used in Plan & Craft', async ({ pag
 
   await expect.poll(async () => shell.locator('.masterwork-tree-connectors path').count()).toBeGreaterThan(0)
 
+  const legend = shell.locator('.masterwork-tree-legend')
   for (const label of ['Crafted material', 'Raw material', 'Gathered', 'Dungeon drop', 'Vendor / Other']) {
-    await expect(shell.getByText(label, { exact: true })).toBeVisible()
+    await expect(legend.getByText(label, { exact: true })).toBeVisible()
   }
 
   const fit = shell.getByRole('button', { name: 'Fit to view' })
