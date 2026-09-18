@@ -560,7 +560,16 @@ export default function App() {
       <main id="main-content">
 
         {view === 'catalog' && (
-          <div className="catalog">
+          <>
+            <section className="mw-core-page-header">
+              <div>
+                <small>CATALOG</small>
+                <h1>Find the craftable you actually need.</h1>
+                <p>Filter by collection, class and type, then inspect the recipe without losing your place.</p>
+              </div>
+              <a href="/explore">Advanced explorer <ChevronRight size={15} aria-hidden="true" /></a>
+            </section>
+            <div className="catalog">
             <aside>
               <small>CLASSES</small>
               <button className={cls === 'All' ? 'active' : ''} onClick={() => selectClass('All')}>All craftables</button>
@@ -599,11 +608,23 @@ export default function App() {
               </div>
             </div>
           </div>
+          </>
         )}
 
         {view === 'plan' && <div className="page workbench-page"><CraftingWorkbench selected={plan} setSelected={setPlan} onOpenMaterial={openMaterialFromPlan} /></div>}
-        {view === 'materials' && <div className="page"><MaterialsWorkbench onOpenItem={openCatalogItem} selected={plan} initialMaterialName={materialFocus} /></div>}
-        {view === 'reference' && <div className="page"><Reference /></div>}
+        {view === 'materials' && <div className="page">
+          <section className="mw-core-page-header">
+            <div><small>MATERIALS</small><h1>Know what you need and where it comes from.</h1><p>Search every tracked material, inspect its recipe or acquisition route, and see demand from your current plan.</p></div>
+          </section>
+          <MaterialsWorkbench onOpenItem={openCatalogItem} selected={plan} initialMaterialName={materialFocus} />
+        </div>}
+        {view === 'reference' && <div className="page">
+          <section className="mw-core-page-header">
+            <div><small>REFERENCE</small><h1>Separate crafting facts from assumptions.</h1><p>Workshop mechanics, artisan notes, source policy and evidence stay together so recipe screens remain focused.</p></div>
+            <a href="/data-health">Data health <ChevronRight size={15} aria-hidden="true" /></a>
+          </section>
+          <Reference />
+        </div>}
       </main>
 
     </div>
