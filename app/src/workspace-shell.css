@@ -422,8 +422,24 @@ body {
   .catalog {
     display: grid !important;
     grid-template-columns: 152px minmax(0, 1fr) !important;
-    gap: 14px !important;
+    grid-template-areas:
+      "classes collection"
+      "classes workspace" !important;
+    gap: 10px 14px !important;
     align-items: start !important;
+  }
+
+  .catalog > .collection-switcher {
+    grid-area: collection;
+    margin-bottom: 0 !important;
+  }
+
+  .catalog > aside {
+    grid-area: classes;
+  }
+
+  .catalog > .workspace {
+    grid-area: workspace;
   }
 
   .catalog > aside {
