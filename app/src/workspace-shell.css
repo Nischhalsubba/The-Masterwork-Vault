@@ -284,6 +284,48 @@ body {
     display: none !important;
   }
 
+  .mw-command-launcher {
+    top: auto !important;
+    right: auto !important;
+    bottom: 84px !important;
+    left: 16px !important;
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+  }
+
+  .mw-command-launcher :is(span, kbd) {
+    display: none !important;
+  }
+
+  .ux-density-menu {
+    top: auto !important;
+    right: auto !important;
+    bottom: 84px !important;
+    left: 68px !important;
+    width: 44px !important;
+  }
+
+  .ux-density-menu > summary {
+    width: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    font-size: 0 !important;
+  }
+
+  .ux-density-popover {
+    top: auto !important;
+    right: auto !important;
+    bottom: 0 !important;
+    left: 54px !important;
+  }
+
   .tablet-v4-sidebar {
     position: fixed;
     inset: 0 auto 0 0;
