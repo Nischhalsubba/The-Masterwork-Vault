@@ -114,6 +114,7 @@ body.masterwork-tree-open{overflow:hidden}
   gap:24px;
 }
 .masterwork-tree-page-header h1{margin:0;font-size:24px;line-height:1.15;letter-spacing:-.035em}
+.masterwork-tree-page-header h1:focus{outline:none}
 .masterwork-tree-page-header p{margin:6px 0 0;font-size:11px;color:var(--tree-text-soft)}
 .masterwork-tree-mode{
   display:inline-flex;
@@ -329,9 +330,10 @@ button.masterwork-graph-card:focus-visible{outline:2px solid var(--tree-blue);ou
   .masterwork-tree-content{padding:22px 18px 14px}
   .masterwork-tree-brand strong{font-size:10px}
   .masterwork-tree-brand small{display:none}
-  .masterwork-tree-nav-item{gap:7px;padding-inline:7px}
+  .masterwork-tree-nav-item{min-height:44px;gap:7px;padding-inline:7px}
   .masterwork-tree-nav-item span{font-size:9px}
   .masterwork-tree-page-header h1{font-size:20px}
+  .masterwork-tree-mode button,.masterwork-tree-fit{min-height:44px}
 }
 @media(max-width:520px){
   .masterwork-tree-shell{--tree-sidebar-width:92px}
