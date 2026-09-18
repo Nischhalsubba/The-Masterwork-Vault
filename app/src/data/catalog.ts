@@ -11,7 +11,7 @@ import {
 } from './extractedSupplement'
 import { sharandarItems, sharandarRecipes } from './sharandarSupplement'
 import { sharandarIconDataUri } from './sharandarSprite'
-import { referenceIconDataUri, referenceIconKindForEntity } from './referenceIcons'
+import { referenceIconDataUri, referenceIconKindForEntity } from './referenceIcons.ts'
 
 const catalog = structuredClone(generatedCatalog)
 
