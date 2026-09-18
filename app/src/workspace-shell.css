@@ -172,6 +172,48 @@ body {
   text-decoration: none;
 }
 
+.mw-core-page-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mw-core-page-actions > a,
+.mw-core-page-actions > button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 11px;
+  border: 1px solid var(--mw-shell-border);
+  border-radius: 8px;
+  background: var(--mw-shell-surface-subtle);
+  color: #344054;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mw-core-page-actions > button:hover,
+.mw-core-page-actions > a:hover,
+.mw-core-page-header > a:hover {
+  border-color: var(--mw-shell-border-strong);
+  background: #f1f5f9;
+  color: var(--mw-shell-text);
+}
+
+.mw-core-page-actions > button:focus-visible,
+.mw-core-page-actions > a:focus-visible,
+.mw-core-page-header > a:focus-visible {
+  outline: 3px solid rgba(31, 111, 235, .24);
+  outline-offset: 2px;
+}
+
 .reference-hero {
   min-height: 0 !important;
   padding: 14px 16px !important;
@@ -721,6 +763,18 @@ body {
 
   .mw-core-page-header > a {
     width: max-content;
+    min-height: 44px;
+  }
+
+  .mw-core-page-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mw-core-page-actions > a,
+  .mw-core-page-actions > button {
+    width: 100%;
     min-height: 44px;
   }
 
