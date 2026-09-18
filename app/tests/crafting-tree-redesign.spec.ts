@@ -22,7 +22,7 @@ test('approved coded crafting-tree layout is used in Plan & Craft', async ({ pag
 
   const shell = page.locator('.masterwork-tree-shell')
   await expect(shell).toBeVisible()
-  const globalNavigation = page.locator('.tablet-v4-sidebar')
+  const globalNavigation = page.locator('.tablet-v4-sidebar:visible, .mobile-v4-tabbar:visible')
   await expect(globalNavigation).toBeVisible()
   await expect(globalNavigation.getByRole('button', { name: 'Plan & Craft' })).toHaveAttribute('aria-current', 'page')
 
