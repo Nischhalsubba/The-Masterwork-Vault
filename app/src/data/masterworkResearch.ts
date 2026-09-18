@@ -52,6 +52,15 @@ export const masterworkResearchSources: MasterworkResearchSource[] = [
     limitation: 'Community field guide. Auction prices, guild-mark costs and any statements about needing all seven professions are historical observations, not 2026 guarantees.',
   },
   {
+    id: 'chultan-wiki-artificing',
+    label: 'Neverwinter Wiki: Masterwork Artificing',
+    url: 'https://neverwinter.fandom.com/wiki/Masterwork_Artificing',
+    publishedAt: null,
+    status: 'historical',
+    supports: "The Masterwork Artificing IV task table records Lichstone Enamel as 1 Lichstone plus 4 Artisan's Enamel, yielding 3 at Tier 1 or Tier 2.",
+    limitation: 'Community-maintained post-2018 profession task table using the historical Masterwork IV label. It is not a September 2026 live-server capture and is kept out of planner math until reverified in-game.',
+  },
+  {
     id: 'menzoberranzan-2023-forum',
     label: 'Menzoberranzan Masterwork feedback',
     url: 'https://forum.arcgames.com/neverwinter/discussion/1267445/menzoberranzan-masterwork-general-feedback',
@@ -104,6 +113,7 @@ export const chultanIntermediateFormulas: ChultanFormula[] = [
   { name: 'Lion Fur', outputQuantity: 2, inputs: [{ name: 'Lion Hide', quantity: 10 }, { name: "Tanner's Liquor", quantity: 3 }, { name: 'Tincal', quantity: 3 }] },
   { name: 'Living Bronzewood', outputQuantity: 3, inputs: [{ name: 'Bronzewood Lumber', quantity: 4 }, { name: 'Tear of Ubtao', quantity: 1 }] },
   { name: 'Living Varnish', outputQuantity: 3, inputs: [{ name: 'Tear of Ubtao', quantity: 1 }, { name: 'Lakh Varnish', quantity: 3 }] },
+  { name: 'Lichstone Enamel', outputQuantity: 3, inputs: [{ name: 'Lichstone', quantity: 1 }, { name: "Artisan's Enamel", quantity: 4 }] },
   { name: 'Obsidian Shard', outputQuantity: 4, inputs: [{ name: 'Obsidian', quantity: 12 }, { name: 'Red Rouge', quantity: 1 }] },
   { name: 'Soulfired Obsidian', outputQuantity: 3, inputs: [{ name: 'Obsidian Shard', quantity: 4 }, { name: 'Mote of Soulfire', quantity: 1 }] },
 ]
@@ -139,7 +149,7 @@ export const masterworkTierAssessment = {
 
 export const masterworkResearchLimits = [
   'The current complete Chultan I / II final-output inventory is not established by a sufficiently current, attributable public source.',
-  'The 18 Chultan weapon-slot formulas and 16 intermediate recipes below come from a community worksheet and are kept out of planner math until they are independently reverified in-game.',
+  "The 18 Chultan weapon-slot formulas and 16 of the 17 intermediate recipes below come from the community worksheet; Lichstone Enamel comes from the Masterwork Artificing task table. All remain historical reference evidence and stay out of planner math until reverified in-game.",
   'Current Stronghold rank gates, book binding and minimum one-profession versus all-seven prerequisites remain source-dependent and are not converted into hard eligibility rules.',
   'A 2021 publisher rework changed Masterwork acquisition and recipes, so pre-rework Masterwork IV / V tables are historical references rather than current Chultan truth.',
 ] as const
