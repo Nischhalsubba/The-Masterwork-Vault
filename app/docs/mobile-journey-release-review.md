@@ -36,6 +36,9 @@ The public claim ledger, dates, primary publisher links, creator sources and lim
 
 ## 18 September 2026 research-completion addendum
 
-The Journey library now has three deliberately separated collections: the screenshot-backed Masterwork catalog, the 907-task standard-professions community snapshot, and a source-bounded Masterwork research reference. The Masterwork reference adds 16 Chultan intermediate ratios and 18 class weapon-slot formulas from the replacement community worksheet, but does not feed those historical formulas into planner calculations.
+The Journey library now has three deliberately separated collections: the screenshot-backed Masterwork catalog, the 907-task standard-professions community snapshot, and a source-bounded Masterwork research reference. The Masterwork reference now exposes 17 Chultan intermediate ratios and 18 class weapon-slot formulas. Sixteen intermediate rows and the weapon formulas come from the replacement community worksheet; Lichstone Enamel is separately sourced to the post-2018 Masterwork Artificing IV task table. These historical formulas do not feed planner calculations.
 
 Targeted 2026 publisher review did not verify a Masterwork tier after Menzoberranzan. The UI therefore uses the narrower wording “latest positively documented tier” and explicitly says that absence from the reviewed roadmap/release articles is not proof that a later tier does not exist. Current Chultan final-output completeness and several current access/binding gates remain honest unknowns instead of guessed requirements.
+
+
+The reviewed profession task tables also conflict with the worksheet on several Chultan components, so source disagreement must remain visible rather than being collapsed into a single asserted current recipe. The next inventory pass treats the task-table collection as historical reference evidence until live recipes are independently reverified.
