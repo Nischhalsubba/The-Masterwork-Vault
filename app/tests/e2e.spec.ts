@@ -82,11 +82,11 @@ test('details drawer traps focus and closes with Escape', async ({ page }, testI
   await expect(details).toBeFocused()
 })
 
-test('Masterwork journey is a dedicated page, not a popup', async ({ page }) => {
+test('Masterwork progression is a dedicated workspace page, not a popup', async ({ page }) => {
   await page.goto('/catalog')
-  const launcher = page.getByRole('link', { name: 'Open Masterwork journey' })
-  await expect(launcher).toBeVisible()
-  await launcher.click()
+  const progression = page.getByRole('link', { name: 'Progression', exact: true })
+  await expect(progression).toBeVisible()
+  await progression.click()
   await expect(page).toHaveURL(/\/journey(?:\?|$)/)
   await expect(page.getByRole('heading', { name: 'Masterwork journey', level: 1 })).toBeVisible()
   await expect(page.getByRole('main')).toBeVisible()
@@ -99,7 +99,8 @@ test('Masterwork journey is a dedicated page, not a popup', async ({ page }) => 
   await page.reload()
   await expect(page).toHaveURL(/\/journey(?:\?|$)/)
   await expect(page.getByRole('heading', { name: 'Masterwork journey', level: 1 })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Back to Catalog' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Progression', exact: true })).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('link', { name: 'Back to Catalog' })).toBeHidden()
 })
 
 test('reference exposes accessible tabs', async ({ page }) => {
