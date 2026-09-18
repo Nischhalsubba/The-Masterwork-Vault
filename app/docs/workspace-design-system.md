@@ -23,6 +23,7 @@ The Vault is a working crafting reference, not a marketing site. Every primary r
 - One global shell is authoritative across every route.
 - Desktop/tablet use the left workspace rail.
 - Phone uses a compact top bar plus five primary bottom destinations.
+- Global Search and information-density controls live inside navigation chrome: the rail on desktop/tablet and the top bar on phone.
 - Local page navigation never replaces global navigation.
 - A feature should not create a second app shell or full-screen navigation system.
 - Supporting tools live under the **Tools** group instead of competing with primary workspaces.
