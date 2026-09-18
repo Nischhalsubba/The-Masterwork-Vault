@@ -1,0 +1,23 @@
+/* Shares the Journey's reading scale; no global reset or catalog styles. */
+.journey-library-switch { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:28px; }
+.journey-library-switch button { min-height:44px; padding:10px 16px; border:1px solid var(--separator-strong); border-radius:8px; background:var(--surface); color:var(--label); font:inherit; font-size:14px; cursor:pointer; }
+.journey-library-switch button[aria-pressed="true"] { background:var(--selected); border-color:var(--interactive); color:var(--interactive); }
+.journey-library-collection > .journey-library { margin:0; padding:0; border:0; }
+.profession-reference { min-width:0; }
+.profession-reference-filters { grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr); }
+.profession-reference-inputs { list-style:none; padding:0; margin:0; }
+.profession-reference-inputs li { border-bottom:1px solid var(--separator); padding:14px 0; }
+.profession-reference-input-name { display:flex; justify-content:space-between; gap:16px; font-size:14px; line-height:1.6; }
+.profession-reference-input-name strong { overflow-wrap:anywhere; font-weight:600; }
+.profession-reference-input-name b { flex-shrink:0; font-variant-numeric:tabular-nums; }
+.profession-reference-inputs p,.profession-reference-values p { font-size:13px; line-height:1.7; color:var(--label-secondary); margin:8px 0; max-width:80ch; }
+.profession-reference-input-actions { display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px; }
+.profession-reference-input-actions a,.profession-reference-input-actions button { display:inline-flex; align-items:center; gap:5px; min-height:44px; padding:4px 0; color:var(--interactive); font:inherit; font-size:13px; background:none; border:0; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.profession-reference-values { margin-top:20px; }
+.profession-reference-values summary { min-height:44px; padding:12px 0; font-size:13px; font-weight:600; line-height:1.6; cursor:pointer; }
+.profession-reference-load-error { padding:20px; border:1px solid var(--separator-strong); border-radius:10px; }
+.profession-reference-load-error p { font-size:14px; line-height:1.7; }
+.profession-reference-load-error button { min-height:44px; padding:8px 16px; font:inherit; color:var(--interactive); background:var(--surface); border:1px solid var(--separator-strong); border-radius:8px; cursor:pointer; }
+@media(max-width:900px) { .profession-reference-filters { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }.profession-reference-filters .journey-library-search { grid-column:1/-1; } }
+@media(max-width:680px) { .journey-library-switch { display:grid; grid-template-columns:1fr; gap:8px; }.journey-library-switch button { text-align:left; font-size:14px; }.profession-reference-filters label:last-child { grid-column:auto; }.profession-reference-input-actions { gap:4px 12px; }.profession-reference-input-name { font-size:13px; } }
+@media(max-width:360px) { .profession-reference-filters { grid-template-columns:minmax(0,1fr); } }
