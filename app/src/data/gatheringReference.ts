@@ -1,5 +1,8 @@
 export const GATHERING_REVIEWED_AT = '2026-09-18'
 export const GATHERING_SOURCE_URL = 'https://neverwinter.fandom.com/wiki/Gathering'
+export const GATHERING_SOURCE_SCALE = 'legacy-1-80' as const
+export const GATHERING_MAPPING_STATUS = 'unresolved-after-2021-compression' as const
+export const GATHERING_COMPRESSION_SOURCE_URL = 'https://www.playneverwinter.com/en/news-details/11491453'
 
 export interface GatheringReferenceTask {
   id: string
@@ -11,7 +14,7 @@ export interface GatheringReferenceTask {
   sourceUrl: string
   reviewedAt: string
   platformContext: string
-  confidence: 'community-current-page'
+  confidence: 'historical-pre-compression-sample'
   plannerEligible: false
 }
 
@@ -54,7 +57,7 @@ export const gatheringReferenceTasks: GatheringReferenceTask[] = raw.map(([level
   inputs:[],
   sourceUrl:GATHERING_SOURCE_URL,
   reviewedAt:GATHERING_REVIEWED_AT,
-  platformContext:'Community wiki task table; platform is not distinguished. Treat as reference data and confirm live task/tool requirements in-game.',
-  confidence:'community-current-page',
+  platformContext:'Legacy community Gathering table using the pre-2021 profession level scale. These 25 rows are a historical sample, not a complete modern Level 1-20 route. The full 1-80 table still needs reconciliation against the 2021 compression and current task list.',
+  confidence:'historical-pre-compression-sample',
   plannerEligible:false,
 }))
