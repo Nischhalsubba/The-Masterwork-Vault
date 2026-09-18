@@ -11,6 +11,7 @@ import {
 } from './extractedSupplement'
 import { sharandarItems, sharandarRecipes } from './sharandarSupplement'
 import { sharandarIconDataUri } from './sharandarSprite'
+import { referenceIconDataUri, referenceIconKindForEntity } from './referenceIcons'
 
 const catalog = structuredClone(generatedCatalog)
 
@@ -263,7 +264,7 @@ for (const raw of sharandarItems) {
     recommended: null,
     reinforced: null,
     ...raw,
-    sourceStatus: recipeKnown ? 'sharandar-screenshot-final-zip' : raw.sourceStatus,
+    sourceStatus: String(raw.sourceStatus ?? '').includes('publisher') ? raw.sourceStatus : recipeKnown ? 'sharandar-screenshot-final-zip' : raw.sourceStatus,
     campaign: 'Sharandar',
     categories: Array.from(new Set([...(Array.isArray(raw.categories) ? raw.categories : []), 'Sharandar'])),
     classes: Array.isArray(raw.classes) ? [...raw.classes] : [],
@@ -333,6 +334,30 @@ for (const recipe of catalog.recipes ?? []) {
 }
 for (const material of catalog.materials ?? []) material.usedBy.sort((a: string, b: string) => a.localeCompare(b))
 
+// Every record gets a usable visual marker. When authentic game artwork is unavailable,
+// use a category-derived reference icon and label its provenance explicitly instead of
+// presenting generated UI art as screenshot-backed evidence.
+for (const item of catalog.items ?? []) {
+  if (!item.icon && item.iconIndex == null) {
+    item.icon = referenceIconDataUri(referenceIconKindForEntity(item.kind, item.slot))
+    item.artwork = item.artwork ?? {
+      provenance: 'reference-derived',
+      sourceId: 'app-reference-icon:auto',
+      lastVerified: '2026-09-18',
+    }
+  }
+}
+for (const material of catalog.materials ?? []) {
+  if (!material.icon && material.iconIndex == null) {
+    material.icon = referenceIconDataUri('material')
+    material.artwork = material.artwork ?? {
+      provenance: 'reference-derived',
+      sourceId: 'app-reference-icon:auto',
+      lastVerified: '2026-09-18',
+    }
+  }
+}
+
 catalog.meta = {
   ...catalog.meta,
   title: 'The Masterwork Vault',
@@ -351,8 +376,9 @@ catalog.meta = {
   },
 }
 
+const finalItemIconCount = (catalog.items ?? []).filter((item: any) => Boolean(item.icon) || item.iconIndex != null).length
 const materialIconCount = (catalog.materials ?? []).filter((material: any) => Boolean(material.icon) || material.iconIndex != null).length
-console.info(`Displayable icon audit: ${itemIconCount} original craftables; ${materialIconCount}/${catalog.materials?.length ?? 0} merged materials have direct or atlas art`)
+console.info(`Displayable icon audit: ${finalItemIconCount}/${catalog.items?.length ?? 0} items; ${materialIconCount}/${catalog.materials?.length ?? 0} materials have authentic or explicitly reference-derived visuals`)
 console.info(`Masterwork campaign audit: ${catalog.items.filter((item: any) => item.campaign === 'Sharandar').length} Sharandar craftables, ${catalog.items.filter((item: any) => item.campaign === 'Underdark').length} Underdark craftables`)
 
 export default catalog
