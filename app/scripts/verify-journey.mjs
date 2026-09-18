@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import { journeyPhases, journeySources, journeyProfessionGuides, JOURNEY_REVIEWED_AT, JOURNEY_BOOK_PRICES } from '../src/data/journeyKnowledge.ts'
+
+import { chultanIntermediateFormulas, chultanWeaponSlots, masterworkResearchSources, masterworkTierAssessment, masterworkResearchLimits } from '../src/data/masterworkResearch.ts'
 import { buildJourneyCraftables, matchesJourneyCraftable, journeyItemHref } from '../src/domain/journeyCatalog.ts'
 assert.equal(journeyPhases.length, 9)
 assert.equal(new Set(journeyPhases.map(p => p.id)).size, 9)
@@ -34,4 +36,20 @@ assert.ok(matchesJourneyCraftable(rows.find(r=>r.name==='Test output'),'barbaria
 assert.ok(!matchesJourneyCraftable(rows[0],'not-a-real-output'))
 assert.equal(buildJourneyCraftables({...data,recipes:[{...recipe,materials:[{name:'Other ore',required:8}]}]}).find(r=>r.name==='Test output').outputQuantity,null,'Conflicting recipe inputs must not silently supply a yield')
 assert.ok(journeyItemHref(item).startsWith('/catalog/underdark/test-id/'))
+assert.equal(chultanIntermediateFormulas.length,16)
+assert.equal(chultanWeaponSlots.length,18)
+assert.equal(new Set(chultanIntermediateFormulas.map(row=>row.name)).size,16)
+assert.equal(new Set(chultanWeaponSlots.map(row=>row.slot)).size,18)
+for (const row of [...chultanIntermediateFormulas,...chultanWeaponSlots]) {
+  assert.ok(row.inputs.length > 0, `${'name' in row ? row.name : row.slot}: research row needs inputs`)
+  for (const input of row.inputs) assert.ok(input.name && input.quantity > 0 && Number.isInteger(input.quantity))
+}
+for (const row of chultanIntermediateFormulas) assert.ok(row.outputQuantity > 0 && Number.isInteger(row.outputQuantity))
+assert.ok(masterworkResearchSources.some(source=>source.url.includes('/11500323')))
+assert.ok(masterworkResearchSources.some(source=>source.url.includes('1gYsenO0JX3fOkZrSxgyJ7fdiBPK_dcs96sP3blUra44')))
+assert.equal(masterworkTierAssessment.latestPositivelyDocumented,'Menzoberranzan')
+assert.equal(masterworkTierAssessment.laterTierStatus,'unresolved')
+assert.ok(masterworkTierAssessment.note.includes('not proof'))
+assert.ok(masterworkResearchLimits.some(text=>text.includes('current complete Chultan I / II final-output inventory is not established')))
+console.log('Masterwork research: 16 intermediate formulas, 18 weapon slots, source URLs and unresolved-later-tier boundary passed.')
 console.log('Journey: 9 sourced chapters, legacy IDs, eight professions, book-price arithmetic, quality identities, unknown yields and immutable catalog joins passed.')
