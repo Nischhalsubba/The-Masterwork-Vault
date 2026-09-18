@@ -216,7 +216,7 @@ export function calculateInventoryAwarePlan(selections: PlanSelection[], recipes
 
   while (true) {
     const candidates = [...demand.entries()]
-      .filter(([key]) => recipeMap.has(key) && !processed.has(key))
+      .filter(([key]) => isRecipePlannable(recipeMap.get(key)) && !processed.has(key))
       .sort((a, b) => recipeDepth(b[1].name, recipeMap, depthMemo) - recipeDepth(a[1].name, recipeMap, depthMemo))
 
     if (!candidates.length) break
