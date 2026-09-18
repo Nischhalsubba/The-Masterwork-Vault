@@ -28,9 +28,10 @@ import './ux-system.css'
 import './responsive-workspace.css'
 import './accessibility.css'
 import './utility-placement.css'
+import './workspace-shell.css'
 
 const App = lazy(() => import('./App'))
-const MobileV4Shell = lazy(() => import('./components/MobileV4Shell').then((module) => ({ default: module.MobileV4Shell })))
+const WorkspaceShell = lazy(() => import('./components/WorkspaceShell').then((module) => ({ default: module.WorkspaceShell })))
 const RouteSync = lazy(() => import('./components/RouteSync').then((module) => ({ default: module.RouteSync })))
 const QualitySystem = lazy(() => import('./components/QualitySystem').then((module) => ({ default: module.QualitySystem })))
 const CompareWorkbench = lazy(() => import('./components/CompareWorkbench').then((module) => ({ default: module.CompareWorkbench })))
@@ -163,7 +164,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary name="The Masterwork Vault">
       <Suspense fallback={<PageLoading />}>
         <UXSystem />
-        <MobileV4Shell />
+        <WorkspaceShell />
         <RouteContent />
         <DeveloperAttribution />
         <QualitySystem />
