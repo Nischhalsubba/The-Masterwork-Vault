@@ -138,6 +138,15 @@ test('journey budgets are published scenarios and paid morale needs an entered r
   await expect(planning).toContainText('does not double task XP')
 })
 
+test('data health has visual coverage without mislabeling reference icons as game art', async ({ page }) => {
+  await page.goto('/data-health')
+  const missingArtwork = page.locator('.mw-health-metrics article').filter({ hasText: 'Missing artwork' })
+  await expect(missingArtwork).toContainText('0')
+  const provenance = page.locator('.mw-health-panel').filter({ hasText: 'Artwork provenance' })
+  await expect(provenance).toContainText('reference-derived')
+  await expect(provenance).toContainText('Reference-derived visuals preserve layout continuity but are not authentic Neverwinter artwork')
+})
+
 test('source-backed and uncertain rules are distinguished in the evidence ledger', async ({ page }) => {
   await page.goto('/data-health')
   await expect(page.locator('.mw-ledger')).toContainText('Current quote required')
