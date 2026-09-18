@@ -1,5 +1,5 @@
-import { APRIL_2023_MASTERWORK_PATCH, publisherSharandarItemCorrections } from './researchCorrections'
-import { referenceIconDataUri } from './referenceIcons'
+import { APRIL_2023_MASTERWORK_PATCH, publisherSharandarItemCorrections } from './researchCorrections.ts'
+import { referenceIconDataUri } from './referenceIcons.ts'
 
 export type SharandarNeed = { name: string; required: number }
 
