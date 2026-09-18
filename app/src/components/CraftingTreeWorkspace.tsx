@@ -201,6 +201,7 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
   const [materialRootId, setMaterialRootId] = useState<string | null>(firstMaterialRoot(trees[0])?.id || null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
 
   const itemRoot = useMemo(() => trees.find((tree) => tree.id === rootId) || trees[0], [trees, rootId])
   const materialRoot = useMemo(() => findNode(itemRoot, materialRootId) || firstMaterialRoot(itemRoot), [itemRoot, materialRootId])
@@ -219,13 +220,20 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
   useEffect(() => {
     const app = document.querySelector('.app')
     const previousAriaHidden = app?.getAttribute('aria-hidden')
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
     app?.setAttribute('aria-hidden', 'true')
     document.body.classList.add('masterwork-tree-open')
+    const frame = requestAnimationFrame(() => headingRef.current?.focus())
     return () => {
+      cancelAnimationFrame(frame)
       document.body.classList.remove('masterwork-tree-open')
-      if (!app) return
-      if (previousAriaHidden == null) app.removeAttribute('aria-hidden')
-      else app.setAttribute('aria-hidden', previousAriaHidden)
+      if (app) {
+        if (previousAriaHidden == null) app.removeAttribute('aria-hidden')
+        else app.setAttribute('aria-hidden', previousAriaHidden)
+      }
+      requestAnimationFrame(() => {
+        if (previousFocus?.isConnected) previousFocus.focus()
+      })
     }
   }, [])
 
@@ -327,7 +335,7 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
         <main className="masterwork-tree-content">
           <header className="masterwork-tree-page-header">
             <div>
-              <h1>Crafting Tree</h1>
+              <h1 ref={headingRef} tabIndex={-1}>Crafting Tree</h1>
               <p>See the full dependency chain for your item.</p>
             </div>
             <div className="masterwork-tree-mode" role="group" aria-label="Tree view">
