@@ -1,18 +1,15 @@
 import './crafting-tree-workspace.css'
-import { createPortal } from 'react-dom'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Grid3X3, Maximize2, RotateCcw } from 'lucide-react'
 import type { CraftTreeNode } from '../lib/crafting'
 import { requestAppRoute } from '../lib/navigation'
 import { CraftingTreeGraph } from './CraftingTreeGraph'
-import { CraftingTreeSidebar, type PlannerTab } from './CraftingTreeSidebar'
 
 type TreeMode = 'item' | 'material'
 
 interface CraftingTreeWorkspaceProps {
   trees: CraftTreeNode[]
   onOpenMaterial?: (name: string) => void
-  onSetPlannerTab: (tab: PlannerTab) => void
 }
 
 function findNode(root: CraftTreeNode | undefined, id: string | null): CraftTreeNode | undefined {
@@ -35,12 +32,11 @@ function firstMaterialRoot(root: CraftTreeNode | undefined) {
     || [...root.children].sort((a, b) => a.name.localeCompare(b.name))[0]
 }
 
-export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }: CraftingTreeWorkspaceProps) {
+export function CraftingTreeWorkspace({ trees, onOpenMaterial }: CraftingTreeWorkspaceProps) {
   const [mode, setMode] = useState<TreeMode>('item')
   const [fitted, setFitted] = useState(false)
   const [rootId, setRootId] = useState(trees[0]?.id || '')
   const [materialRootId, setMaterialRootId] = useState<string | null>(firstMaterialRoot(trees[0])?.id || null)
-  const headingRef = useRef<HTMLHeadingElement>(null)
 
   const itemRoot = useMemo(() => trees.find((tree) => tree.id === rootId) || trees[0], [trees, rootId])
   const materialRoot = useMemo(() => findNode(itemRoot, materialRootId) || firstMaterialRoot(itemRoot), [itemRoot, materialRootId])
@@ -53,33 +49,6 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
       setMaterialRootId(firstMaterialRoot(trees[0])?.id || null)
     }
   }, [trees, rootId])
-
-  useEffect(() => {
-    const appRoot = document.getElementById('root')
-    const previousAriaHidden = appRoot?.getAttribute('aria-hidden')
-    const previousInert = appRoot?.inert ?? false
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
-
-    if (appRoot) {
-      appRoot.setAttribute('aria-hidden', 'true')
-      appRoot.inert = true
-    }
-    document.body.classList.add('masterwork-tree-open')
-    const frame = requestAnimationFrame(() => headingRef.current?.focus())
-
-    return () => {
-      cancelAnimationFrame(frame)
-      document.body.classList.remove('masterwork-tree-open')
-      if (appRoot) {
-        appRoot.inert = previousInert
-        if (previousAriaHidden == null) appRoot.removeAttribute('aria-hidden')
-        else appRoot.setAttribute('aria-hidden', previousAriaHidden)
-      }
-      requestAnimationFrame(() => {
-        if (previousFocus?.isConnected) previousFocus.focus()
-      })
-    }
-  }, [])
 
   const activateMaterial = (node: CraftTreeNode) => {
     if (!node.craftable) {
@@ -105,16 +74,15 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
     setFitted(false)
   }
 
-  const frame = (
-    <div className="masterwork-tree-shell">
+  return (
+    <section className="masterwork-tree-shell" aria-labelledby="crafting-tree-title">
       <div className="masterwork-tree-frame">
-        <CraftingTreeSidebar onSetPlannerTab={onSetPlannerTab} onResetItemTree={() => setTreeMode('item')} />
-
-        <main className="masterwork-tree-content">
+        <div className="masterwork-tree-content">
           <header className="masterwork-tree-page-header">
             <div>
-              <h1 ref={headingRef} tabIndex={-1}>Crafting Tree</h1>
-              <p>See the full dependency chain for your item.</p>
+              <span className="mw-tree-context">PLAN & CRAFT / DEPENDENCIES</span>
+              <h2 id="crafting-tree-title">Crafting Tree</h2>
+              <p>Trace every crafted intermediate and acquired material without leaving your plan.</p>
             </div>
             <div className="masterwork-tree-mode" role="group" aria-label="Tree view">
               <button type="button" className={mode === 'item' ? 'active' : ''} aria-pressed={mode === 'item'} onClick={() => setTreeMode('item')}>Item Tree</button>
@@ -137,18 +105,18 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
             </button>
           </div>
 
-          <section className="masterwork-tree-stage" aria-label="Crafting dependency tree">
+          <div className="masterwork-tree-stage" aria-label="Crafting dependency tree">
             {!activeRoot ? (
               <div className="masterwork-tree-empty" role="status">
                 <Grid3X3 size={30} aria-hidden="true" />
-                <h2>No crafting tree yet</h2>
+                <h3>No crafting tree yet</h3>
                 <p>Add a craftable item from Catalog, then return to Plan & Craft.</p>
                 <button type="button" onClick={() => requestAppRoute({ view: 'catalog' })}>Browse Catalog</button>
               </div>
             ) : (
               <CraftingTreeGraph root={activeRoot} fitted={fitted} onActivateMaterial={activateMaterial} onOpenMaterial={onOpenMaterial} />
             )}
-          </section>
+          </div>
 
           <div className="masterwork-tree-legend" role="list" aria-label="Crafting source legend">
             <span role="listitem"><i className="crafted" />Crafted material</span>
@@ -157,10 +125,8 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
             <span role="listitem"><i className="dungeon" />Dungeon drop</span>
             <span role="listitem"><i className="vendor" />Vendor / Other</span>
           </div>
-        </main>
+        </div>
       </div>
-    </div>
+    </section>
   )
-
-  return createPortal(frame, document.body)
 }
