@@ -51,8 +51,12 @@ test('masterwork research reference exposes Chultan formulas without overstating
   await expect(library).toContainText('Menzoberranzan is the latest tier positively documented')
   await expect(library).toContainText('No later tier was verified')
   await expect(library).toContainText('current complete Chultan I / II final-output inventory is not established')
-  await expect(library.locator('a[href*="11500323"]')).toBeVisible()
-  await expect(library.locator('a[href*="1gYsenO0JX3fOkZrSxgyJ7fdiBPK_dcs96sP3blUra44"]')).toBeVisible()
+  const publisherLinks = library.locator('a[href*="11500323"]')
+  const worksheetLinks = library.locator('a[href*="1gYsenO0JX3fOkZrSxgyJ7fdiBPK_dcs96sP3blUra44"]')
+  await expect(publisherLinks).toHaveCount(2)
+  await expect(publisherLinks.first()).toBeVisible()
+  await expect(worksheetLinks).toHaveCount(2)
+  await expect(worksheetLinks.first()).toBeVisible()
 })
 
 for (const width of [320, 768, 1440]) {
