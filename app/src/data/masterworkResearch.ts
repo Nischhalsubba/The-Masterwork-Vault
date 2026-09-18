@@ -134,7 +134,7 @@ export const masterworkTierAssessment = {
   evidenceDate: '2023-08',
   laterTierStatus: 'unresolved' as const,
   reviewedThrough: MASTERWORK_RESEARCH_REVIEWED_AT,
-  note: 'Menzoberranzan is the latest tier positively documented in the reviewed source set. No later Masterwork tier was verified in the reviewed 2026 roadmap, Biting Cold launch, Monoliths of Madness launch, or targeted Masterwork searches. This is not proof that no later tier exists; verify any newer in-game book or vendor before treating the path as final.',
+  note: 'Menzoberranzan is the latest tier positively documented in the reviewed source set. No later tier was verified in the reviewed 2026 roadmap, Biting Cold launch, Monoliths of Madness launch, or targeted Masterwork searches. This is not proof that no later tier exists; verify any newer in-game book or vendor before treating the path as final.',
 }
 
 export const masterworkResearchLimits = [
