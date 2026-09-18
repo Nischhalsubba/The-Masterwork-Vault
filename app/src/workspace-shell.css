@@ -671,6 +671,33 @@ body {
     background: var(--m-surface);
     color: var(--m-blue);
   }
+
+  .journey-page-main,
+  .mw-readiness-main,
+  .mw-health-main,
+  .mw-explore-main,
+  .mw-graph-main {
+    width: auto !important;
+    max-width: none !important;
+    min-height: 100dvh;
+    margin: 0 0 0 var(--tablet-rail) !important;
+    padding: 16px !important;
+    background: var(--mw-shell-bg) !important;
+  }
+
+  .journey-page-hero,
+  .mw-readiness-hero,
+  .mw-health-hero,
+  .mw-explore-hero,
+  .mw-graph-hero {
+    min-height: 0 !important;
+    margin: 0 0 14px !important;
+    padding: 16px !important;
+    border: 1px solid var(--mw-shell-border) !important;
+    border-radius: var(--mw-shell-radius) !important;
+    background: var(--mw-shell-surface) !important;
+    box-shadow: none !important;
+  }
 }
 
 /* Phone keeps the same IA with touch-native chrome. */
