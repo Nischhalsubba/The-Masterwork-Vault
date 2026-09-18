@@ -1,0 +1,31 @@
+name: Research workspace
+on:
+  push:
+    branches: [feat/journey-research-completion]
+    paths: [.github/workflows/research-workspace.yml]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Export tracked application for local review
+        run: git archive --format=zip --output=review-source.zip HEAD
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version-file: app/.node-version
+      - name: Build review application
+        working-directory: app
+        run: npm install --no-fund && npm run build
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: research-workspace
+          path: |
+            review-source.zip
+            app/dist/
+          retention-days: 1
+          if-no-files-found: error
