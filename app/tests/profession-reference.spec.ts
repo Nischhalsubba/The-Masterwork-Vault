@@ -59,7 +59,7 @@ test('failed reference load offers a working retry',async({page})=>{
   let fail=true
   await page.route('**/professionReference.snapshot-*.json',route=> fail ? route.abort() : route.continue())
   await page.goto('/journey#journey-craftables')
-  await page.getByRole('button',{name:'Standard professions (907)',exact:true}).click()
+  await page.getByRole('button',{name:'Standard + Gathering (932)',exact:true}).click()
   await expect(page.getByRole('alert')).toContainText('could not be loaded')
   fail=false
   await page.getByRole('button',{name:'Retry reference'}).click()
