@@ -1,5 +1,6 @@
 import './material-source-evidence.css'
 import { MaterialSourceButton, MaterialSourcePanel, MaterialSourceBrowser } from './MaterialSources'
+import { CraftingTreeWorkspace } from './CraftingTreeWorkspace'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import {
   AlertTriangle,
@@ -499,12 +500,7 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
         </div>
       )}
 
-      {tab === 'tree' && (
-        <section className="panel tree-panel enter">
-          <div className="section-head workbench-section-head"><div><small>DEPENDENCY GRAPH</small><h2>Interactive crafting tree</h2></div><span className="quiet-note">Expand dependencies or inspect any material in Materials</span></div>
-          {!trees.length ? <EmptyState title="No tree to show" body="Add one or more craftables to the plan first." /> : <div className="craft-tree">{trees.map((tree) => <TreeNode node={tree} onOpenMaterial={onOpenMaterial} key={tree.id} />)}</div>}
-        </section>
-      )}
+      {tab === 'tree' && <CraftingTreeWorkspace trees={trees} onOpenMaterial={onOpenMaterial} onSetPlannerTab={setTab} />}
 
       {tab === 'ready' && (
         <div className="workbench-grid inventory-ready-grid enter">
