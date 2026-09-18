@@ -649,7 +649,29 @@ export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }
           <InventoryInput material={material} inventory={inventory} setInventory={setInventory} />
         </div>
 
-        {recipe ? <><div className="section-head workbench-section-head"><div><small>{recipe.quantityExplicit ? 'CAPTURED RECIPE' : 'CAPTURED INPUTS / YIELD UNRESOLVED'}</small><h3>Recorded inputs</h3></div><span className={`yield-chip ${recipe.quantityExplicit ? '' : 'unresolved'}`}>{recipe.quantityExplicit ? `Produces ×${recipe.outputQuantity}` : 'Yield unresolved'}</span></div><RecipeRows rows={recipe.materials} onOpenMaterial={openMaterial} />{!recipe.quantityExplicit && <div className="planner-evidence-warning compact" role="note"><AlertTriangle size={18} aria-hidden="true" /><div><strong>Not used in planner math</strong><p>The source records the inputs but not a trustworthy output quantity. The planner stops at this material instead of assuming one.</p></div></div>} : <div className="callout"><Gem size={18} /><p>Base material in the current dependency graph. No crafting recipe is recorded for it.</p></div>}
+        {recipe ? (
+          <>
+            <div className="section-head workbench-section-head">
+              <div>
+                <small>{recipe.quantityExplicit ? 'CAPTURED RECIPE' : 'CAPTURED INPUTS / YIELD UNRESOLVED'}</small>
+                <h3>Recorded inputs</h3>
+              </div>
+              <span className={`yield-chip ${recipe.quantityExplicit ? '' : 'unresolved'}`}>{recipe.quantityExplicit ? `Produces ×${recipe.outputQuantity}` : 'Yield unresolved'}</span>
+            </div>
+            <RecipeRows rows={recipe.materials} onOpenMaterial={openMaterial} />
+            {!recipe.quantityExplicit && (
+              <div className="planner-evidence-warning compact" role="note">
+                <AlertTriangle size={18} aria-hidden="true" />
+                <div>
+                  <strong>Not used in planner math</strong>
+                  <p>The source records the inputs but not a trustworthy output quantity. The planner stops at this material instead of assuming one.</p>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="callout"><Gem size={18} /><p>Base material in the current dependency graph. No crafting recipe is recorded for it.</p></div>
+        )}
 
         <>{!material.craftable && !recipe && <MaterialSourcePanel name={material.name} />}</><details className="evidence-card" open={Boolean(recipe)}>
           <summary><span><BadgeCheck size={17} />Recipe verification & evidence</span><ChevronRight size={16} /></summary>
