@@ -56,6 +56,15 @@ for (const width of [320,390,768,1024,1440]) test(`standard recipe layout reflow
   await page.setViewportSize({width,height:900})
   const reference=await openReference(page)
   await reference.getByLabel('Search standard tasks or ingredients').fill('Honey')
+  if (width <= 680) {
+    const filters = await reference.locator('.profession-reference-filters').boundingBox()
+    expect(filters).not.toBeNull()
+    for (const name of ['Reference profession','Recorded task level']) {
+      const control = await reference.getByRole('combobox',{name,exact:true}).boundingBox()
+      expect(control).not.toBeNull()
+      expect(control!.width, `${name} must use the phone reading width`).toBeGreaterThanOrEqual(filters!.width - 1)
+    }
+  }
   const row=reference.locator('.profession-reference-row').filter({has:page.getByText('Honey',{exact:true})}).first()
   await row.locator('summary').first().click()
   await row.scrollIntoViewIfNeeded()
