@@ -2,6 +2,7 @@ import './material-source-evidence.css'
 import { MaterialSourceButton, MaterialSourcePanel, MaterialSourceBrowser } from './MaterialSources'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import {
+  AlertTriangle,
   BadgeCheck,
   Boxes,
   Check,
@@ -32,6 +33,7 @@ import {
   calculateCraftingPlan,
   calculateInventoryAwarePlan,
   calculateNaiveRawRequirements,
+  isRecipePlannable,
   type CraftSequenceStep,
   type CraftTreeNode,
   type InventoryRecord,
@@ -143,7 +145,10 @@ function SourceBadge({ value }: { value: string }) {
 
 function VerificationBadge({ recipe }: { recipe?: RecipeEntry }) {
   if (!recipe) return null
-  const screenshotBacked = recipe.quantityExplicit && (recipe.sourceStatus.includes('final-zip') || recipe.sourceStatus === 'latest-user-screenshot')
+  if (!recipe.quantityExplicit) {
+    return <span className="verification-badge unresolved"><AlertTriangle size={13} aria-hidden="true" />Yield unresolved</span>
+  }
+  const screenshotBacked = recipe.sourceStatus.includes('final-zip') || recipe.sourceStatus === 'latest-user-screenshot'
   return (
     <span className={`verification-badge ${screenshotBacked ? 'verified' : 'supplemental'}`}>
       <BadgeCheck size={13} aria-hidden="true" />
@@ -216,7 +221,7 @@ function InventoryEditor({ inventory, setInventory }: { inventory: InventoryReco
         {filtered.map((material) => (
           <div className="inventory-row" key={material.name}>
             <Icon src={material.icon} alt={material.name} size={38} />
-            <div className="grow"><strong>{material.name}</strong><small>{material.craftable ? `Craftable · yields ${material.outputQuantity || 1}` : 'Raw material'}</small></div>
+            <div className="grow"><strong>{material.name}</strong><small>{material.craftable ? (isRecipePlannable(recipeByName.get(norm(material.name))) ? `Craftable · yields ${recipeByName.get(norm(material.name))?.outputQuantity}` : 'Craftable · yield unresolved') : 'Raw material'}</small></div>
             <InventoryInput material={material} inventory={inventory} setInventory={setInventory} />
           </div>
         ))}
@@ -250,7 +255,9 @@ function TreeNode({ node, depth = 0, onOpenMaterial }: { node: CraftTreeNode; de
             {node.kind === 'item'
               ? `${node.required} final craft${node.required === 1 ? '' : 's'}`
               : node.craftable
-                ? `${node.crafts} craft${node.crafts === 1 ? '' : 's'} · yield ${node.outputPerCraft} · ${node.leftover || 0} leftover`
+                ? node.crafts == null
+                  ? 'Yield unresolved · planner stops here'
+                  : `${node.crafts} craft${node.crafts === 1 ? '' : 's'} · yield ${node.outputPerCraft} · ${node.leftover || 0} leftover`
                 : 'Raw material'}
           </small>
         </div>
@@ -275,7 +282,7 @@ function RecipeRows({ rows, onOpenMaterial }: { rows: Array<{ name: string; requ
         return (
           <div className={`recipe-row ${canOpen ? 'has-drilldown' : ''}`} key={row.name}>
             <Icon src={material?.icon} alt={row.name} size={42} />
-            <div className="recipe-row-copy"><strong>{row.name}</strong><small>{material?.craftable ? `${material.profession || 'Crafted'} · yields ${material.outputQuantity || 1}` : 'Raw material'}</small></div>
+            <div className="recipe-row-copy"><strong>{row.name}</strong><small>{material?.craftable ? (isRecipePlannable(recipeByName.get(norm(row.name))) ? `${material.profession || 'Crafted'} · yields ${recipeByName.get(norm(row.name))?.outputQuantity}` : `${material.profession || 'Crafted'} · yield unresolved`) : 'Raw material'}</small></div>
             <div className="recipe-row-actions"><b>×{row.required}</b>{!material?.craftable && <MaterialSourceButton name={row.name} />}{canOpen && <button className="craftable-indicator" onClick={() => onOpenMaterial?.(row.name)}><Hammer size={13} />Craftable<ChevronRight size={14} /></button>}</div>
           </div>
         )
@@ -344,17 +351,19 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
   const readiness = useMemo(() => catalog.items.filter((item) => item.recipeKnown !== false && item.materials.length > 0).map((item) => {
     const plan = calculateInventoryAwarePlan([{ item, quantity: 1 }], catalog.recipes, inventory)
     const missingUnits = plan.missingRaw.reduce((sum, row) => sum + row.required, 0)
-    return { item, plan, missingUnits, ready: plan.missingRaw.length === 0 }
+    const unresolvedUnits = plan.unresolved.reduce((sum, row) => sum + row.required, 0)
+    return { item, plan, missingUnits: missingUnits + unresolvedUnits, ready: plan.missingRaw.length === 0 && plan.unresolved.length === 0 }
   }).sort((a, b) => Number(b.ready) - Number(a.ready) || a.missingUnits - b.missingUnits || a.item.name.localeCompare(b.item.name)), [inventoryKey])
 
   const materialReadiness = useMemo(() => catalog.materials
     .filter((material) => material.craftable)
     .map((material) => {
       const recipe = recipeByName.get(norm(material.name))
-      if (!recipe) return null
+      if (!recipe || !isRecipePlannable(recipe)) return null
       const plan = calculateInventoryAwarePlan([materialRecipeSelection(material, recipe)], catalog.recipes, inventory)
       const missingUnits = plan.missingRaw.reduce((sum, row) => sum + row.required, 0)
-      return { material, recipe, plan, missingUnits, ready: plan.missingRaw.length === 0 }
+      const unresolvedUnits = plan.unresolved.reduce((sum, row) => sum + row.required, 0)
+      return { material, recipe, plan, missingUnits: missingUnits + unresolvedUnits, ready: plan.missingRaw.length === 0 && plan.unresolved.length === 0 }
     })
     .filter((row): row is NonNullable<typeof row> => Boolean(row))
     .sort((a, b) => Number(b.ready) - Number(a.ready) || a.missingUnits - b.missingUnits || a.material.name.localeCompare(b.material.name)), [inventoryKey])
@@ -467,6 +476,10 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
                   <div><span>Raw types missing</span><strong>{inventoryPlan.missingRaw.length}</strong></div>
                   <div><span>Inventory units used</span><strong>{inventoryPlan.inventoryUsed.reduce((sum, row) => sum + row.required, 0)}</strong></div>
                 </div>
+                {inventoryPlan.unresolved.length > 0 && <div className="planner-evidence-warning" role="alert">
+                  <AlertTriangle size={18} aria-hidden="true" />
+                  <div><strong>Plan paused at unresolved recipe yields</strong><p>The Vault will not assume one output per craft. Verify these yields or enter enough finished intermediate stock to continue:</p><ul>{inventoryPlan.unresolved.map((row) => <li key={row.name}><span>{row.name}</span><b>need ×{row.required}</b></li>)}</ul></div>
+                </div>}
                 {savings.length > 0 && <div className="optimization-savings"><strong>Saved by combining batches</strong>{savings.map((row) => <span key={row.name}>{row.name}<b>−{row.saved}</b></span>)}</div>}
                 <h3 className="subhead">Raw-material availability</h3>
                 <div className="availability-list">
@@ -495,7 +508,7 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
               <div className="ready-list">{readyItems.map(({ item }) => <div className="ready-card" key={item.id}><Icon src={item.icon} alt={item.name} size={44} /><div className="grow"><strong>{item.name}</strong><small>{item.profession || item.kind}</small></div><span><Check size={14} />Ready</span><button onClick={() => changeQuantity(item.id, Math.max(1, selected.get(item.id) || 0) + (selected.has(item.id) ? 1 : 0))}>{selected.has(item.id) ? '+1 to plan' : 'Add to plan'}</button></div>)}</div>
             )}
             <h3 className="subhead">Closest final craftables</h3>
-            <div className="near-ready-list">{nearItems.map(({ item, plan, missingUnits }) => <div className="near-ready-row" key={item.id}><Icon src={item.icon} alt={item.name} size={38} /><div className="grow"><strong>{item.name}</strong><small>{plan.missingRaw.slice(0, 3).map((row) => `${row.name} ×${row.required}`).join(' · ')}</small></div><b>{missingUnits} units short</b></div>)}</div>
+            <div className="near-ready-list">{nearItems.map(({ item, plan, missingUnits }) => <div className="near-ready-row" key={item.id}><Icon src={item.icon} alt={item.name} size={38} /><div className="grow"><strong>{item.name}</strong><small>{[...plan.unresolved, ...plan.missingRaw].slice(0, 3).map((row) => `${row.name} ×${row.required}`).join(' · ')}</small></div><b>{missingUnits} units short</b></div>)}</div>
 
             <h3 className="subhead">Craftable materials</h3>
             {readyMaterials.length > 0 && <div className="ready-list">{readyMaterials.map(({ material, recipe }) => <div className="ready-card ready-material-card" key={material.name}><Icon src={material.icon} alt={material.name} size={44} /><div className="grow"><strong>{material.name}</strong><small>{material.profession || recipe.profession || 'Crafted material'} · produces ×{recipe.outputQuantity}</small></div><span><Check size={14} />Ready</span></div>)}</div>}
@@ -618,22 +631,22 @@ export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }
     <div className="materials materials-workbench enter">
       <section className="panel materials-browser"><MaterialSourceBrowser names={catalog.materials.filter((row) => !row.craftable && !recipeByName.has(norm(row.name))).map((row) => row.name)} />
         <label className="search"><Search size={17} /><input aria-label="Search materials" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search materials…" /></label>
-        <div className="material-list">{filtered.map((row) => <button key={row.name} className={material.name === row.name ? 'active' : ''} onClick={() => chooseMaterial(row.name)}><Icon src={row.icon} alt={row.name} size={40} /><span><strong>{row.name}</strong><small>{row.craftable ? `${row.profession || 'Crafted'} · yield ${row.outputQuantity || 1}` : 'Raw material'}</small></span></button>)}</div>
+        <div className="material-list">{filtered.map((row) => <button key={row.name} className={material.name === row.name ? 'active' : ''} onClick={() => chooseMaterial(row.name)}><Icon src={row.icon} alt={row.name} size={40} /><span><strong>{row.name}</strong><small>{row.craftable ? (isRecipePlannable(recipeByName.get(norm(row.name))) ? `${row.profession || 'Crafted'} · yield ${recipeByName.get(norm(row.name))?.outputQuantity}` : `${row.profession || 'Crafted'} · yield unresolved`) : 'Raw material'}</small></span></button>)}</div>
       </section>
 
       <section className="panel material-intelligence">
         {history.length > 0 && <div className="drilldown-nav"><button className="drilldown-back" onClick={goBack}><ChevronLeft size={18} />Back</button><span>Back to {history[history.length - 1]}</span></div>}
         <div className="material-intelligence-head">
-          <div className="detail-head"><Icon src={material.icon} alt={material.name} size={76} /><div className="grow"><div className="pills"><SourceBadge value={material.sourceStatus} />{recipe && <VerificationBadge recipe={recipe} />}</div><h2 ref={detailHeading} tabIndex={-1} className="material-selection-heading">{material.name}</h2><p>{material.craftable ? `${material.profession || recipe?.profession || 'Crafted material'} · output ${material.outputQuantity || recipe?.outputQuantity || 1}` : 'Raw / acquired material'}</p></div></div>
+          <div className="detail-head"><Icon src={material.icon} alt={material.name} size={76} /><div className="grow"><div className="pills"><SourceBadge value={material.sourceStatus} />{recipe && <VerificationBadge recipe={recipe} />}</div><h2 ref={detailHeading} tabIndex={-1} className="material-selection-heading">{material.name}</h2><p>{material.craftable ? `${material.profession || recipe?.profession || 'Crafted material'} · ${isRecipePlannable(recipe) ? `output ${recipe.outputQuantity}` : 'output yield unresolved'}` : 'Raw / acquired material'}</p></div></div>
           <InventoryInput material={material} inventory={inventory} setInventory={setInventory} />
         </div>
 
-        {recipe ? <><div className="section-head workbench-section-head"><div><small>EXACT RECIPE</small><h3>Inputs for one craft</h3></div><span className="yield-chip">Produces ×{recipe.outputQuantity}</span></div><RecipeRows rows={recipe.materials} onOpenMaterial={openMaterial} /></> : <div className="callout"><Gem size={18} /><p>Base material in the current dependency graph. No crafting recipe is recorded for it.</p></div>}
+        {recipe ? <><div className="section-head workbench-section-head"><div><small>{recipe.quantityExplicit ? 'CAPTURED RECIPE' : 'CAPTURED INPUTS / YIELD UNRESOLVED'}</small><h3>Recorded inputs</h3></div><span className={`yield-chip ${recipe.quantityExplicit ? '' : 'unresolved'}`}>{recipe.quantityExplicit ? `Produces ×${recipe.outputQuantity}` : 'Yield unresolved'}</span></div><RecipeRows rows={recipe.materials} onOpenMaterial={openMaterial} />{!recipe.quantityExplicit && <div className="planner-evidence-warning compact" role="note"><AlertTriangle size={18} aria-hidden="true" /><div><strong>Not used in planner math</strong><p>The source records the inputs but not a trustworthy output quantity. The planner stops at this material instead of assuming one.</p></div></div>} : <div className="callout"><Gem size={18} /><p>Base material in the current dependency graph. No crafting recipe is recorded for it.</p></div>}
 
         <>{!material.craftable && !recipe && <MaterialSourcePanel name={material.name} />}</><details className="evidence-card" open={Boolean(recipe)}>
           <summary><span><BadgeCheck size={17} />Recipe verification & evidence</span><ChevronRight size={16} /></summary>
           <div className="evidence-body">
-            <div className="evidence-grid"><div><span>Recipe state</span><strong>{recipe ? (screenshotBacked ? 'Screenshot-backed' : 'Supplemental') : 'No recipe'}</strong></div><div><span>Output quantity</span><strong>{recipe ? `×${recipe.outputQuantity}` : 'N/A'}</strong></div><div><span>Quantity explicit</span><strong>{recipe ? (recipe.quantityExplicit ? 'Yes' : 'No') : 'N/A'}</strong></div><div><span>Source</span><strong>{recipe ? recipe.sourceStatus : material.sourceStatus}</strong></div></div>
+            <div className="evidence-grid"><div><span>Recipe state</span><strong>{recipe ? (!recipe.quantityExplicit ? 'Inputs captured · yield unresolved' : screenshotBacked ? 'Screenshot-backed' : 'Supplemental') : 'No recipe'}</strong></div><div><span>Output quantity</span><strong>{recipe ? (recipe.quantityExplicit ? `×${recipe.outputQuantity}` : 'Unknown') : 'N/A'}</strong></div><div><span>Quantity explicit</span><strong>{recipe ? (recipe.quantityExplicit ? 'Yes' : 'No') : 'N/A'}</strong></div><div><span>Source</span><strong>{recipe ? recipe.sourceStatus : material.sourceStatus}</strong></div></div>
             {recipe?.evidence?.length ? <ul>{recipe.evidence.map((line) => <li key={line}>{line}</li>)}</ul> : <p>No recipe-specific evidence record is attached.</p>}
             {material.name === 'Soul Bead' && catalog.meta.soulBeadResolution && <div className="evidence-conflict"><strong>Soul Bead conflict resolution</strong><p>{catalog.meta.soulBeadResolution}</p></div>}
           </div>
