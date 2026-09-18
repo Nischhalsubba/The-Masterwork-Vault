@@ -33,3 +33,9 @@ Nine source-linked chapters cover Workshop access; the first gathering/crafting 
 The public claim ledger, dates, primary publisher links, creator sources and limitations are in `mobile-journey-review.md` and `src/data/journeyKnowledge.ts`. The expensive progression and morale assumptions removed from current-value fields must not be silently restored without new evidence.
 
 **Not complete:** the full standard Level 1-20 and Chultan recipe inventories, all current per-item values, and a verified statement of the latest 2026 Masterwork tier. Existing Masterwork source uncertainties also remain. The UI documents these boundaries; 177 captured outputs must never be advertised as every recipe in the game.
+
+## 18 September 2026 research-completion addendum
+
+The Journey library now has three deliberately separated collections: the screenshot-backed Masterwork catalog, the 907-task standard-professions community snapshot, and a source-bounded Masterwork research reference. The Masterwork reference adds 16 Chultan intermediate ratios and 18 class weapon-slot formulas from the replacement community worksheet, but does not feed those historical formulas into planner calculations.
+
+Targeted 2026 publisher review did not verify a Masterwork tier after Menzoberranzan. The UI therefore uses the narrower wording “latest positively documented tier” and explicitly says that absence from the reviewed roadmap/release articles is not proof that a later tier does not exist. Current Chultan final-output completeness and several current access/binding gates remain honest unknowns instead of guessed requirements.

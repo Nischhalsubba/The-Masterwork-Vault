@@ -3,9 +3,7 @@
   "private": true,
   "version": "0.2.0",
   "type": "module",
-  "engines": {
-    "node": "24.x"
-  },
+  "engines": { "node": "24.x" },
   "packageManager": "npm@11.17.0",
   "scripts": {
     "predev": "npm run prebuild",
@@ -15,28 +13,19 @@
     "verify:recipes": "node scripts/verify-material-recipes.mjs",
     "verify:knowledge": "node scripts/verify-knowledge.mjs",
     "test:domain": "node --experimental-strip-types scripts/verify-domain-math.mjs",
-    "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain && npm run verify:journey",
+    "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain && npm run verify:journey && npm run verify:reference",
     "build": "npm run verify:release && tsc -b && vite build",
     "preview": "vite preview",
     "test:e2e": "npm run build && playwright test",
     "test:e2e:update": "npm run build && playwright test --update-snapshots",
     "test:quality": "npm run test:e2e",
-    "verify:journey": "node --experimental-strip-types scripts/verify-journey.mjs"
+    "verify:journey": "node --experimental-strip-types scripts/verify-journey.mjs",
+    "verify:reference": "node --experimental-strip-types scripts/verify-profession-reference.mjs"
   },
   "dependencies": {
-    "gsap": "3.15.0",
-    "lucide-react": "1.27.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "three": "0.185.1"
+    "gsap": "3.15.0", "lucide-react": "1.27.0", "react": "19.2.8", "react-dom": "19.2.8", "three": "0.185.1"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
-    "@types/three": "0.185.3",
-    "@vitejs/plugin-react": "6.0.4",
-    "typescript": "7.0.2",
-    "vite": "8.1.5"
+    "@playwright/test": "1.62.1", "@types/react": "19.2.18", "@types/react-dom": "19.2.4", "@types/three": "0.185.3", "@vitejs/plugin-react": "6.0.4", "typescript": "7.0.2", "vite": "8.1.5"
   }
 }

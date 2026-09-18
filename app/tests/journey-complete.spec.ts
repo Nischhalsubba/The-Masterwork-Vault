@@ -40,6 +40,39 @@ test('journey uses all captured outputs without inventing missing recipes', asyn
   await expect(library.locator('.journey-output')).toHaveCount(30)
 })
 
+
+test('masterwork research reference exposes Chultan formulas without overstating current coverage', async ({ page }) => {
+  await page.goto('/journey#journey-craftables')
+  const library = page.locator('#journey-craftables')
+  await library.getByRole('button', { name: /Masterwork research/ }).click()
+  await expect(library).toContainText('18 weapon-slot formulas')
+  await expect(library).toContainText('16 intermediate recipes')
+  await expect(library).toContainText('Masterwork IV and V')
+  await expect(library).toContainText('Menzoberranzan is the latest tier positively documented')
+  await expect(library).toContainText('No later tier was verified')
+  await expect(library).toContainText('current complete Chultan I / II final-output inventory is not established')
+  const publisherLinks = library.locator('a[href*="11500323"]')
+  const worksheetLinks = library.locator('a[href*="1gYsenO0JX3fOkZrSxgyJ7fdiBPK_dcs96sP3blUra44"]')
+  await expect(publisherLinks).toHaveCount(2)
+  await expect(publisherLinks.first()).toBeVisible()
+  await expect(worksheetLinks).toHaveCount(2)
+  await expect(worksheetLinks.first()).toBeVisible()
+})
+
+for (const width of [320, 768, 1440]) {
+  test(`masterwork research reference reflows at ${width}px`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === 'phone', 'Explicit viewport matrix runs once')
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/journey#journey-craftables')
+    const library = page.locator('#journey-craftables')
+    await library.getByRole('button', { name: /Masterwork research/ }).click()
+    await library.scrollIntoViewIfNeeded()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1)
+    await expect(library.getByRole('heading', { name: 'Masterwork lineage and Chultan evidence' })).toBeVisible()
+    await page.screenshot({ path: testInfo.outputPath(`journey-masterwork-research-${width}.png`) })
+  })
+}
+
 test('journey budgets are published scenarios and paid morale needs an entered rate', async ({ page }) => {
   await page.goto('/journey#journey-planning')
   const planning = page.locator('#journey-planning')

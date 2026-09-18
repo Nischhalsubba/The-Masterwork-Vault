@@ -1,0 +1,98 @@
+import { useMemo, useState } from 'react'
+import { ArrowUpRight, ChevronDown, Search } from 'lucide-react'
+import {
+  MASTERWORK_RESEARCH_REVIEWED_AT,
+  chultanIntermediateFormulas,
+  chultanWeaponSlots,
+  masterworkResearchLimits,
+  masterworkResearchSources,
+  masterworkTierAssessment,
+} from '../data/masterworkResearch'
+
+function SourceLink({ id }: { id: string }) {
+  const source = masterworkResearchSources.find((row) => row.id === id)
+  if (!source) return null
+  return <a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}<ArrowUpRight size={14} aria-hidden="true" /><span className="acquisition-sr-only"> (opens in a new tab)</span></a>
+}
+
+export function MasterworkResearchReference() {
+  const [query, setQuery] = useState('')
+  const search = query.trim().toLocaleLowerCase('en')
+  const formulas = useMemo(() => chultanIntermediateFormulas.filter((row) => !search || [row.name, ...row.inputs.map((item) => item.name)].join(' ').toLocaleLowerCase('en').includes(search)), [search])
+  const weaponSlots = useMemo(() => chultanWeaponSlots.filter((row) => !search || [row.slot, ...row.inputs.map((item) => item.name)].join(' ').toLocaleLowerCase('en').includes(search)), [search])
+
+  return <section className="masterwork-research" aria-labelledby="masterwork-research-heading">
+    <div className="journey-section-intro">
+      <span className="journey-kicker">MASTERWORK / EVIDENCE MAP</span>
+      <h2 id="masterwork-research-heading">Masterwork lineage and Chultan evidence</h2>
+      <p>Follow what is publisher-documented, what is preserved from post-rework community formulas, and what still needs an in-game verification. Historical rows never enter planner totals automatically.</p>
+    </div>
+
+    <div className="journey-coverage" aria-label="Masterwork research coverage">
+      <span><strong>{chultanWeaponSlots.length}</strong> weapon-slot formulas</span>
+      <span><strong>{chultanIntermediateFormulas.length}</strong> intermediate recipes</span>
+      <span><strong>{masterworkResearchSources.length}</strong> attributable sources</span>
+      <span><strong>{MASTERWORK_RESEARCH_REVIEWED_AT}</strong> research review</span>
+    </div>
+
+    <section className="masterwork-tier-status" aria-labelledby="masterwork-tier-status-heading">
+      <span className="journey-kicker">LATEST POSITIVELY DOCUMENTED TIER</span>
+      <h3 id="masterwork-tier-status-heading">{masterworkTierAssessment.latestPositivelyDocumented}</h3>
+      <p>{masterworkTierAssessment.note}</p>
+      <div className="masterwork-source-links"><SourceLink id="menzoberranzan-2023-forum" /><SourceLink id="arc-2026-roadmap" /><SourceLink id="arc-2026-biting-cold" /><SourceLink id="arc-2026-monoliths" /></div>
+    </section>
+
+    <section className="masterwork-lineage" aria-labelledby="masterwork-lineage-heading">
+      <div className="journey-section-intro compact"><span className="journey-kicker">THE LINEAGE</span><h3 id="masterwork-lineage-heading">Separate the eras before you spend AD.</h3></div>
+      <div className="masterwork-lineage-grid">
+        <article><small>Legacy / historical</small><h4>Masterwork I–III</h4><p>Older Stronghold-era books and questlines. Do not use old profession levels or quest gates as current requirements.</p></article>
+        <article><small>Renamed in 2021</small><h4>Chultan Masterwork I & II</h4><p>The publisher renamed Masterwork IV and V to Chultan Masterwork and changed book acquisition and recipes. The exact complete 2026 Chultan output list is not publicly reverified.</p><SourceLink id="publisher-2021-masterwork-rework" /></article>
+        <article><small>Later tier</small><h4>Sharandar Masterwork</h4><p>Comes after the Chultan line in the researched progression. Current minimum cross-profession and binding rules remain verification-sensitive.</p></article>
+        <article><small>Latest positively documented</small><h4>Menzoberranzan Masterwork</h4><p>Documented in 2023 release-era material and preserved by this Vault's Underdark catalog. A newer tier was not verified in the reviewed 2026 sources.</p><SourceLink id="menzoberranzan-2023-forum" /></article>
+      </div>
+    </section>
+
+    <aside className="masterwork-research-warning" role="note">
+      <h3>What is deliberately not guessed</h3>
+      <ul>{masterworkResearchLimits.map((text) => <li key={text}>{text}</li>)}</ul>
+    </aside>
+
+    <div className="masterwork-reference-search">
+      <label><span>Search Chultan formulas</span><span className="journey-library-search"><Search size={17} aria-hidden="true" /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try Soulfired Obsidian or Barbarian" /></span></label>
+      {query && <button type="button" onClick={() => setQuery('')}>Clear search</button>}
+    </div>
+
+    <section aria-labelledby="chultan-intermediate-heading">
+      <div className="journey-section-intro compact">
+        <span className="journey-kicker">CHULTAN WORKED MATERIALS</span>
+        <h3 id="chultan-intermediate-heading">Intermediate recipes recorded by the post-rework weapon worksheet.</h3>
+        <p>Ratios are read directly from the worksheet formulas. They are historical reference evidence and are intentionally excluded from current planner calculations until live reverified.</p>
+      </div>
+      <div className="masterwork-source-links"><SourceLink id="chultan-weapon-sheet" /><SourceLink id="chultan-2023-field-guide" /></div>
+      <p className="journey-library-result" role="status">{formulas.length} matching intermediate recipes / {chultanIntermediateFormulas.length}</p>
+      <div className="masterwork-research-list">
+        {formulas.map((row) => <details className="journey-output" key={row.name}>
+          <summary><span><small>Chultan / historical worksheet formula</small><strong>{row.name}</strong><small>Recorded yield ×{row.outputQuantity}</small></span><span className="journey-recipe-state">Reference only</span><ChevronDown size={18} aria-hidden="true" /></summary>
+          <div className="journey-output-detail"><h4>Inputs for one recorded batch</h4><ul className="journey-input-list">{row.inputs.map((input) => <li key={input.name}><span><strong>{input.name}</strong><b>×{input.quantity}</b></span></li>)}</ul><p className="journey-data-note">Do not use this historical worksheet ratio as a live 2026 cost until the recipe is confirmed in-game.</p></div>
+        </details>)}
+      </div>
+    </section>
+
+    <section aria-labelledby="chultan-weapons-heading">
+      <div className="journey-section-intro compact">
+        <span className="journey-kicker">CHULTAN WEAPON FORMULAS</span>
+        <h3 id="chultan-weapons-heading">Class slot formulas preserved without inventing item names.</h3>
+        <p>The source names these as class main-hand/off-hand slots rather than reliable canonical item names, so this reference keeps the slot labels exactly at that confidence level.</p>
+      </div>
+      <p className="journey-library-result" role="status">{weaponSlots.length} matching weapon-slot formulas / {chultanWeaponSlots.length}</p>
+      <div className="masterwork-weapon-grid">
+        {weaponSlots.map((row) => <article key={row.slot}><h4>{row.slot}</h4><ul>{row.inputs.map((input) => <li key={input.name}><span>{input.name}</span><b>×{input.quantity}</b></li>)}</ul></article>)}
+      </div>
+    </section>
+
+    <section className="masterwork-research-sources" aria-labelledby="masterwork-research-sources-heading">
+      <div className="journey-section-intro compact"><span className="journey-kicker">SOURCE LEDGER</span><h3 id="masterwork-research-sources-heading">Why each claim is allowed to appear.</h3></div>
+      {masterworkResearchSources.map((source) => <article key={source.id}><div><strong>{source.label}</strong><span className={`mw-status-chip ${source.status === 'unresolved' ? 'unknown' : 'reviewed'}`}>{source.status.replaceAll('-', ' ')}</span></div><p>{source.supports}</p><small>{source.publishedAt ? `Published ${source.publishedAt} · ` : ''}Reviewed {MASTERWORK_RESEARCH_REVIEWED_AT}. {source.limitation}</small><a href={source.url} target="_blank" rel="noopener noreferrer">Open source<ArrowUpRight size={14} aria-hidden="true" /></a></article>)}
+    </section>
+  </section>
+}

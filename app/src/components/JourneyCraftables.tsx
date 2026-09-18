@@ -4,6 +4,8 @@ import catalogJson from '../data/catalog'
 import type { CatalogData } from '../types'
 import { buildJourneyCraftables, journeyItemHref, matchesJourneyCraftable, type JourneyCraftable } from '../domain/journeyCatalog'
 import { MaterialSourceButton } from './MaterialSources'
+import { ProfessionReference } from './ProfessionReference'
+import { MasterworkResearchReference } from './MasterworkResearchReference'
 
 const catalog = catalogJson as CatalogData
 const pageSize = 30
@@ -22,7 +24,7 @@ function CraftableRow({ row }: { row: JourneyCraftable }) {
   </details>
 }
 
-export function JourneyCraftables() {
+function CapturedCraftables() {
   const rows = useMemo(() => buildJourneyCraftables(catalog), [])
   const [query, setQuery] = useState('')
   const [campaign, setCampaign] = useState('All')
@@ -35,13 +37,25 @@ export function JourneyCraftables() {
   const update = (setter: (value: string) => void, value: string) => { setter(value); setLimit(pageSize) }
   const missing = rows.filter((row) => !row.recipeCaptured).length
   const reset = () => { setQuery(''); setCampaign('All'); setProfession('All'); setKind('All'); setLimit(pageSize) }
-  return <section id="journey-craftables" className="journey-library" aria-labelledby="journey-library-heading">
+  return <section className="journey-library" aria-labelledby="journey-library-heading">
     <div className="journey-section-intro"><span className="journey-kicker">CRAFTABLE LIBRARY</span><h2 id="journey-library-heading">Every output captured in this Vault.</h2><p>Browse final items, intermediate materials, tools, potions and supplements. Expand a record for its inputs, yield and source status.</p></div>
     <div className="journey-coverage" aria-label="Craftable coverage"><span><strong>{catalog.items.length}</strong> item records</span><span><strong>{catalog.recipes.length}</strong> recipe records</span><span><strong>{rows.length}</strong> distinct named outputs</span><span><strong>{missing}</strong> missing recipes</span></div>
-    <p className="journey-data-note">Coverage is the current Underdark and Sharandar catalog, not every recipe in the game. Standard Level 1-20 and Chultan inventories are not yet fully captured. Unrecorded professions and yields stay visible as unknown; the catalog is not a live patch certification.</p>
+    <p className="journey-data-note">Coverage is the current Underdark and Sharandar catalog, not every recipe in the game. The Standard professions collection is a separate community reference. An exhaustive current Chultan inventory is not yet verified. Unrecorded professions and yields stay visible as unknown; the catalog is not a live patch certification.</p>
     <div className="journey-library-filters"><label className="journey-library-search"><span>Search craftables or ingredients</span><span><Search size={17} aria-hidden="true" /><input type="search" value={query} onChange={(event) => update(setQuery,event.target.value)} placeholder="Item, ingredient or class" /></span></label><label><span>Collection</span><select aria-label="Collection" value={campaign} onChange={(event) => update(setCampaign,event.target.value)}><option>All</option><option>Underdark</option><option>Sharandar</option></select></label><label><span>Crafting profession</span><select aria-label="Crafting profession" value={profession} onChange={(event) => update(setProfession,event.target.value)}><option>All</option>{professions.map((name) => <option key={name}>{name}</option>)}</select></label><label><span>Output type</span><select aria-label="Output type" value={kind} onChange={(event) => update(setKind,event.target.value)}><option>All</option>{kinds.map((name) => <option key={name}>{name}</option>)}</select></label></div>
     <div className="journey-library-result"><p role="status">{visible.length} matching outputs / {rows.length} captured</p>{(query || campaign !== 'All' || profession !== 'All' || kind !== 'All') && <button type="button" onClick={reset}>Reset craftable filters</button>}</div>
     {visible.length ? <div className="journey-output-list">{visible.slice(0,limit).map((row) => <CraftableRow key={row.key} row={row} />)}</div> : <p className="journey-data-note">No captured outputs match these filters. Reset filters or search an ingredient name.</p>}
     {visible.length > limit && <button className="journey-load-more" type="button" onClick={() => setLimit((value) => value + pageSize)}>Show {Math.min(pageSize,visible.length-limit)} more outputs ({limit} of {visible.length} shown)</button>}
+  </section>
+}
+
+export function JourneyCraftables() {
+  const [collection,setCollection] = useState<'vault' | 'standard' | 'research'>('vault')
+  return <section id="journey-craftables" className="journey-library journey-library-collection" aria-label="Craftable library collections">
+    <div className="journey-library-switch" role="group" aria-label="Recipe library collection">
+      <button type="button" aria-pressed={collection==='vault'} onClick={()=>setCollection('vault')}>Masterwork catalog</button>
+      <button type="button" aria-pressed={collection==='standard'} onClick={()=>setCollection('standard')}>Standard professions (907)</button>
+      <button type="button" aria-pressed={collection==='research'} onClick={()=>setCollection('research')}>Masterwork research</button>
+    </div>
+    {collection==='vault' ? <CapturedCraftables /> : collection==='standard' ? <ProfessionReference /> : <MasterworkResearchReference />}
   </section>
 }
