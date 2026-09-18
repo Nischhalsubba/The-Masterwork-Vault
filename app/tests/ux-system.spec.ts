@@ -51,7 +51,7 @@ test('advanced explorer hydrates and writes shareable filter state', async ({ pa
   await expect(search).toHaveValue('Potion')
 })
 
-test('large-result surfaces use progressive rendering and static hero effects', async ({ page }) => {
+test('large-result surfaces use progressive rendering without a marketing hero', async ({ page }) => {
   await page.goto('/explore')
   const resultCount = await page.locator('.mw-explore-count strong').innerText()
   const total = Number(resultCount.replace(/[^0-9]/g, ''))
@@ -60,9 +60,10 @@ test('large-result surfaces use progressive rendering and static hero effects', 
   if (total > 60) await expect(page.locator('.mw-progressive-sentinel')).toBeVisible()
 
   await page.goto('/catalog')
-  await expect(page.locator('.ambient-vault')).toHaveCount(1)
-  await expect(page.locator('.ambient-vault canvas')).toHaveCount(0)
-  await expect(page.locator('.ambient-vault-static')).toHaveCount(1)
+  await expect(page.locator('.hero')).toBeHidden()
+  await expect(page.locator('.ambient-vault')).toHaveCount(0)
+  await expect(page.locator('.mw-core-page-header')).toBeVisible()
+  await expect(page.locator('.collection-switcher')).toBeVisible()
 })
 
 test('comparison explains compatibility, best values, and differences-only mode', async ({ page }) => {
