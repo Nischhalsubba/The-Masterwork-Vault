@@ -55,19 +55,25 @@ export function CraftingTreeWorkspace({ trees, onOpenMaterial, onSetPlannerTab }
   }, [trees, rootId])
 
   useEffect(() => {
-    const app = document.querySelector('.app')
-    const previousAriaHidden = app?.getAttribute('aria-hidden')
+    const appRoot = document.getElementById('root')
+    const previousAriaHidden = appRoot?.getAttribute('aria-hidden')
+    const previousInert = appRoot?.inert ?? false
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    app?.setAttribute('aria-hidden', 'true')
+
+    if (appRoot) {
+      appRoot.setAttribute('aria-hidden', 'true')
+      appRoot.inert = true
+    }
     document.body.classList.add('masterwork-tree-open')
     const frame = requestAnimationFrame(() => headingRef.current?.focus())
 
     return () => {
       cancelAnimationFrame(frame)
       document.body.classList.remove('masterwork-tree-open')
-      if (app) {
-        if (previousAriaHidden == null) app.removeAttribute('aria-hidden')
-        else app.setAttribute('aria-hidden', previousAriaHidden)
+      if (appRoot) {
+        appRoot.inert = previousInert
+        if (previousAriaHidden == null) appRoot.removeAttribute('aria-hidden')
+        else appRoot.setAttribute('aria-hidden', previousAriaHidden)
       }
       requestAnimationFrame(() => {
         if (previousFocus?.isConnected) previousFocus.focus()
