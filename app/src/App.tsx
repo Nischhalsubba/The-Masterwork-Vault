@@ -26,7 +26,7 @@ import spriteDataUri from './data/sprite'
 import { sharandarIconIndex, sharandarSprite } from './data/sharandarSprite'
 import { sharandarWorkshopReference } from './data/sharandarSupplement'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
-import { calculateCraftingPlan, expandSingleMaterial } from './lib/crafting'
+import { calculateCraftingPlan, expandSingleMaterial, isRecipePlannable } from './lib/crafting'
 import { AmbientVault } from './components/AmbientVault'
 import { CraftingWorkbench, ItemRecipeEvidence, MaterialsWorkbench } from './components/CraftingWorkbench'
 
@@ -171,11 +171,12 @@ function MaterialDrilldown({ target, backLabel, onBack, onOpenCraftable }: { tar
     )
   }
 
-  const outputPerCraft = Math.max(1, recipe.outputQuantity || material.outputQuantity || 1)
-  const crafts = Math.ceil(target.required / outputPerCraft)
-  const produced = crafts * outputPerCraft
-  const leftover = produced - target.required
-  const directRows = recipe.materials.map((row) => ({ ...row, required: row.required * crafts }))
+  const yieldKnown = isRecipePlannable(recipe)
+  const outputPerCraft = yieldKnown ? recipe.outputQuantity : null
+  const crafts = outputPerCraft ? Math.ceil(target.required / outputPerCraft) : null
+  const produced = crafts && outputPerCraft ? crafts * outputPerCraft : null
+  const leftover = produced == null ? null : produced - target.required
+  const directRows = yieldKnown && crafts ? recipe.materials.map((row) => ({ ...row, required: row.required * crafts })) : recipe.materials
   const rows = mode === 'direct' ? directRows : expanded.raw
 
   return (
@@ -190,26 +191,26 @@ function MaterialDrilldown({ target, backLabel, onBack, onOpenCraftable }: { tar
         <div className="grow">
           <div className="pills"><Source value={material.sourceStatus} /><CampaignBadge value={recipe.campaign || material.campaign} /><span className="craftable-pill"><Hammer size={12} />Craftable material</span></div>
           <h2>{material.name}</h2>
-          <p>{material.profession || recipe.profession || 'Crafted material'} · yields {outputPerCraft} per craft</p>
+          <p>{material.profession || recipe.profession || 'Crafted material'} · {yieldKnown ? `yields ${outputPerCraft} per craft` : 'output yield unresolved'}</p>
         </div>
       </div>
 
       <div className="drilldown-summary" aria-label="Crafting requirement summary">
         <div><span>Needed here</span><strong>×{target.required}</strong></div>
-        <div><span>Crafts required</span><strong>{crafts}</strong></div>
-        <div><span>Will produce</span><strong>{produced}</strong></div>
-        <div><span>Leftover</span><strong>{leftover}</strong></div>
+        <div><span>Crafts required</span><strong>{crafts ?? 'Unknown'}</strong></div>
+        <div><span>Will produce</span><strong>{produced ?? 'Unknown'}</strong></div>
+        <div><span>Leftover</span><strong>{leftover ?? 'Unknown'}</strong></div>
       </div>
 
       {!recipe.quantityExplicit && (
-        <div className="callout data-caveat"><CircleHelp size={18} /><p>The supplied screenshot does not show this recipe's output quantity. The planner currently uses ×{outputPerCraft} as a conservative fallback until a source shows the yield.</p></div>
+        <div className="callout data-caveat"><CircleHelp size={18} /><p>The source records the inputs but not a trustworthy output quantity. No craft count is calculated, and from-scratch expansion stops here until the yield is verified.</p></div>
       )}
 
       <div className="section-head drilldown-section-head">
-        <div><small>CRAFTING RECIPE</small><h3>{mode === 'direct' ? `Materials for ${crafts} craft${crafts === 1 ? '' : 's'}` : 'From-scratch raw materials'}</h3></div>
+        <div><small>CRAFTING RECIPE</small><h3>{mode === 'direct' ? (yieldKnown ? `Materials for ${crafts} craft${crafts === 1 ? '' : 's'}` : 'Recorded inputs for one craft') : 'From-scratch raw materials'}</h3></div>
         <div className="seg">
           <button className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button>
-          <button className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button>
+          <button className={mode === 'scratch' ? 'active' : ''} disabled={!yieldKnown} title={!yieldKnown ? 'Verify the output yield before expanding this recipe' : undefined} onClick={() => setMode('scratch')}>From scratch</button>
         </div>
       </div>
 
@@ -271,7 +272,7 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
   }, [statsOpen])
 
   const hasRecipe = item.recipeKnown !== false && item.materials.length > 0
-  const calc = useMemo(() => hasRecipe ? calculateCraftingPlan([{ item, quantity: 1 }], catalog.recipes) : { direct: [], raw: [], batches: [] }, [item, hasRecipe])
+  const calc = useMemo(() => hasRecipe ? calculateCraftingPlan([{ item, quantity: 1 }], catalog.recipes) : { direct: [], raw: [], unresolved: [], batches: [] }, [item, hasRecipe])
   const v = item.variants[variant]
   const stats = v?.stats || item.stats || {}
   const itemLevel = v?.itemLevel || item.itemLevel
@@ -327,6 +328,7 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
         <>
           <div className="section-head"><div><small>RAW-MATERIAL COST</small><h3>{mode === 'direct' ? 'Direct recipe' : 'From-scratch requirements'}</h3></div><div className="seg"><button className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button><button className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button></div></div>
           <Recipe rows={mode === 'direct' ? calc.direct : calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined} />
+          {mode === 'scratch' && calc.unresolved.length > 0 && <div className="callout data-caveat"><CircleHelp size={18} /><div><strong>From-scratch total is incomplete</strong><p>The following intermediate yields are unresolved, so the Vault stops rather than assuming one output per craft: {calc.unresolved.map((row) => `${row.name} ×${row.required}`).join(' · ')}.</p></div></div>}
           {mode === 'scratch' && calc.batches.length > 0 && <><h3 className="subhead">Craft batches & leftovers</h3><div className="batches">{calc.batches.map((b) => <div key={b.name}><strong>{b.name}</strong><span>{b.crafts} craft{b.crafts === 1 ? '' : 's'}</span><small>need {b.needed} · produce {b.produced}{b.leftover ? ` · ${b.leftover} leftover` : ''}</small></div>)}</div></>}
         </>
       )}
