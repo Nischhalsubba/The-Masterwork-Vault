@@ -59,27 +59,13 @@ export function CompareWorkbench() {
   const [ids, setIds] = useState<string[]>(() => parseSharedIds())
   const [copied, setCopied] = useState(false)
   const [differencesOnly, setDifferencesOnly] = useState(false)
-  const [catalogVisible, setCatalogVisible] = useState(() => (window.location.pathname.split('/').filter(Boolean)[0] || 'catalog') === 'catalog')
   const deferredQuery = useDeferredValue(query)
 
   useEffect(() => { if (ids.length >= 2 && new URLSearchParams(window.location.search).has('compare')) setOpen(true) }, [])
   useEffect(() => {
-    const syncFromPath = () => setCatalogVisible((window.location.pathname.split('/').filter(Boolean)[0] || 'catalog') === 'catalog')
-    const syncFromState = (event: Event) => {
-      const detail = (event as CustomEvent<{ view?: string }>).detail || {}
-      if (detail.view) setCatalogVisible(detail.view === 'catalog')
-    }
     const openCompare = () => setOpen(true)
-    document.addEventListener('masterwork:app-state', syncFromState)
-    document.addEventListener('masterwork:navigate', syncFromPath)
     document.addEventListener('masterwork:open-compare', openCompare)
-    window.addEventListener('popstate', syncFromPath)
-    return () => {
-      document.removeEventListener('masterwork:app-state', syncFromState)
-      document.removeEventListener('masterwork:navigate', syncFromPath)
-      document.removeEventListener('masterwork:open-compare', openCompare)
-      window.removeEventListener('popstate', syncFromPath)
-    }
+    return () => document.removeEventListener('masterwork:open-compare', openCompare)
   }, [])
 
   const visible = useMemo(() => {
@@ -131,7 +117,6 @@ export function CompareWorkbench() {
   }
 
   return <>
-    {catalogVisible && <span className="compare-launcher-state" aria-hidden="true" data-selected={ids.length} />}
     <OverlayDialog open={open} onClose={() => setOpen(false)} title="Compare craftables" description="Stats, crafting burden, restrictions, and progression context side by side." className="mw-compare-dialog">
       <div className="mw-compare-body">
         <aside>
