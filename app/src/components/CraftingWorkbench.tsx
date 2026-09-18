@@ -1,12 +1,12 @@
 import './material-source-evidence.css'
 import { MaterialSourceButton, MaterialSourcePanel, MaterialSourceBrowser } from './MaterialSources'
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { CraftingTreeWorkspace } from './CraftingTreeWorkspace'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   AlertTriangle,
   BadgeCheck,
   Boxes,
   Check,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
@@ -23,7 +23,6 @@ import {
   Search,
   Share2,
   Trash2,
-  Wrench,
 } from 'lucide-react'
 import catalogJson from '../data/catalog'
 import spriteDataUri from '../data/sprite'
@@ -240,45 +239,6 @@ function InventoryEditor({ inventory, setInventory }: { inventory: InventoryReco
 
 function EmptyState({ title, body }: { title: string; body: string }) {
   return <div className="empty-inline workbench-empty"><Boxes size={30} /><h3>{title}</h3><p>{body}</p></div>
-}
-
-function TreeNode({ node, depth = 0, onOpenMaterial }: { node: CraftTreeNode; depth?: number; onOpenMaterial?: (name: string) => void }) {
-  const [open, setOpen] = useState(depth < 1)
-  const hasChildren = node.children.length > 0
-  const material = node.kind === 'material' ? byMaterial.get(norm(node.name)) : undefined
-  const style = { '--tree-depth': depth } as CSSProperties
-
-  return (
-    <div className={`craft-tree-node ${node.craftable ? 'craftable' : 'raw'}`} style={style}>
-      <div className="craft-tree-row">
-        {hasChildren ? (
-          <button className="tree-toggle" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={`${open ? 'Collapse' : 'Expand'} ${node.name}`}>
-            {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-          </button>
-        ) : <span className="tree-toggle-spacer" />}
-        {node.kind === 'item' ? <Wrench size={18} aria-hidden="true" /> : <Icon src={material?.icon} alt={node.name} size={34} />}
-        <div className="grow tree-copy">
-          <strong>{node.name}</strong>
-          <small>
-            {node.kind === 'item'
-              ? `${node.required} final craft${node.required === 1 ? '' : 's'}`
-              : node.craftable
-                ? node.crafts == null
-                  ? 'Yield unresolved · planner stops here'
-                  : `${node.crafts} craft${node.crafts === 1 ? '' : 's'} · yield ${node.outputPerCraft} · ${node.leftover || 0} leftover`
-                : 'Raw material'}
-          </small>
-        </div>
-        {node.kind === 'material' && !node.craftable && <MaterialSourceButton name={node.name} />}<div className="tree-quantity"><span>{node.kind === 'item' ? 'Qty' : 'Need'}</span><strong>×{node.required}</strong></div>
-        {node.kind === 'material' && onOpenMaterial && (
-          <button className="tree-inspect" onClick={() => onOpenMaterial(node.name)} aria-label={`Inspect ${node.name} in Materials`}>
-            Inspect <ChevronRight size={14} aria-hidden="true" />
-          </button>
-        )}
-      </div>
-      {open && hasChildren && <div className="craft-tree-children">{node.children.map((child, index) => <TreeNode node={child} depth={depth + 1} onOpenMaterial={onOpenMaterial} key={`${child.id}:${index}`} />)}</div>}
-    </div>
-  )
 }
 
 function RecipeRows({ rows, onOpenMaterial }: { rows: Array<{ name: string; required: number }>; onOpenMaterial?: (name: string) => void }) {
@@ -499,12 +459,7 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
         </div>
       )}
 
-      {tab === 'tree' && (
-        <section className="panel tree-panel enter">
-          <div className="section-head workbench-section-head"><div><small>DEPENDENCY GRAPH</small><h2>Interactive crafting tree</h2></div><span className="quiet-note">Expand dependencies or inspect any material in Materials</span></div>
-          {!trees.length ? <EmptyState title="No tree to show" body="Add one or more craftables to the plan first." /> : <div className="craft-tree">{trees.map((tree) => <TreeNode node={tree} onOpenMaterial={onOpenMaterial} key={tree.id} />)}</div>}
-        </section>
-      )}
+      {tab === 'tree' && <CraftingTreeWorkspace trees={trees} onOpenMaterial={onOpenMaterial} onSetPlannerTab={setTab} />}
 
       {tab === 'ready' && (
         <div className="workbench-grid inventory-ready-grid enter">
