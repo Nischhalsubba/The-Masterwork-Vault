@@ -4,7 +4,8 @@ import { journeyPhases, journeySources, journeyProfessionGuides, JOURNEY_REVIEWE
 import { chultanIntermediateFormulas, chultanWeaponSlots, masterworkResearchSources, masterworkTierAssessment, masterworkResearchLimits } from '../src/data/masterworkResearch.ts'
 import { chultanHistoricalTaskRows } from '../src/data/chultanHistoricalTasks.ts'
 import { buildJourneyCraftables, matchesJourneyCraftable, journeyItemHref } from '../src/domain/journeyCatalog.ts'
-import { sharandarRecipes } from '../src/data/sharandarSupplement.ts'
+import { sharandarItems, sharandarRecipes } from '../src/data/sharandarSupplement.ts'
+import { gatheringReferenceTasks, GATHERING_SOURCE_SCALE, GATHERING_MAPPING_STATUS } from '../src/data/gatheringReference.ts'
 assert.equal(journeyPhases.length, 9)
 assert.equal(new Set(journeyPhases.map(p => p.id)).size, 9)
 for (const id of ['foundation', 'workshop', 'chultan', 'sharandar', 'menzoberranzan']) assert.ok(journeyPhases.some(p => p.id === id), `Preserve legacy milestone ${id}`)
@@ -46,6 +47,33 @@ for (const name of ['Crafted Potion of Accuracy Rank 13','Crafted Potion of Crit
   assert.equal(recipe?.outputQuantity,12, `${name}: recorded Sharandar task yield`)
 }
 assert.equal(sharandarRecipes.filter(recipe=>!recipe.quantityExplicit).length,5)
+assert.equal(GATHERING_SOURCE_SCALE,'legacy-1-80')
+assert.equal(GATHERING_MAPPING_STATUS,'unresolved-after-2021-compression')
+assert.equal(gatheringReferenceTasks.length,25)
+assert.ok(gatheringReferenceTasks.every(task=>task.plannerEligible===false))
+assert.ok(gatheringReferenceTasks.every(task=>task.confidence==='historical-pre-compression-sample'))
+const publisherPatchUrl='https://www.playneverwinter.com/en/news-details/11542223'
+const incense = sharandarItems.find(item=>item.name==="Hermit's Incense")
+assert.ok(incense)
+assert.equal(incense.variants.find(variant=>variant.quality==='+1')?.itemLevel,95)
+assert.ok(incense.provenance.evidence.some(line=>String(line).includes('11542223')))
+for (const [name,slot] of [
+  ['Thorned Amulet +1','Neck'],
+  ['Feywood Amulet +1','Neck'],
+  ['Thorned Sash +1','Waist'],
+  ['Feywood Sash +1','Waist'],
+  ["Dawn's Light Sash +1",'Waist'],
+]) {
+  const item = sharandarItems.find(row=>row.name===name)
+  assert.ok(item,`${name}: publisher-confirmed item must be represented`)
+  assert.equal(item.slot,slot)
+  assert.equal(item.recipeKnown,false)
+  assert.equal(item.sourceStatus,'publisher-patch')
+  assert.equal(item.variants.find(variant=>variant.quality==='+1')?.itemLevel,1300)
+  assert.ok(String(item.icon).startsWith('data:image/svg+xml'))
+  assert.equal(item.artwork?.provenance,'reference-derived')
+  assert.ok(item.provenance.evidence.some(line=>String(line).includes(publisherPatchUrl)))
+}
 assert.equal(chultanIntermediateFormulas.length,17)
 assert.equal(chultanWeaponSlots.length,18)
 assert.equal(chultanHistoricalTaskRows.length,76)
