@@ -313,7 +313,10 @@ export const sharandarItems: Array<Record<string, unknown>> = [
   })),
   {
     id: 'sharandar-hermits-medicinal-tea', name: "Hermit's Medicinal Tea", kind: 'Supplement', classes: ['All'], slot: null, categories: ['Sharandar', 'Masterwork', 'Supplement'], profession: 'Alchemy', levelRequirement: 20,
-    variants: [{ quality: 'Normal', itemLevel: 105, stats: { Focus: 125 } }, { quality: '+1', itemLevel: 110, stats: { Focus: 150 } }],
+    variants: [
+      { quality: 'Normal', itemLevel: 105, stats: { Focus: 125 }, source: 'Sharandar.zip · Supplements/1.png + Supplements/2.png + Supplements/3.png' },
+      { quality: '+1', itemLevel: 110, stats: { Focus: 150 }, source: 'Sharandar.zip · Supplements/1.png + Supplements/2.png + Supplements/3.png' },
+    ],
     materials: recipeByName.get("Hermit's Medicinal Tea")?.materials ?? [], sourceStatus: 'sharandar-screenshot', campaign: 'Sharandar', recipeKnown: true,
     provenance: provenance('Supplements/1.png + Supplements/2.png + Supplements/3.png', 'Normal: item level 105, +125 Focus. +1: item level 110, +150 Focus. Requires profession level 20.'),
   },
