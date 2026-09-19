@@ -22,11 +22,12 @@ test('approved coded crafting-tree layout is used in Plan & Craft', async ({ pag
 
   const shell = page.locator('.masterwork-tree-shell')
   await expect(shell).toBeVisible()
-  await expect(shell.getByRole('link', { name: 'The Masterwork Vault home' })).toBeVisible()
-  await expect(shell.getByRole('button', { name: 'Plan & Craft' })).toHaveAttribute('aria-current', 'page')
+  const globalNavigation = page.locator('.tablet-v4-sidebar:visible, .mobile-v4-tabbar:visible')
+  await expect(globalNavigation).toBeVisible()
+  await expect(globalNavigation.getByRole('button', { name: 'Plan & Craft' })).toHaveAttribute('aria-current', 'page')
 
-  await expect(shell.getByRole('heading', { name: 'Crafting Tree', level: 1 })).toBeVisible()
-  await expect(shell).toContainText('See the full dependency chain for your item.')
+  await expect(shell.getByRole('heading', { name: 'Crafting Tree', level: 2 })).toBeVisible()
+  await expect(shell).toContainText('Trace every crafted intermediate and acquired material without leaving your plan.')
   await expect(shell.getByRole('button', { name: 'Item Tree' })).toHaveAttribute('aria-pressed', 'true')
   await expect(shell.getByRole('button', { name: 'Material Tree' })).toHaveAttribute('aria-pressed', 'false')
 
@@ -68,7 +69,8 @@ test('approved crafting tree stays usable on phone', async ({ page }, testInfo) 
 
   const shell = page.locator('.masterwork-tree-shell')
   await expect(shell).toBeVisible()
-  await expect(shell.locator('.masterwork-tree-sidebar')).toBeVisible()
+  await expect(shell.locator('.masterwork-tree-sidebar')).toHaveCount(0)
+  await expect(page.locator('.mobile-v4-tabbar')).toBeVisible()
 
   const stage = shell.locator('.masterwork-tree-stage')
   await expect(stage).toBeVisible()

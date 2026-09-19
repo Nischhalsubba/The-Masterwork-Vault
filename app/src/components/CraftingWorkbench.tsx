@@ -459,7 +459,7 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
         </div>
       )}
 
-      {tab === 'tree' && <CraftingTreeWorkspace trees={trees} onOpenMaterial={onOpenMaterial} onSetPlannerTab={setTab} />}
+      {tab === 'tree' && <CraftingTreeWorkspace trees={trees} onOpenMaterial={onOpenMaterial} />}
 
       {tab === 'ready' && (
         <div className="workbench-grid inventory-ready-grid enter">

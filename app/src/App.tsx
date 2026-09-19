@@ -6,7 +6,6 @@ import {
   BarChart3,
   BadgeCheck,
   BookOpen,
-  Boxes,
   ChevronLeft,
   ChevronRight,
   CircleHelp,
@@ -27,7 +26,6 @@ import { sharandarIconIndex, sharandarSprite } from './data/sharandarSprite'
 import { sharandarWorkshopReference } from './data/sharandarSupplement'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
 import { calculateCraftingPlan, expandSingleMaterial, isRecipePlannable } from './lib/crafting'
-import { AmbientVault } from './components/AmbientVault'
 import { CraftingWorkbench, ItemRecipeEvidence, MaterialsWorkbench } from './components/CraftingWorkbench'
 
 const catalog = catalogJson as CatalogData
@@ -37,7 +35,6 @@ const recipeByName = new Map(catalog.recipes.map((r) => [norm(r.name), r]))
 const iconIndexByName = new Map<string, number>()
 for (const item of catalog.items) if (item.iconIndex != null) iconIndexByName.set(norm(item.name), item.iconIndex)
 for (const material of catalog.materials) if (material.iconIndex != null) iconIndexByName.set(norm(material.name), material.iconIndex)
-const asset = (p: string) => `${import.meta.env.BASE_URL}${p}`
 const MAX_PLAN_QUANTITY = 999
 
 type AppRouteDetail = { view: 'catalog' | 'plan' | 'materials' | 'reference'; itemId?: string; campaign?: CampaignFilter }
@@ -555,26 +552,34 @@ export default function App() {
   }
 
   const IconFor = ({ k }: { k: string }) => k === 'Weapon' ? <Sword size={15} /> : k === 'Armor' ? <Shield size={15} /> : k === 'Accessory' || k === 'Consumable' || k === 'Supplement' ? <Gem size={15} /> : <Hammer size={15} />
-  const sharandarCount = catalog.items.filter((entry) => entry.campaign === 'Sharandar').length
-  const underdarkCount = catalog.items.filter((entry) => entry.campaign === 'Underdark').length
   const activeRecipes = catalog.recipes.filter((entry) => campaign === 'All' || entry.campaign === campaign).length
   const activeMaterials = catalog.materials.filter((entry) => campaign === 'All' || entry.campaigns?.includes(campaign) || entry.campaign === campaign).length
 
   return (
     <div ref={root} className="app">
-      <header>
-        <a href={import.meta.env.BASE_URL} className="brand"><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt="" /><span><strong>The Masterwork Vault</strong><small>Underdark + Sharandar Masterwork</small></span></a>
-        <nav>{([['catalog', BookOpen, 'Catalog'], ['plan', Boxes, 'Plan'], ['materials', Gem, 'Materials'], ['reference', CircleHelp, 'Reference']] as const).map(([v, I, l]) => <button data-view={v} className={view === v ? 'active' : ''} onClick={() => requestAppRoute({ view: v })} key={v}><I size={17} />{l}{v === 'plan' && <b className="badge">{plan.size}</b>}</button>)}</nav>
-      </header>
-
       <main id="main-content">
-        <section className="hero">
-          <AmbientVault />
-          <div><span className="hero-kicker"><Sparkles size={15} /> MASTERWORK COLLECTIONS</span><h1>Two Masterwork eras. One crafting dependency graph.</h1><p>Switch between the existing Underdark catalogue and the new Sharandar screenshot pack without mixing source claims. Direct recipes, from-scratch expansion, workshop context, and extracted item art stay traceable to their evidence.</p><div className="metrics"><span><b>{sharandarCount}</b> Sharandar craftables</span><span><b>{underdarkCount}</b> Underdark craftables</span><span><b>{catalog.recipes.length}</b> recipe records</span></div></div>
-        </section>
 
         {view === 'catalog' && (
-          <div className="catalog">
+          <>
+            <section className="mw-core-page-header">
+              <div>
+                <small>CATALOG</small>
+                <h1>Find the craftable you actually need.</h1>
+                <p>Filter by collection, class and type, then inspect the recipe without losing your place.</p>
+              </div>
+              <div className="mw-core-page-actions">
+                <button type="button" aria-label="Compare items" onClick={() => document.dispatchEvent(new CustomEvent('masterwork:open-compare'))}><BarChart3 size={15} aria-hidden="true" />Compare items</button>
+                <a href="/explore">Advanced explorer <ChevronRight size={15} aria-hidden="true" /></a>
+              </div>
+            </section>
+            <div className="catalog">
+            <section className="collection-switcher panel" aria-label="Masterwork collection">
+              <div><small>COLLECTION</small><strong>{campaign === 'All' ? 'All Masterwork' : `${campaign} Masterwork`}</strong><span>{collectionItems.length} craftables · {activeMaterials} materials · {activeRecipes} recipes</span></div>
+              <div className="collection-seg" role="group" aria-label="Choose source collection">
+                {(['Sharandar', 'Underdark', 'All'] as CampaignFilter[]).map((value) => <button className={campaign === value ? 'active' : ''} aria-pressed={campaign === value} onClick={() => selectCampaign(value)} key={value}>{value === 'All' ? 'All' : value}</button>)}
+              </div>
+            </section>
+
             <aside>
               <small>CLASSES</small>
               <button className={cls === 'All' ? 'active' : ''} onClick={() => selectClass('All')}>All craftables</button>
@@ -582,13 +587,6 @@ export default function App() {
             </aside>
 
             <div className="workspace">
-              <section className="collection-switcher panel" aria-label="Masterwork collection">
-                <div><small>COLLECTION</small><strong>{campaign === 'All' ? 'All Masterwork' : `${campaign} Masterwork`}</strong><span>{collectionItems.length} craftables · {activeMaterials} materials · {activeRecipes} recipes</span></div>
-                <div className="collection-seg" role="group" aria-label="Choose source collection">
-                  {(['Sharandar', 'Underdark', 'All'] as CampaignFilter[]).map((value) => <button className={campaign === value ? 'active' : ''} aria-pressed={campaign === value} onClick={() => selectCampaign(value)} key={value}>{value === 'All' ? 'All' : value}</button>)}
-                </div>
-              </section>
-
               <div className="toolbar panel">
                 <label className="search"><Search size={17} /><input aria-label="Search catalog" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search item, material, profession…" /></label>
                 <div className="filters">{availableKinds.map((value) => <button className={kind === value ? 'active' : ''} onClick={() => setKind(value)} key={value}>{value}</button>)}</div>
@@ -613,14 +611,25 @@ export default function App() {
               </div>
             </div>
           </div>
+          </>
         )}
 
         {view === 'plan' && <div className="page workbench-page"><CraftingWorkbench selected={plan} setSelected={setPlan} onOpenMaterial={openMaterialFromPlan} /></div>}
-        {view === 'materials' && <div className="page"><MaterialsWorkbench onOpenItem={openCatalogItem} selected={plan} initialMaterialName={materialFocus} /></div>}
-        {view === 'reference' && <div className="page"><Reference /></div>}
+        {view === 'materials' && <div className="page">
+          <section className="mw-core-page-header">
+            <div><small>MATERIALS</small><h1>Know what you need and where it comes from.</h1><p>Search every tracked material, inspect its recipe or acquisition route, and see demand from your current plan.</p></div>
+          </section>
+          <MaterialsWorkbench onOpenItem={openCatalogItem} selected={plan} initialMaterialName={materialFocus} />
+        </div>}
+        {view === 'reference' && <div className="page">
+          <section className="mw-core-page-header">
+            <div><small>REFERENCE</small><h1>Separate crafting facts from assumptions.</h1><p>Workshop mechanics, artisan notes, source policy and evidence stay together so recipe screens remain focused.</p></div>
+            <a href="/data-health">Data health <ChevronRight size={15} aria-hidden="true" /></a>
+          </section>
+          <Reference />
+        </div>}
       </main>
 
-      <footer><img src={asset('assets/brand/masterwork-vault-mark.svg')} alt="" /><p><strong>The Masterwork Vault</strong> · Underdark and Sharandar Masterwork reference. Screenshot evidence remains the source of truth for item and recipe data.</p></footer>
     </div>
   )
 }

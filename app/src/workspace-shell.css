@@ -1,0 +1,990 @@
+/*
+ * Masterwork Vault unified workspace shell
+ * One visual system for Catalog, Plan & Craft, Materials, Progression,
+ * Reference and supporting tools.
+ */
+:root {
+  --mw-shell-bg: #f4f7fb;
+  --mw-shell-surface: #ffffff;
+  --mw-shell-surface-subtle: #f8fafc;
+  --mw-shell-border: #dce4ee;
+  --mw-shell-border-strong: #c8d3e1;
+  --mw-shell-text: #101828;
+  --mw-shell-text-muted: #667085;
+  --mw-shell-accent: #1f6feb;
+  --mw-shell-accent-soft: #eaf2ff;
+  --mw-shell-success: #2f8f55;
+  --mw-shell-warning: #a96700;
+  --mw-shell-danger: #b42318;
+  --mw-shell-radius: 12px;
+  --mw-shell-radius-sm: 8px;
+  --mw-shell-rail: 224px;
+  --mw-shell-page-gap: 16px;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--mw-shell-bg);
+  color: var(--mw-shell-text);
+}
+
+body {
+  margin: 0;
+  overflow-x: clip;
+}
+
+/* Legacy route-specific chrome is replaced by WorkspaceShell. */
+.app > header,
+.app > main > .hero,
+.app > footer,
+.mw-page-topbar,
+.journey-page-topbar {
+  display: none !important;
+}
+
+.mw-back-link,
+.journey-back-link {
+  display: none !important;
+}
+
+/* Shared surfaces. */
+.panel,
+.workbench-header,
+.material-intelligence,
+.mw-summary-card,
+.mw-health-panel,
+.mw-explore-card,
+.mw-graph-canvas,
+.journey-chapter,
+.journey-personal-progress {
+  border-color: var(--mw-shell-border) !important;
+  box-shadow: none !important;
+}
+
+.panel,
+.workbench-header,
+.material-intelligence {
+  border-radius: var(--mw-shell-radius) !important;
+  background: var(--mw-shell-surface) !important;
+}
+
+.mw-nav-group-label {
+  display: block;
+  margin: 14px 10px 5px;
+  color: #98a2b3;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+
+.mw-sidebar-health {
+  margin-top: auto;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--mw-shell-border);
+  border-radius: 10px;
+  background: var(--mw-shell-surface);
+  color: var(--mw-shell-text);
+  text-decoration: none;
+}
+
+.mw-sidebar-health > span {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.mw-sidebar-health strong {
+  font-size: 11px;
+}
+
+.mw-sidebar-health small {
+  overflow: hidden;
+  color: var(--mw-shell-text-muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mw-core-page-header {
+  width: 100%;
+  max-width: 1500px;
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 auto 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--mw-shell-border);
+  border-radius: var(--mw-shell-radius);
+  background: var(--mw-shell-surface);
+}
+
+.mw-core-page-header > div {
+  min-width: 0;
+}
+
+.mw-core-page-header small {
+  display: block;
+  margin-bottom: 3px;
+  color: #98a2b3;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.mw-core-page-header h1 {
+  margin: 0;
+  color: var(--mw-shell-text);
+  font-size: clamp(20px, 1.7vw, 27px);
+  line-height: 1.1;
+  letter-spacing: -.035em;
+}
+
+.mw-core-page-header p {
+  max-width: 72ch;
+  margin: 5px 0 0;
+  color: var(--mw-shell-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.mw-core-page-header > a {
+  flex: 0 0 auto;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 11px;
+  border: 1px solid var(--mw-shell-border);
+  border-radius: 8px;
+  background: var(--mw-shell-surface-subtle);
+  color: #344054;
+  font-size: 11px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.mw-core-page-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mw-core-page-actions > a,
+.mw-core-page-actions > button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 11px;
+  border: 1px solid var(--mw-shell-border);
+  border-radius: 8px;
+  background: var(--mw-shell-surface-subtle);
+  color: #344054;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mw-core-page-actions > button:hover,
+.mw-core-page-actions > a:hover,
+.mw-core-page-header > a:hover {
+  border-color: var(--mw-shell-border-strong);
+  background: #f1f5f9;
+  color: var(--mw-shell-text);
+}
+
+.mw-core-page-actions > button:focus-visible,
+.mw-core-page-actions > a:focus-visible,
+.mw-core-page-header > a:focus-visible {
+  outline: 3px solid rgba(31, 111, 235, .24);
+  outline-offset: 2px;
+}
+
+.reference-hero {
+  min-height: 0 !important;
+  padding: 14px 16px !important;
+}
+
+.reference-hero h2 {
+  margin: 3px 0 5px !important;
+  font-size: 18px !important;
+  letter-spacing: -.02em !important;
+}
+
+.reference-hero p {
+  max-width: 80ch;
+  margin: 0 !important;
+  color: var(--mw-shell-text-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+/* Crafting Tree is a planner view at every breakpoint, never a second app shell. */
+.masterwork-tree-shell {
+  position: static !important;
+  inset: auto !important;
+  z-index: auto !important;
+  width: 100% !important;
+  overflow: visible !important;
+  background: transparent !important;
+  color: var(--mw-shell-text) !important;
+  font-family: inherit !important;
+}
+
+.masterwork-tree-frame {
+  width: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  display: block !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.masterwork-tree-content {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.masterwork-tree-page-header h2 {
+  margin: 2px 0 5px;
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: -.03em;
+}
+
+.mw-tree-context {
+  display: block;
+  color: #98a2b3;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+/* Desktop: the tablet navigation component becomes the authoritative app rail. */
+@media (min-width: 1181px) {
+  .mobile-v4-topbar,
+  .mobile-v4-tabbar {
+    display: none !important;
+  }
+
+  .mw-command-launcher {
+    top: auto !important;
+    right: auto !important;
+    bottom: 84px !important;
+    left: 16px !important;
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+  }
+
+  .mw-command-launcher :is(span, kbd) {
+    display: none !important;
+  }
+
+  .ux-density-menu {
+    top: auto !important;
+    right: auto !important;
+    bottom: 84px !important;
+    left: 68px !important;
+    width: 44px !important;
+  }
+
+  .ux-density-menu > summary {
+    width: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    font-size: 0 !important;
+  }
+
+  .ux-density-popover {
+    top: auto !important;
+    right: auto !important;
+    bottom: 0 !important;
+    left: 54px !important;
+  }
+
+  .tablet-v4-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 300;
+    width: var(--mw-shell-rail);
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 12px;
+    border-right: 1px solid var(--mw-shell-border);
+    background: rgba(248, 250, 252, .985);
+  }
+
+  .tablet-v4-brand {
+    min-width: 0;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 7px;
+    border-radius: 10px;
+    color: var(--mw-shell-text);
+    text-decoration: none;
+  }
+
+  .tablet-v4-brand img {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 9px;
+  }
+
+  .tablet-v4-brand span {
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+  }
+
+  .tablet-v4-brand strong,
+  .tablet-v4-brand small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tablet-v4-brand strong {
+    font-size: 13px;
+    letter-spacing: -.01em;
+  }
+
+  .tablet-v4-brand small {
+    color: var(--mw-shell-text-muted);
+    font-size: 11px;
+  }
+
+  .tablet-v4-nav {
+    display: grid;
+    gap: 3px;
+  }
+
+  .tablet-v4-nav button,
+  .tablet-v4-nav > a {
+    position: relative;
+    width: 100%;
+    min-height: 42px;
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #475467;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .tablet-v4-nav button:hover,
+  .tablet-v4-nav > a:hover {
+    background: #f0f4f9;
+    color: var(--mw-shell-text);
+  }
+
+  .tablet-v4-nav button.active,
+  .tablet-v4-nav > a.active,
+  .tablet-v4-nav > a[aria-current="page"] {
+    background: var(--mw-shell-accent-soft);
+    color: #175fc4;
+  }
+
+  .tablet-v4-nav .badge {
+    min-width: 19px;
+    height: 19px;
+    display: grid;
+    place-items: center;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--mw-shell-accent);
+    color: #fff;
+    font-size: 9px;
+  }
+
+  .app {
+    min-height: 100vh;
+    background: transparent !important;
+  }
+
+  .app > main,
+  .journey-page-main,
+  .mw-readiness-main,
+  .mw-health-main,
+  .mw-explore-main,
+  .mw-graph-main {
+    width: auto !important;
+    max-width: none !important;
+    min-height: 100vh;
+    margin: 0 0 0 var(--mw-shell-rail) !important;
+    padding: 20px 24px 36px !important;
+    background: var(--mw-shell-bg) !important;
+  }
+
+  .page,
+  .catalog,
+  .workspace {
+    width: 100% !important;
+    max-width: 1500px !important;
+    margin: 0 auto !important;
+  }
+
+  /* Catalog is a working database, not a landing page. */
+  .catalog {
+    display: grid !important;
+    grid-template-columns: 152px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "classes collection"
+      "classes workspace" !important;
+    gap: 10px 14px !important;
+    align-items: start !important;
+  }
+
+  .catalog > .collection-switcher {
+    grid-area: collection;
+    margin-bottom: 0 !important;
+  }
+
+  .catalog > aside {
+    grid-area: classes;
+  }
+
+  .catalog > .workspace {
+    grid-area: workspace;
+  }
+
+  .catalog > aside {
+    position: sticky !important;
+    top: 20px !important;
+    display: grid !important;
+    gap: 3px !important;
+    height: max-content !important;
+    padding: 4px !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .catalog > aside > small {
+    margin: 2px 8px 7px;
+    color: #98a2b3;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: .08em;
+  }
+
+  .catalog > aside button {
+    min-height: 38px !important;
+    padding: 0 9px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: #667085 !important;
+    text-align: left !important;
+    font-size: 11px !important;
+  }
+
+  .catalog > aside button:hover {
+    background: #eef3f8 !important;
+    color: var(--mw-shell-text) !important;
+  }
+
+  .catalog > aside button.active {
+    background: var(--mw-shell-accent-soft) !important;
+    color: #175fc4 !important;
+    font-weight: 700 !important;
+  }
+
+  .collection-switcher {
+    min-height: 64px !important;
+    margin: 0 0 10px !important;
+    padding: 11px 14px !important;
+    border-radius: var(--mw-shell-radius) !important;
+  }
+
+  .collection-switcher strong {
+    font-size: 14px !important;
+  }
+
+  .collection-switcher span,
+  .collection-switcher small {
+    color: var(--mw-shell-text-muted) !important;
+  }
+
+  .toolbar {
+    min-height: 54px !important;
+    margin: 0 0 10px !important;
+    padding: 7px !important;
+    border-radius: var(--mw-shell-radius) !important;
+    box-shadow: none !important;
+  }
+
+  .toolbar .search {
+    min-height: 40px !important;
+    border-radius: 8px !important;
+  }
+
+  .catalog .split {
+    display: grid !important;
+    grid-template-columns: minmax(330px, .82fr) minmax(480px, 1.18fr) !important;
+    gap: 12px !important;
+    align-items: start !important;
+  }
+
+  .items {
+    max-height: calc(100vh - 176px) !important;
+    overflow-y: auto !important;
+    border: 1px solid var(--mw-shell-border) !important;
+    border-radius: var(--mw-shell-radius) !important;
+    background: var(--mw-shell-surface) !important;
+  }
+
+  .items article {
+    margin: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--mw-shell-border) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .items article:last-child {
+    border-bottom: 0 !important;
+  }
+
+  .catalog .detail {
+    position: sticky !important;
+    top: 20px !important;
+    max-height: calc(100vh - 40px) !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    overflow-y: auto !important;
+    border: 1px solid var(--mw-shell-border) !important;
+    border-radius: var(--mw-shell-radius) !important;
+    background: var(--mw-shell-surface) !important;
+    box-shadow: none !important;
+  }
+
+  /* Planner and materials are dense workspaces. */
+  .workbench-page,
+  .page {
+    padding: 0 !important;
+  }
+
+  .crafting-workbench,
+  .materials-workbench {
+    gap: var(--mw-shell-page-gap) !important;
+  }
+
+  .workbench-header {
+    margin: 0 !important;
+    padding: 16px !important;
+  }
+
+  .workbench-header h1 {
+    margin: 2px 0 4px !important;
+    font-size: 24px !important;
+    letter-spacing: -.03em !important;
+  }
+
+  .workbench-header p {
+    max-width: 72ch;
+    color: var(--mw-shell-text-muted) !important;
+    font-size: 13px !important;
+  }
+
+  .workbench-tabs {
+    margin-top: 12px !important;
+  }
+
+  /* Standalone tools become pages inside the same workspace, not mini-sites. */
+  .journey-page-hero,
+  .mw-readiness-hero,
+  .mw-health-hero,
+  .mw-explore-hero,
+  .mw-graph-hero {
+    min-height: 0 !important;
+    margin: 0 auto 16px !important;
+    padding: 18px 20px !important;
+    border: 1px solid var(--mw-shell-border) !important;
+    border-radius: var(--mw-shell-radius) !important;
+    background: var(--mw-shell-surface) !important;
+    box-shadow: none !important;
+  }
+
+  .journey-page-hero h1,
+  .mw-readiness-hero h1,
+  .mw-health-hero h1,
+  .mw-explore-hero h1,
+  .mw-graph-hero h1 {
+    margin-top: 4px !important;
+    margin-bottom: 7px !important;
+    font-size: clamp(25px, 2.2vw, 32px) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -.035em !important;
+  }
+
+  .journey-page-hero p,
+  .mw-readiness-hero p,
+  .mw-health-hero p,
+  .mw-explore-hero p,
+  .mw-graph-hero p {
+    max-width: 72ch !important;
+    margin-bottom: 0 !important;
+    color: var(--mw-shell-text-muted) !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+  }
+
+  .journey-page-main,
+  .mw-readiness-main,
+  .mw-health-main,
+  .mw-explore-main,
+  .mw-graph-main {
+    max-width: none !important;
+  }
+
+  .journey-page-main > *,
+  .mw-readiness-main > *,
+  .mw-health-main > *,
+  .mw-explore-main > *,
+  .mw-graph-main > * {
+    max-width: 1500px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  /* PR #34's graph language now lives in the planner instead of replacing the app. */
+  .masterwork-tree-shell {
+    position: static !important;
+    inset: auto !important;
+    z-index: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    background: transparent !important;
+    color: var(--mw-shell-text) !important;
+    font-family: inherit !important;
+  }
+
+  .masterwork-tree-frame {
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .masterwork-tree-content {
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .masterwork-tree-page-header {
+    padding: 15px 16px !important;
+    border: 1px solid var(--mw-shell-border);
+    border-radius: var(--mw-shell-radius);
+    background: var(--mw-shell-surface);
+  }
+
+  .masterwork-tree-toolbar {
+    padding: 10px 0 !important;
+  }
+
+  .masterwork-tree-stage {
+    min-height: 470px;
+    padding: 10px 0 22px !important;
+  }
+
+  .masterwork-tree-legend {
+    background: var(--mw-shell-surface) !important;
+  }
+}
+
+/* Tablet inherits the shell instead of switching design languages. */
+@media (min-width: 681px) and (max-width: 1180px) {
+  :root {
+    --m-bg: var(--mw-shell-bg);
+    --m-surface: var(--mw-shell-surface);
+    --m-surface-2: var(--mw-shell-surface-subtle);
+    --m-border: rgba(16, 24, 40, .13);
+    --m-border-strong: rgba(16, 24, 40, .19);
+    --m-text: var(--mw-shell-text);
+    --m-text-2: var(--mw-shell-text-muted);
+    --m-blue: var(--mw-shell-accent);
+    --m-blue-soft: var(--mw-shell-accent-soft);
+  }
+
+  .tablet-v4-sidebar {
+    background: rgba(248, 250, 252, .985) !important;
+    border-color: var(--mw-shell-border) !important;
+  }
+
+  .tablet-v4-nav > a {
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 0 11px;
+    border-radius: 11px;
+    color: var(--m-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .tablet-v4-nav > a.active,
+  .tablet-v4-nav > a[aria-current="page"] {
+    background: var(--m-surface);
+    color: var(--m-blue);
+  }
+
+  .journey-page-main,
+  .mw-readiness-main,
+  .mw-health-main,
+  .mw-explore-main,
+  .mw-graph-main {
+    width: auto !important;
+    max-width: none !important;
+    min-height: 100dvh;
+    margin: 0 0 0 var(--tablet-rail) !important;
+    padding: 16px !important;
+    background: var(--mw-shell-bg) !important;
+  }
+
+  .journey-page-hero,
+  .mw-readiness-hero,
+  .mw-health-hero,
+  .mw-explore-hero,
+  .mw-graph-hero {
+    min-height: 0 !important;
+    margin: 0 0 14px !important;
+    padding: 16px !important;
+    border: 1px solid var(--mw-shell-border) !important;
+    border-radius: var(--mw-shell-radius) !important;
+    background: var(--mw-shell-surface) !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Phone keeps the same IA with touch-native chrome. */
+@media (max-width: 680px) {
+  .mw-core-page-header {
+    min-height: 0;
+    display: grid;
+    gap: 10px;
+    margin: 0 0 10px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .mw-core-page-header h1 {
+    font-size: 21px;
+  }
+
+  .mw-core-page-header p {
+    font-size: 13px;
+  }
+
+  .mw-core-page-header > a {
+    width: max-content;
+    min-height: 44px;
+  }
+
+  .mw-core-page-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mw-core-page-actions > a,
+  .mw-core-page-actions > button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  :root {
+    --m-bg: var(--mw-shell-bg);
+    --m-surface: var(--mw-shell-surface);
+    --m-surface-2: var(--mw-shell-surface-subtle);
+    --m-text: var(--mw-shell-text);
+    --m-text-2: var(--mw-shell-text-muted);
+    --m-blue: var(--mw-shell-accent);
+    --m-blue-soft: var(--mw-shell-accent-soft);
+  }
+
+  .mobile-v4-tabbar {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .mobile-v4-tabbar button,
+  .mobile-v4-tabbar > a {
+    position: relative;
+    min-width: 0;
+    min-height: 58px;
+    display: grid;
+    grid-template-rows: 24px auto;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    padding: 3px 1px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--m-text-2);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.05;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .mobile-v4-tabbar button.active,
+  .mobile-v4-tabbar > a.active,
+  .mobile-v4-tabbar > a[aria-current="page"] {
+    color: var(--m-blue);
+  }
+
+  .mobile-v4-tabbar button.active::before,
+  .mobile-v4-tabbar > a.active::before,
+  .mobile-v4-tabbar > a[aria-current="page"]::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    width: 38px;
+    height: 29px;
+    border-radius: 9px;
+    background: var(--m-blue-soft);
+    z-index: -1;
+  }
+
+  .mobile-v4-tabbar span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .journey-page-main,
+  .mw-readiness-main,
+  .mw-health-main,
+  .mw-explore-main,
+  .mw-graph-main {
+    width: 100% !important;
+    min-height: 100dvh;
+    margin: 0 !important;
+    padding: calc(var(--m-topbar) + env(safe-area-inset-top, 0px) + 12px)
+      max(12px, env(safe-area-inset-right, 0px))
+      calc(var(--m-tabbar) + env(safe-area-inset-bottom, 0px) + 18px)
+      max(12px, env(safe-area-inset-left, 0px)) !important;
+    background: var(--mw-shell-bg) !important;
+  }
+
+  .journey-page-hero,
+  .mw-readiness-hero,
+  .mw-health-hero,
+  .mw-explore-hero,
+  .mw-graph-hero {
+    min-height: 0 !important;
+    margin: 0 0 12px !important;
+    padding: 14px !important;
+    border: 1px solid var(--mw-shell-border) !important;
+    border-radius: 14px !important;
+    background: var(--mw-shell-surface) !important;
+    box-shadow: none !important;
+  }
+
+  .journey-page-hero h1,
+  .mw-readiness-hero h1,
+  .mw-health-hero h1,
+  .mw-explore-hero h1,
+  .mw-graph-hero h1 {
+    margin: 3px 0 6px !important;
+    font-size: 25px !important;
+    line-height: 1.1 !important;
+  }
+
+  .journey-page-hero p,
+  .mw-readiness-hero p,
+  .mw-health-hero p,
+  .mw-explore-hero p,
+  .mw-graph-hero p {
+    color: var(--mw-shell-text-muted) !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+  }
+
+  .masterwork-tree-shell {
+    position: static !important;
+    inset: auto !important;
+    z-index: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    background: transparent !important;
+  }
+
+  .masterwork-tree-frame {
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .masterwork-tree-content {
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .masterwork-tree-page-header {
+    padding: 14px !important;
+    border: 1px solid var(--mw-shell-border);
+    border-radius: 14px;
+    background: var(--mw-shell-surface);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tablet-v4-nav *,
+  .mobile-v4-tabbar *,
+  .mw-sidebar-health {
+    transition: none !important;
+  }
+}

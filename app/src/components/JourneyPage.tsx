@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowUpRight, BookOpen, Check, ChevronLeft, ChevronRight, CircleHelp, Coins } from 'lucide-react'
+import { ArrowUpRight, Check, ChevronLeft, ChevronRight, CircleHelp, Coins } from 'lucide-react'
 import { journeyPhases, journeySources, journeyProfessionGuides, JOURNEY_REVIEWED_AT, JOURNEY_BOOK_PRICES } from '../data/journeyKnowledge'
 import { JourneyCraftables } from './JourneyCraftables'
 import './journey-workspace.css'
@@ -31,10 +31,6 @@ function JourneyPlanning() {
     <div className="journey-planning-grid"><article><Coins size={22} aria-hidden="true" /><h3>Published book-price baseline</h3><label><span>Professions to budget for</span><input type="number" min={1} max={7} value={bookCount} onChange={(e) => setBookCount(Math.min(7,Math.max(1,Math.floor(Number(e.target.value)||1))))} /></label><dl>{['Chultan I','Chultan II','Sharandar','Menzoberranzan'].map((label,index) => <div key={label}><dt>{label} / {bookCount} book{bookCount === 1 ? '' : 's'}</dt><dd>{(prices[index]*bookCount).toLocaleString()} AD</dd></div>)}</dl><div className="journey-planning-total"><span>Books only</span><strong>{(allBooks*bookCount).toLocaleString()} AD</strong></div><p>One profession across all four book stages is 4,000,000 AD at these published prices; all seven total 28,000,000 AD. This is a budget scenario, not proof of the minimum prerequisites for one profession. Confirm live vendor prices before purchasing.</p><SourceLinks ids={['book-rework','menzo-workbook']} /></article>
     <article><CircleHelp size={22} aria-hidden="true" /><h3>Daily Morale and paid restoration</h3><p>The community reference records 400 daily Morale. Enter the cost shown by your current task; this estimate excludes procs and failures.</p><label><span>Base Morale per task</span><input type="number" min={1} max={400} value={taskCost} onChange={(e) => setTaskCost(Math.min(400,Math.max(1,Math.floor(Number(e.target.value)||1))))} /></label><label className="journey-check-field"><input type="checkbox" checked={event} onChange={(e) => setEvent(e.target.checked)} /><span>Apply documented 2x Professions Morale discount</span></label><div className="journey-planning-total"><span>Attempts from 400 Morale</span><strong>{Math.floor(400/costPerTask)}</strong></div><p>The publisher states that the event halves Morale costs; it does not double task XP. No current event is assumed active. Check actual rounding on low-cost tasks.</p><div className="journey-refill-fields"><label><span>Morale to restore</span><input type="number" min={0} max={400} value={morale} onChange={(e) => setMorale(Math.min(400,Math.max(0,Math.floor(Number(e.target.value)||0))))} /></label><label><span>Current AD per point</span><input type="number" min={0} value={rate} onChange={(e) => setRate(e.target.value)} placeholder="Read the Retainer quote" /></label></div><p role="status">{refill == null ? 'Enter the live quote to calculate a restoration estimate.' : `Your entered-rate estimate: ${refill.toLocaleString()} AD.`}</p><SourceLinks ids={['workshop','event']} /></article></div>
   </section>
-}
-export function JourneyLauncher() {
-  const [completed] = useState(readProgress)
-  return <a className="workshop-journey-launcher" href="/journey" aria-label="Open Masterwork journey"><BookOpen size={18} aria-hidden="true" /><span>{completed.size ? `Journey ${completed.size}/${journeyPhases.length}` : 'Masterwork journey'}</span></a>
 }
 export function JourneyPage() {
   const initialProgress = useMemo(readProgress,[])

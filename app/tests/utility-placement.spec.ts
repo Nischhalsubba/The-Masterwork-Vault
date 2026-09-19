@@ -13,9 +13,10 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       expect(box).not.toBeNull()
       expect(box!.width).toBeGreaterThanOrEqual(44)
       expect(box!.height).toBeGreaterThanOrEqual(44)
-      if (width <= 680 || width > 1180) expect(box!.y + box!.height).toBeLessThanOrEqual(72)
+      if (width <= 680) expect(box!.y + box!.height).toBeLessThanOrEqual(72)
       else {
         const rail = await page.getByRole('complementary', { name: 'Workspace navigation' }).boundingBox()
+        expect(box!.x).toBeGreaterThanOrEqual(rail!.x)
         expect(box!.x + box!.width).toBeLessThanOrEqual(rail!.x + rail!.width)
       }
     }

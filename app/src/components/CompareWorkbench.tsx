@@ -62,6 +62,11 @@ export function CompareWorkbench() {
   const deferredQuery = useDeferredValue(query)
 
   useEffect(() => { if (ids.length >= 2 && new URLSearchParams(window.location.search).has('compare')) setOpen(true) }, [])
+  useEffect(() => {
+    const openCompare = () => setOpen(true)
+    document.addEventListener('masterwork:open-compare', openCompare)
+    return () => document.removeEventListener('masterwork:open-compare', openCompare)
+  }, [])
 
   const visible = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase()
@@ -112,7 +117,6 @@ export function CompareWorkbench() {
   }
 
   return <>
-    <button className="compare-launcher" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"><BarChart3 size={17} aria-hidden="true" />Compare items{ids.length > 0 && <b>{ids.length}</b>}</button>
     <OverlayDialog open={open} onClose={() => setOpen(false)} title="Compare craftables" description="Stats, crafting burden, restrictions, and progression context side by side." className="mw-compare-dialog">
       <div className="mw-compare-body">
         <aside>
