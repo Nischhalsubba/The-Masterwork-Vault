@@ -16,8 +16,10 @@ function GraphNode({ node, depth = 0 }: { node: CraftTreeNode; depth?: number })
       {hasChildren ? <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={`${open ? 'Collapse' : 'Expand'} ${node.name}`}>{open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</button> : <span className="mw-graph-spacer" />}
       <span className="mw-graph-kind">{node.kind === 'item' ? <Wrench size={16} /> : node.craftable ? <Hammer size={16} /> : <span />}</span>
       <span><strong>{node.name}</strong><small>{node.kind === 'item' ? 'Final craft' : node.craftable ? `${node.profession || 'Crafted'} · ${node.crafts || 0} craft${node.crafts === 1 ? '' : 's'}` : 'Raw / acquired'}</small></span>
-      <b>×{node.required}</b>
-      {node.kind === 'material' && !node.craftable && <MaterialSourceButton name={node.name} />}
+      <span className="mw-graph-actions">
+        <b>×{node.required}</b>
+        {node.kind === 'material' && !node.craftable && <MaterialSourceButton name={node.name} />}
+      </span>
     </div>
     {open && hasChildren && <ol>{node.children.map((child, index) => <GraphNode node={child} depth={depth + 1} key={`${child.id}:${index}`} />)}</ol>}
   </li>
