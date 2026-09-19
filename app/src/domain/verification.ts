@@ -126,6 +126,8 @@ export function buildDataHealthReport() {
   const invalidQuantities = referencedMaterials.filter((row) => !Number.isFinite(row.required) || row.required <= 0 || !Number.isInteger(row.required))
   const invalidYields = catalog.recipes.filter((recipe) => !Number.isFinite(recipe.outputQuantity) || recipe.outputQuantity <= 0 || !Number.isInteger(recipe.outputQuantity))
   const unknownYields = catalog.recipes.filter((recipe) => recipe.quantityExplicit === false)
+  const missingItemClasses = catalog.items.filter((item) => !item.classes?.length)
+  const missingItemRecipes = catalog.items.filter((item) => item.recipeKnown === false || !item.materials?.length)
   const missingArtwork = [...catalog.items, ...catalog.materials].filter((entity) => artworkProvenance(entity) === 'missing')
   const rejectedArtwork = [...catalog.items, ...catalog.materials].filter((entity) => artworkProvenance(entity) === 'rejected')
   const missingProfessionRecipes = catalog.recipes.filter((recipe) => !recipe.profession)
@@ -161,6 +163,8 @@ export function buildDataHealthReport() {
     blockers,
     queues: {
       unknownYields,
+      missingItemClasses,
+      missingItemRecipes,
       missingArtwork,
       rejectedArtwork,
       missingProfessionRecipes,
