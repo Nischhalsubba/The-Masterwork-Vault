@@ -28,7 +28,7 @@ test('known crafting level is visible in catalog list, item detail and details d
   await expect(row.getByText('Profession level 20')).toBeVisible()
 
   await row.click()
-  await expect(page.locator('.detail').getByText('Profession level 20')).toBeVisible()
+  await expect(page.locator('.detail .mw-detail-requirement .verified').filter({ hasText: 'Profession level 20' })).toBeVisible()
 
   const details = page.getByRole('button', { name: /Details/ })
   if (await details.isVisible()) {
