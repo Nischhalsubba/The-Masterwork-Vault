@@ -3,6 +3,7 @@ import { BadgeCheck, BookOpen, ChevronLeft, Filter, History, Search, ShieldCheck
 import catalogJson from '../data/catalog'
 import type { CatalogData, ItemEntry } from '../types'
 import { artworkProvenance } from '../domain/verification'
+import { craftRequirementLabel } from '../lib/craftRequirement'
 
 const catalog = catalogJson as CatalogData
 const RECENT_SEARCH_KEY = 'masterwork-vault.explore-recent-searches.v1'
@@ -149,7 +150,7 @@ export function ExplorePage() {
         <section className="mw-explore-results" aria-live="polite" aria-busy={query !== deferredQuery}>
           {visibleResults.length ? visibleResults.map((item) => <a className="mw-explore-card" href={itemHref(item)} key={item.id}>
             <span className="mw-explore-icon">{item.icon ? <img src={item.icon} alt="" loading="lazy" /> : <BookOpen size={20} />}</span>
-            <span className="mw-explore-copy"><small>{item.campaign || 'Unknown'} · {item.kind}</small><strong><Highlighted text={item.name} query={deferredQuery} /></strong><span>{item.profession || 'Profession not recorded'} · {item.classes.includes('All') ? 'All classes' : item.classes.join(', ') || 'Class not captured'}</span></span>
+            <span className="mw-explore-copy"><small>{item.campaign || 'Unknown'} · {item.kind}</small><strong><Highlighted text={item.name} query={deferredQuery} /></strong><span>{item.profession || 'Profession not recorded'} · {item.classes.includes('All') ? 'All classes' : item.classes.join(', ') || 'Class not captured'} · {craftRequirementLabel(item)}</span></span>
             <span className="mw-explore-meta"><i className={item.recipeKnown !== false && item.materials.length ? 'ready' : 'unknown'}>{item.recipeKnown !== false && item.materials.length ? <BadgeCheck size={13} /> : <ShieldCheck size={13} />}{item.recipeKnown !== false && item.materials.length ? `${item.materials.length} direct inputs` : 'Recipe unknown'}</i><em>{artworkProvenance(item)}</em></span>
           </a>) : <div className="mw-explore-empty"><Search size={30} /><h2>No craftables match</h2><p>{hasFilters ? 'Remove one or more filters, or broaden the search terms.' : 'Try a shorter item, material, class, or profession name.'}</p><div>{query && <button type="button" onClick={() => setQuery('')}>Clear search</button>}{hasFilters && <button type="button" onClick={clear}>Clear filters</button>}</div></div>}
           {visibleLimit < results.length && <div ref={loadMoreRef} className="mw-progressive-sentinel" role="status">Showing {visibleLimit} of {results.length} results</div>}
