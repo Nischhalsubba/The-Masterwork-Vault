@@ -38,7 +38,7 @@ export const verificationLedger: VerificationLedgerEntry[] = [
   { id: 'xp-curve', label: 'Profession XP curve Level 1-20', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17', note: 'Obsolete pre-2021 XP tables must not be reused.' },
   { id: 'chultan-bind', label: 'Modern Chultan Choice Pack binding', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17' },
   { id: 'stronghold-gate', label: 'Exact modern Stronghold purchase gate', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17' },
-  { id: 'cross-profession-gates', label: 'Minimum later-book prerequisites and binding', value: 'Confirm the current quest and vendor', status: 'unknown', lastVerified: '2026-09-17', note: 'A demonstration buying all seven book sets does not establish the minimum necessary for one profession.' },
+  { id: 'cross-profession-gates', label: 'Later-book prerequisites and binding', value: 'All professions Level 20; all Chultan recipes before Sharandar; all Sharandar books before Menzoberranzan; Sharandar/Menzoberranzan books bind on pickup to character', status: 'strong-current', lastVerified: '2026-09-19', sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%A0%D0%B5%D0%BC%D0%B5%D1%81%D0%BB%D0%B5%D0%BD%D0%BD%D0%B8%D0%BA-%D0%BC%D0%B0%D1%81%D1%82%D0%B5%D1%80', note: 'Maintained community wiki pages plus recent player corroboration. This is strong current public evidence, not a live-server capture; live vendor/tooltips win if they differ.' },
 ]
 
 export function artworkProvenance(entity: ItemEntry | MaterialEntry): ArtworkProvenance {
