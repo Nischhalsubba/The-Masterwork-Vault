@@ -690,14 +690,22 @@ input:focus-visible,
     min-width: 520px;
   }
 
-  /* Fixed navigation must never cover recipe acquisition actions. */
-  .catalog .detail {
-    padding-bottom: calc(var(--mw-ds-space-4) + var(--m-tabbar) + env(safe-area-inset-bottom, 0px)) !important;
+  /* Phone item detail is a navigation-stack screen. Its own back control is
+     authoritative, so the persistent tab bar must not cover recipe actions. */
+  body.mobile-v4-detail-open .mobile-v4-tabbar {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body.mobile-v4-detail-open .catalog .detail {
+    bottom: 0 !important;
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .catalog .detail .acquisition-button,
   .catalog .detail .craftable-indicator,
   .catalog .detail button {
-    scroll-margin-bottom: calc(var(--m-tabbar) + 20px + env(safe-area-inset-bottom, 0px));
+    scroll-margin-bottom: 24px;
   }
 }
