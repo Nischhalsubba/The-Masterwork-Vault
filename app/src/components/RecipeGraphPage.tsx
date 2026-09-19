@@ -4,6 +4,7 @@ import catalogJson from '../data/catalog'
 import type { CatalogData, ItemEntry } from '../types'
 import { MaterialSourceButton } from './MaterialSources'
 import { buildCraftingTrees, type CraftTreeNode } from '../lib/crafting'
+import { craftRequirementLabel } from '../lib/craftRequirement'
 
 const catalog = catalogJson as CatalogData
 
@@ -67,9 +68,9 @@ export function RecipeGraphPage() {
   return <div className="mw-graph-page">
     <header className="mw-page-topbar"><a href="/catalog" className="mw-page-brand"><img src="/assets/brand/masterwork-vault-mark.svg" alt="" /><span><strong>The Masterwork Vault</strong><small>Dependency graph</small></span></a><nav aria-label="Primary navigation"><a href="/catalog">Catalog</a><a href="/explore">Explore</a><a href="/graph" aria-current="page">Graph</a><a href="/plan">Plan</a></nav></header>
     <main id="main-content" className="mw-graph-main">
-      <section className="mw-graph-hero"><div><a className="mw-back-link" href="/catalog"><ChevronLeft size={17} />Back to Catalog</a><span className="mw-eyebrow"><GitBranch size={14} /> DEPENDENCY GRAPH</span><h1>Inspect one recipe before it enters your plan.</h1><p>Use this one-item sandbox to understand dependencies without changing Plan & Craft. The graph uses the same batch-aware recipe relationships as the production planner.</p></div>{item && <div className="mw-graph-summary"><span>{item.campaign || 'Unknown'} · {item.profession || 'Profession not recorded'}</span><strong>{item.name}</strong><small>{craftableCount} crafted intermediates · {rawCount} raw material kinds</small></div>}</section>
+      <section className="mw-graph-hero"><div><a className="mw-back-link" href="/catalog"><ChevronLeft size={17} />Back to Catalog</a><span className="mw-eyebrow"><GitBranch size={14} /> DEPENDENCY GRAPH</span><h1>Inspect one recipe before it enters your plan.</h1><p>Use this one-item sandbox to understand dependencies without changing Plan & Craft. The graph uses the same batch-aware recipe relationships as the production planner.</p></div>{item && <div className="mw-graph-summary"><span>{item.campaign || 'Unknown'} · {item.profession || 'Profession not recorded'} · {craftRequirementLabel(item)}</span><strong>{item.name}</strong><small>{craftableCount} crafted intermediates · {rawCount} raw material kinds</small></div>}</section>
       <div className="mw-graph-layout">
-        <aside><label className="mw-explore-search"><Search size={16} /><span className="sr-only">Search graph items</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a craftable…" /></label><div className="mw-graph-picker" aria-busy={query !== deferredQuery}>{visible.map((entry: ItemEntry) => <button type="button" className={entry.id === item?.id ? 'active' : ''} onClick={() => setItemId(entry.id)} key={entry.id}><strong>{entry.name}</strong><small>{entry.campaign || 'Unknown'} · {entry.profession || entry.kind}</small></button>)}</div></aside>
+        <aside><label className="mw-explore-search"><Search size={16} /><span className="sr-only">Search graph items</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a craftable…" /></label><div className="mw-graph-picker" aria-busy={query !== deferredQuery}>{visible.map((entry: ItemEntry) => <button type="button" className={entry.id === item?.id ? 'active' : ''} onClick={() => setItemId(entry.id)} key={entry.id}><strong>{entry.name}</strong><small>{entry.campaign || 'Unknown'} · {entry.profession || entry.kind} · {craftRequirementLabel(entry)}</small></button>)}</div></aside>
         <section className="mw-graph-canvas" tabIndex={0} aria-label={item ? `${item.name} dependency graph` : 'Dependency graph'}>{trees.length ? <ol className="mw-graph-tree">{trees.map((tree) => <GraphNode node={tree} key={tree.id} />)}</ol> : <p>No recipe graph is available.</p>}</section>
       </div>
     </main>
