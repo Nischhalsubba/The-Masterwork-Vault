@@ -3,6 +3,7 @@ import { AlertTriangle, BarChart3, CheckCircle2, Copy, Search, Share2, X } from 
 import catalogJson from '../data/catalog'
 import type { CatalogData, ItemEntry } from '../types'
 import { calculateCraftingPlan } from '../lib/crafting'
+import { craftRequirementLabel } from '../lib/craftRequirement'
 import { OverlayDialog } from './OverlayDialog'
 
 const catalog = catalogJson as CatalogData
@@ -101,6 +102,7 @@ export function CompareWorkbench() {
   const rows = [
     { key: 'campaign', label: 'Campaign', values: analysis.map(({ item }) => item.campaign || 'Unknown') },
     { key: 'profession', label: 'Profession', values: analysis.map(({ item }) => item.profession || 'Not recorded') },
+    { key: 'craft-level', label: 'Crafting requirement', values: analysis.map(({ item }) => craftRequirementLabel(item)) },
     { key: 'classes', label: 'Classes', values: analysis.map(({ item }) => item.classes.includes('All') ? 'All classes' : item.classes.join(', ') || 'Not captured') },
     { key: 'set', label: 'Set', values: analysis.map(({ setName }) => setName || 'None recorded') },
     { key: 'direct', label: 'Direct inputs', values: analysis.map(({ item, directInputs }) => item.recipeKnown === false ? 'Recipe unknown' : directInputs) },
@@ -124,7 +126,7 @@ export function CompareWorkbench() {
           <div className="mw-compare-picker" aria-label="Choose items to compare">{visible.map((item) => {
             const active = ids.includes(item.id)
             const disabled = !active && ids.length >= MAX_COMPARE
-            return <button key={item.id} className={active ? 'active' : ''} disabled={disabled} onClick={() => toggle(item.id)} aria-pressed={active}><span><strong>{item.name}</strong><small>{item.campaign || 'Unknown'} · {item.kind} · {item.profession || 'No profession'}</small></span><b>{active ? 'Added' : 'Add'}</b></button>
+            return <button key={item.id} className={active ? 'active' : ''} disabled={disabled} onClick={() => toggle(item.id)} aria-pressed={active}><span><strong>{item.name}</strong><small>{item.campaign || 'Unknown'} · {item.kind} · {item.profession || 'No profession'} · {craftRequirementLabel(item)}</small></span><b>{active ? 'Added' : 'Add'}</b></button>
           })}</div>
         </aside>
         <main>
@@ -148,7 +150,7 @@ export function CompareWorkbench() {
             </tbody></table></div>
             <div className="mw-compare-mobile" aria-label="Mobile comparison cards">{analysis.map((row) => <article key={row.item.id}>
               <header><div><small>{row.item.campaign || 'Unknown'} · {row.item.kind}</small><h3>{row.item.name}</h3></div><button type="button" onClick={() => toggle(row.item.id)} aria-label={`Remove ${row.item.name} from comparison`}><X size={15} /></button></header>
-              <dl><div><dt>Profession</dt><dd>{row.item.profession || 'Not recorded'}</dd></div><div><dt>Classes</dt><dd>{row.item.classes.includes('All') ? 'All classes' : row.item.classes.join(', ') || 'Not captured'}</dd></div><div><dt>Direct inputs</dt><dd>{row.item.recipeKnown === false ? 'Unknown' : row.directInputs}</dd></div><div><dt>Raw units</dt><dd className={row.rawUnits != null && row.rawUnits === bestRaw ? 'mw-best' : ''}>{row.rawUnits?.toLocaleString() ?? 'Unknown'}</dd></div><div><dt>Crafted intermediates</dt><dd>{row.craftedBatches ?? 'Unknown'}</dd></div></dl>
+              <dl><div><dt>Profession</dt><dd>{row.item.profession || 'Not recorded'}</dd></div><div><dt>Crafting requirement</dt><dd>{craftRequirementLabel(row.item)}</dd></div><div><dt>Classes</dt><dd>{row.item.classes.includes('All') ? 'All classes' : row.item.classes.join(', ') || 'Not captured'}</dd></div><div><dt>Direct inputs</dt><dd>{row.item.recipeKnown === false ? 'Unknown' : row.directInputs}</dd></div><div><dt>Raw units</dt><dd className={row.rawUnits != null && row.rawUnits === bestRaw ? 'mw-best' : ''}>{row.rawUnits?.toLocaleString() ?? 'Unknown'}</dd></div><div><dt>Crafted intermediates</dt><dd>{row.craftedBatches ?? 'Unknown'}</dd></div></dl>
               {stats.length > 0 && <details><summary>Recorded stats</summary><dl>{stats.map((stat) => { const value = statValue(row.item, stat); return <div key={stat}><dt>{stat}</dt><dd>{value == null ? '—' : typeof value === 'number' ? value.toLocaleString() : String(value)}</dd></div> })}</dl></details>}
             </article>)}</div>
           </>}
