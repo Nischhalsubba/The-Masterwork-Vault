@@ -59,6 +59,15 @@ export const knowledgeSources = [
     note: 'Publisher changes and historical community references were read. This is not an in-game observation; minimum gates, binding, capacities and refill rates require current confirmation.',
     confidence: 'historical-secondary' as const,
   },
+  {
+    id: 'neverwinter-wiki-masterwork-progression-2026',
+    type: 'community-maintained-wiki',
+    label: 'Neverwinter Wiki — current Master Artisan and recipe-book pages',
+    note: 'Reviewed 19 September 2026. Maintained pages document the Menzoberranzan gate as Level 20 in all professions, all Chultan recipes, all Sharandar books, then Drow Mastery; Sharandar and Menzoberranzan books are character-bound on pickup. Recent player reports independently corroborate the Chultan → Sharandar → Menzoberranzan order. This remains community evidence rather than a live-server capture.',
+    confidence: 'strong-current' as const,
+    url: 'https://neverwinter.fandom.com/ru/wiki/%D0%A0%D0%B5%D0%BC%D0%B5%D1%81%D0%BB%D0%B5%D0%BD%D0%BD%D0%B8%D0%BA-%D0%BC%D0%B0%D1%81%D1%82%D0%B5%D1%80',
+    reviewedAt: '2026-09-19',
+  },
 ] as const
 
 export const professionMechanics = {
@@ -192,27 +201,32 @@ export const masterworkProgression = {
   },
   sharandar: {
     professionLevel: 20,
+    allProfessionsLevel20: true,
     prerequisites: ['Chultan MW1', 'Chultan MW2'] as MasterworkCampaign[],
-    allChultanRecipesRequired: null,
-    currentVerificationRequired: true,
+    allChultanRecipesRequired: true,
+    currentVerificationRequired: false,
     vendor: 'Stryker Bronzepin',
     location: 'New Sharandar',
     pricePerProfession: 1_500_000,
-    bind: null,
-    confidence: 'historical-secondary' as KnowledgeConfidence,
+    bind: 'Bind on Pickup (Character)',
+    confidence: 'strong-current' as KnowledgeConfidence,
+    evidenceNote: 'Maintained Neverwinter Wiki recipe-book pages plus 2025 player corroboration; live UI wins if the game changes.',
   },
   menzoberranzan: {
     professionLevel: 20,
-    allProfessionsLevel20: null,
-    currentVerificationRequired: true,
+    allProfessionsLevel20: true,
+    allChultanRecipesRequired: true,
+    allSharandarBooksRequired: true,
+    currentVerificationRequired: false,
     prerequisites: ['Chultan MW1', 'Chultan MW2', 'Sharandar MW'] as MasterworkCampaign[],
-    quest: null,
+    quest: 'Drow Mastery',
     historicalQuestLabel: 'Drow Mastery',
     vendor: 'Drow Master Artisan',
     location: 'Narbondellyn',
     pricePerProfession: 1_500_000,
-    bind: null,
-    confidence: 'historical-secondary' as KnowledgeConfidence,
+    bind: 'Bind on Pickup (Character)',
+    confidence: 'strong-current' as KnowledgeConfidence,
+    evidenceNote: 'Maintained Neverwinter Wiki Master Artisan and recipe-book pages reviewed 2026-09-19; community-maintained, not a live-server capture.',
   },
 } as const
 
@@ -267,15 +281,15 @@ export const getMasterworkAccessPath = (campaign?: string | null) => {
   if (era.includes('sharandar')) {
     return {
       target: 'Sharandar MW' as const,
-      steps: ['Obtain Chultan MW1', 'Obtain Chultan MW2', 'Reach profession Level 20', 'Purchase the profession Sharandar book from Stryker Bronzepin'],
-      unresolvedIgnoredFields: ['Current recipe-book binding', 'Exact modern Stronghold purchase gate', 'Minimum cross-profession prerequisites; verify the live vendor'],
+      steps: ['Reach Level 20 in all seven professions', 'Own all Chultan MW1 and MW2 recipe books', 'Purchase the profession Sharandar book from Stryker Bronzepin in New Sharandar for 1,500,000 AD'],
+      unresolvedIgnoredFields: ['Exact modern Stronghold purchase gate and Chultan Choice Pack binding'],
     }
   }
   if (era.includes('under') || era.includes('menzo')) {
     return {
       target: 'Menzoberranzan MW' as const,
-      steps: ['Develop the professions needed by your recipes to Level 20', 'Review Chultan I, Chultan II and Sharandar preparation', 'Check the current introduction quest with Stryker Bronzepin', 'Confirm the profession book, prerequisites and price at the Drow Master Artisan in Narbondellyn'],
-      unresolvedIgnoredFields: ['Current recipe-book binding', 'Exact modern Stronghold purchase gate', 'Minimum cross-profession prerequisites; verify the live vendor'],
+      steps: ['Reach Level 20 in all seven professions', 'Own all Chultan recipes', 'Own all Sharandar recipe books', 'Complete Drow Mastery from Stryker Bronzepin', 'Purchase the Menzoberranzan profession book from the Drow Master Artisan in Narbondellyn for 1,500,000 AD'],
+      unresolvedIgnoredFields: ['Exact modern Stronghold purchase gate and Chultan Choice Pack binding'],
     }
   }
   return null
