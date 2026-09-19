@@ -13,21 +13,7 @@ test('catalog uses a compact NW-Hub icon-backed class filter instead of a tall c
     await expect(button).toBeVisible()
     const image = button.locator('img')
     await expect(image).toHaveCount(1)
-    await expect(image).toHaveAttribute('src', new RegExp(`^https://nw-hub\\.com/assets/classes/emblems/${name.toLowerCase()}\\.webpimport { expect, test } from '@playwright/test'
-
-const classNames = ['Barbarian', 'Bard', 'Cleric', 'Fighter', 'Paladin', 'Ranger', 'Rogue', 'Warlock', 'Wizard']
-
-test('catalog uses a compact NW-Hub icon-backed class filter instead of a tall class rail', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/catalog')
-  const filter = page.locator('.mw-class-filter')
-  await expect(filter).toBeVisible()
-
-  for (const name of classNames) {
-    const button = filter.getByRole('button', { name: new RegExp(name, 'i') })
-    await expect(button).toBeVisible()
-    const image = button.locator('img')
-))
+    await expect(image).toHaveAttribute('src', new RegExp('^https://nw-hub\\.com/assets/classes/emblems/' + name.toLowerCase() + '\\.webp$'))
     await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true)
   }
 
@@ -37,7 +23,7 @@ test('catalog uses a compact NW-Hub icon-backed class filter instead of a tall c
 
 test('known crafting level is visible in catalog list, item detail and details drawer', async ({ page }) => {
   const name = 'Crafted Potion of Critical Strike Rank 13'
-  await page.goto(`/catalog?campaign=Sharandar&q=${encodeURIComponent(name)}`)
+  await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(name))
   const row = page.locator('.catalog .items .item-main').filter({ hasText: name }).first()
   await expect(row).toBeVisible()
   await expect(row.getByText('Profession level 20')).toBeVisible()
