@@ -33,7 +33,8 @@ export const verificationLedger: VerificationLedgerEntry[] = [
   { id: 'professions-event', label: 'Published 2x Professions rules', value: 'Half Morale cost; double Masterwork-node resources; no doubled task XP', status: 'historical', lastVerified: '2026-09-17', note: 'Publisher rules dated 21 June 2022. Check the current calendar; no event is assumed active.', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11519393' },
   { id: 'masterwork-book-prices', label: 'Publisher-documented Masterwork book baselines', value: 'Stronghold book: 500,000 AD; Sharandar book: 1,500,000 AD', status: 'historical', lastVerified: '2026-09-18', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11500323', note: '2021 publisher baseline, not a live 2026 quote. The patch renames IV/V to Chultan Masterwork but the reviewed text does not independently establish every Chultan or Menzoberranzan price.' },
   { id: 'hermits-incense-plus-one', label: "Hermit's Incense +1 item level", value: '95', status: 'historical', lastVerified: '2026-09-18', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11542223', note: 'Publisher correction dated 19 April 2023; supersedes the older screenshot value of 90 for the +1 variant.' },
-  { id: 'sharandar-accessory-ilvl', label: 'Sharandar +1 amulet/sash correction', value: '1,300', status: 'historical', lastVerified: '2026-09-18', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11542223', note: 'Publisher correction covers Thorned/Feywood Amulets, Thorned/Feywood Sashes and Dawn\'s Light Sash +1. Recipes and current live stats remain uncaptured.' },
+  { id: 'sharandar-accessory-ilvl', label: 'Sharandar +1 amulet/sash correction', value: '1,300', status: 'historical', lastVerified: '2026-09-19', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11542223', note: 'Publisher correction covers Thorned/Feywood Amulets, Thorned/Feywood Sashes and Dawn\'s Light Sash +1. Recipe inputs are now reconciled from maintained profession task tables; current +1 stats, binding and live availability remain uncaptured.' },
+  { id: 'sharandar-class-recipe-reconciliation', label: 'Sharandar class / recipe reconciliation', value: 'Maintained profession task tables', status: 'strong-current', lastVerified: '2026-09-19', sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0_%D0%BA%D0%BE%D0%B6%D0%B8', note: 'Class tokens and recipe inputs were reconciled against maintained Tailoring, Leatherworking and Jewelcrafting pages. Community-maintained evidence is not a live-server capture; three unsupported Sharandar armor records remain explicit evidence gaps.' },
   { id: 'gathering-compression', label: 'Gathering legacy level mapping', value: 'Old 1–80 source → modern mapping unresolved', status: 'unknown', lastVerified: '2026-09-18', sourceUrl: 'https://www.playneverwinter.com/en/news-details/11491453', note: 'The publisher compressed profession levels into 20 four-level buckets. The legacy Gathering table has not yet been fully reconciled to the modern task list.' },
   { id: 'xp-curve', label: 'Profession XP curve Level 1-20', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17', note: 'Obsolete pre-2021 XP tables must not be reused.' },
   { id: 'chultan-bind', label: 'Modern Chultan Choice Pack binding', value: 'Unknown / excluded', status: 'unknown', lastVerified: '2026-09-17' },
@@ -126,6 +127,8 @@ export function buildDataHealthReport() {
   const invalidQuantities = referencedMaterials.filter((row) => !Number.isFinite(row.required) || row.required <= 0 || !Number.isInteger(row.required))
   const invalidYields = catalog.recipes.filter((recipe) => !Number.isFinite(recipe.outputQuantity) || recipe.outputQuantity <= 0 || !Number.isInteger(recipe.outputQuantity))
   const unknownYields = catalog.recipes.filter((recipe) => recipe.quantityExplicit === false)
+  const missingItemClasses = catalog.items.filter((item) => !item.classes?.length)
+  const missingItemRecipes = catalog.items.filter((item) => item.recipeKnown === false || !item.materials?.length)
   const missingArtwork = [...catalog.items, ...catalog.materials].filter((entity) => artworkProvenance(entity) === 'missing')
   const rejectedArtwork = [...catalog.items, ...catalog.materials].filter((entity) => artworkProvenance(entity) === 'rejected')
   const missingProfessionRecipes = catalog.recipes.filter((recipe) => !recipe.profession)
@@ -161,6 +164,8 @@ export function buildDataHealthReport() {
     blockers,
     queues: {
       unknownYields,
+      missingItemClasses,
+      missingItemRecipes,
       missingArtwork,
       rejectedArtwork,
       missingProfessionRecipes,
