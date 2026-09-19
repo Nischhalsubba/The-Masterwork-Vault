@@ -1,0 +1,754 @@
+/*
+ * Masterwork Vault design system application layer.
+ *
+ * This file is intentionally imported last. The repository contains several
+ * generations of route-specific CSS; this layer normalizes them onto the
+ * semantic tokens in design/tokens.css until legacy rules can be retired.
+ */
+
+/* ---------- Foundations / shared elements ---------- */
+html,
+body,
+#root {
+  font-family: var(--mw-ds-font);
+  background: var(--mw-ds-bg);
+  color: var(--mw-ds-text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.panel,
+.workbench-header,
+.material-intelligence,
+.mw-summary-card,
+.mw-health-panel,
+.mw-explore-card,
+.mw-graph-canvas,
+.journey-chapter,
+.journey-personal-progress {
+  border-color: var(--mw-ds-border) !important;
+  border-radius: var(--mw-ds-radius-md) !important;
+  box-shadow: none !important;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--mw-ds-accent) !important;
+  outline-offset: 2px;
+}
+
+.mw-core-page-header {
+  max-width: none !important;
+  min-height: 68px !important;
+  margin: 0 0 var(--mw-ds-space-3) !important;
+  padding: var(--mw-ds-space-3) var(--mw-ds-space-4) !important;
+  border-color: var(--mw-ds-border) !important;
+  border-radius: var(--mw-ds-radius-md) !important;
+}
+
+.mw-core-page-header h1 {
+  font-size: var(--mw-ds-heading-md) !important;
+}
+
+.mw-core-page-header p {
+  margin-top: var(--mw-ds-space-1) !important;
+}
+
+/* ---------- Class navigation ---------- */
+.mw-class-filter {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--mw-ds-space-2);
+  padding: 7px 8px;
+  overflow-x: auto;
+  border: 1px solid var(--mw-ds-border);
+  border-radius: var(--mw-ds-radius-md);
+  background: var(--mw-ds-surface);
+  scrollbar-width: thin;
+  scrollbar-color: var(--mw-ds-border-strong) transparent;
+}
+
+.mw-class-filter-label {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 1px;
+  padding: 0 var(--mw-ds-space-2);
+  border-right: 1px solid var(--mw-ds-border);
+}
+
+.mw-class-filter-label small {
+  color: var(--mw-ds-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.mw-class-filter-label strong {
+  color: var(--mw-ds-text);
+  font-size: var(--mw-ds-text-sm);
+  font-weight: 700;
+}
+
+.mw-class-filter button {
+  min-height: var(--mw-ds-control);
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px 4px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--mw-ds-radius-sm);
+  background: transparent;
+  color: var(--mw-ds-text-secondary);
+  font-size: var(--mw-ds-text-sm);
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mw-class-filter button:hover {
+  border-color: var(--mw-ds-border);
+  background: var(--mw-ds-surface-subtle);
+  color: var(--mw-ds-text);
+}
+
+.mw-class-filter button.active {
+  border-color: var(--mw-ds-blue-100);
+  background: var(--mw-ds-accent-soft);
+  color: var(--mw-ds-accent-strong);
+}
+
+.mw-class-filter .mw-class-icon {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--mw-ds-border);
+  border-radius: 7px;
+  background: var(--mw-ds-surface-muted);
+  color: var(--mw-ds-text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.mw-class-filter .mw-class-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.mw-class-filter .mw-class-icon.all {
+  background: var(--mw-ds-slate-900);
+  color: #fff;
+}
+
+/* ---------- Catalog / database workspace ---------- */
+.catalog {
+  width: 100% !important;
+  max-width: none !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas:
+    "collection"
+    "classes"
+    "workspace" !important;
+  gap: var(--mw-ds-space-2) !important;
+  margin: 0 !important;
+}
+
+.catalog > .collection-switcher {
+  grid-area: collection;
+  min-height: 58px !important;
+  margin: 0 !important;
+  padding: 9px 12px !important;
+}
+
+.catalog > .mw-class-filter {
+  grid-area: classes;
+}
+
+.catalog > .workspace {
+  grid-area: workspace;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.catalog .toolbar {
+  min-height: 52px !important;
+  margin: 0 0 var(--mw-ds-space-2) !important;
+  gap: var(--mw-ds-space-2) !important;
+  padding: 6px !important;
+  border-radius: var(--mw-ds-radius-md) !important;
+}
+
+.catalog .toolbar .search {
+  min-width: 240px;
+  min-height: var(--mw-ds-control) !important;
+  padding-inline: var(--mw-ds-space-3) !important;
+  border-radius: var(--mw-ds-radius-sm) !important;
+}
+
+.catalog .toolbar .search input {
+  min-height: 38px !important;
+}
+
+.catalog .filters {
+  gap: 2px;
+}
+
+.catalog .filters button,
+.catalog .seg button {
+  min-height: var(--mw-ds-control) !important;
+  padding-inline: 10px !important;
+  border-radius: var(--mw-ds-radius-sm) !important;
+  font-size: var(--mw-ds-text-sm) !important;
+}
+
+.catalog .split {
+  display: grid !important;
+  grid-template-columns: var(--mw-ds-list-width) minmax(0, 1fr) !important;
+  gap: var(--mw-ds-space-3) !important;
+  align-items: start !important;
+}
+
+.catalog .items {
+  min-width: 0;
+  gap: 0 !important;
+  overflow: hidden auto !important;
+  border: 1px solid var(--mw-ds-border) !important;
+  border-radius: var(--mw-ds-radius-md) !important;
+  background: var(--mw-ds-surface);
+  scrollbar-width: thin;
+}
+
+.catalog .result-meta {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-height: 36px !important;
+  align-items: center !important;
+  padding: 7px 10px !important;
+  border-bottom: 1px solid var(--mw-ds-border);
+  background: rgba(255, 255, 255, .96);
+  backdrop-filter: blur(8px);
+}
+
+.catalog .items article {
+  margin: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--mw-ds-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.catalog .items article:last-child {
+  border-bottom: 0 !important;
+}
+
+.catalog .items article:hover {
+  transform: none !important;
+  background: var(--mw-ds-surface-subtle);
+}
+
+.catalog .item-main {
+  gap: 10px !important;
+  padding: 10px 11px 8px !important;
+}
+
+.catalog .item-main .sprite {
+  width: 42px !important;
+  height: 42px !important;
+}
+
+.catalog .item-main .grow {
+  gap: 2px !important;
+}
+
+.catalog .item-main strong {
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+}
+
+.catalog .item-main small,
+.catalog .item-main span {
+  font-size: 12px !important;
+}
+
+.mw-item-meta-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  margin-top: 1px;
+}
+
+.mw-craft-level {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: var(--mw-ds-radius-round);
+  background: var(--mw-ds-surface-muted);
+  color: var(--mw-ds-text-secondary) !important;
+  font-size: 11px !important;
+  font-weight: 700;
+  line-height: 1.35 !important;
+}
+
+.mw-craft-level.verified {
+  background: #edf8f1;
+  color: #176b45 !important;
+}
+
+.catalog .item-foot {
+  min-height: 36px !important;
+  padding: 3px 9px !important;
+}
+
+.catalog .item-foot > button {
+  min-height: 32px !important;
+}
+
+.catalog .detail {
+  min-width: 0;
+  margin: 0 !important;
+  padding: var(--mw-ds-space-4) !important;
+  border: 1px solid var(--mw-ds-border) !important;
+  border-radius: var(--mw-ds-radius-md) !important;
+  background: var(--mw-ds-surface) !important;
+  box-shadow: none !important;
+  container-type: inline-size;
+}
+
+.catalog .detail-head {
+  grid-template-columns: 72px minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: var(--mw-ds-space-3) !important;
+}
+
+.catalog .detail-head > .sprite {
+  width: 72px !important;
+  height: 72px !important;
+}
+
+.catalog .detail-head h2 {
+  margin: 4px 0 3px !important;
+  font-size: clamp(21px, 1.55vw, 28px) !important;
+}
+
+.mw-detail-requirement {
+  margin-top: var(--mw-ds-space-2);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--mw-ds-space-2);
+}
+
+.mw-detail-requirement > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--mw-ds-border);
+  border-radius: var(--mw-ds-radius-round);
+  background: var(--mw-ds-surface-subtle);
+  color: var(--mw-ds-text-secondary);
+  font-size: var(--mw-ds-text-xs);
+  font-weight: 700;
+}
+
+.catalog .section-head {
+  margin: var(--mw-ds-space-4) 0 var(--mw-ds-space-2) !important;
+}
+
+.catalog .recipe-list {
+  gap: var(--mw-ds-space-2) !important;
+}
+
+.catalog .recipe-row {
+  min-height: 58px;
+  padding: 8px 10px !important;
+}
+
+@container (min-width: 880px) {
+  .catalog .detail .recipe-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Reference interaction layering ---------- */
+.reference-hero {
+  position: relative;
+  z-index: 4;
+}
+
+.reference-tabs {
+  position: relative;
+  z-index: 5;
+  isolation: isolate;
+}
+
+.reference-grid,
+.south-seas-panel,
+.artisan-grid {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Item detail drawer ---------- */
+.stats-drawer {
+  width: min(460px, 100vw) !important;
+  padding: 0 !important;
+  background: var(--mw-ds-surface) !important;
+}
+
+.stats-drawer-head {
+  padding: var(--mw-ds-space-4) !important;
+  border-bottom: 1px solid var(--mw-ds-border);
+}
+
+.stats-drawer-section,
+.stats-drawer-evidence {
+  padding: var(--mw-ds-space-4) !important;
+}
+
+.stats-drawer-section {
+  border-bottom: 1px solid var(--mw-ds-border);
+}
+
+.stats-drawer-grid {
+  gap: var(--mw-ds-space-2) !important;
+}
+
+.mw-drawer-craft-requirement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--mw-ds-space-2);
+  align-items: center;
+  margin-bottom: var(--mw-ds-space-3);
+  padding: var(--mw-ds-space-3);
+  border: 1px solid var(--mw-ds-border);
+  border-radius: var(--mw-ds-radius-sm);
+  background: var(--mw-ds-surface-subtle);
+}
+
+.mw-drawer-craft-requirement span {
+  color: var(--mw-ds-text-muted);
+  font-size: var(--mw-ds-text-sm);
+}
+
+.mw-drawer-craft-requirement strong {
+  color: var(--mw-ds-text);
+  font-size: var(--mw-ds-text-base);
+}
+
+/* ---------- Recipe graph ---------- */
+.mw-graph-main,
+.mw-explore-main {
+  max-width: none !important;
+}
+
+.mw-graph-main > *,
+.mw-explore-main > * {
+  width: 100%;
+  max-width: none !important;
+}
+
+.mw-graph-layout {
+  grid-template-columns: clamp(240px, 18vw, 310px) minmax(0, 1fr) !important;
+  gap: var(--mw-ds-space-3) !important;
+}
+
+.mw-graph-layout > aside {
+  min-height: 0 !important;
+  padding: 10px !important;
+  border-radius: var(--mw-ds-radius-md) !important;
+}
+
+.mw-graph-picker button {
+  min-height: 48px;
+  padding: 7px 8px !important;
+}
+
+.mw-graph-canvas {
+  min-height: calc(100dvh - 150px);
+  padding: var(--mw-ds-space-4) !important;
+  border-radius: var(--mw-ds-radius-md) !important;
+  background-size: 20px 20px !important;
+}
+
+.mw-graph-card {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 52px;
+  margin: 6px 0 !important;
+  padding: 7px 9px !important;
+  border-radius: var(--mw-ds-radius-sm) !important;
+  box-shadow: none !important;
+}
+
+.mw-graph-actions {
+  min-width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mw-graph-actions > b {
+  flex: 0 0 auto;
+  font-size: 12px;
+}
+
+.mw-graph-actions .acquisition-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: var(--mw-ds-radius-sm);
+}
+
+.mw-graph-actions .acquisition-button span {
+  display: none;
+}
+
+/* ---------- Desktop shell / fluid workspace ---------- */
+@media (min-width: 1181px) {
+  .tablet-v4-sidebar {
+    width: var(--mw-ds-rail) !important;
+    padding: 14px 10px 12px !important;
+    border-right-color: var(--mw-ds-border) !important;
+  }
+
+  .tablet-v4-brand {
+    padding-inline: 5px !important;
+  }
+
+  .tablet-v4-nav {
+    gap: 2px !important;
+  }
+
+  .tablet-v4-nav button,
+  .tablet-v4-nav > a {
+    min-height: 38px !important;
+    padding: 0 9px !important;
+    border-radius: var(--mw-ds-radius-sm) !important;
+  }
+
+  .app > main,
+  .journey-page-main,
+  .mw-readiness-main,
+  .mw-health-main,
+  .mw-explore-main,
+  .mw-graph-main {
+    width: auto !important;
+    max-width: none !important;
+    min-height: 100vh;
+    margin-left: var(--mw-ds-rail) !important;
+    padding: var(--mw-ds-page-block) var(--mw-ds-page-inline) 28px !important;
+  }
+
+  .page,
+  .catalog,
+  .workspace,
+  .crafting-workbench,
+  .materials-workbench {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+  }
+
+  .catalog .items {
+    max-height: calc(100dvh - 238px) !important;
+  }
+
+  .catalog .detail {
+    position: sticky !important;
+    top: var(--mw-ds-page-block) !important;
+    max-height: calc(100dvh - (var(--mw-ds-page-block) * 2)) !important;
+    overflow-y: auto !important;
+  }
+
+  .journey-page-main > *,
+  .mw-readiness-main > *,
+  .mw-health-main > *,
+  .mw-explore-main > *,
+  .mw-graph-main > * {
+    max-width: none !important;
+    margin-inline: 0 !important;
+  }
+}
+
+/* ---------- Tablet ---------- */
+@media (min-width: 681px) and (max-width: 1180px) {
+  .mw-class-filter {
+    margin-bottom: var(--mw-ds-space-2);
+  }
+
+  .catalog .split {
+    grid-template-columns: minmax(320px, .9fr) minmax(420px, 1.1fr) !important;
+  }
+
+  .catalog .items {
+    max-height: calc(100dvh - 250px) !important;
+  }
+
+  .mw-graph-layout {
+    grid-template-columns: 250px minmax(0, 1fr) !important;
+  }
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 680px) {
+  .mw-core-page-header {
+    min-height: 0 !important;
+    margin-bottom: var(--mw-ds-space-2) !important;
+    padding: 10px 12px !important;
+  }
+
+  .mw-core-page-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .mw-core-page-actions {
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mw-core-page-actions > button {
+    min-height: var(--mw-ds-touch) !important;
+    flex: 1 1 auto;
+  }
+
+  .mw-core-page-actions > a {
+    display: none !important;
+  }
+
+  .mw-class-filter {
+    margin: 0 0 var(--mw-ds-space-2);
+    padding: 5px;
+    gap: 4px;
+    border-radius: 10px;
+  }
+
+  .mw-class-filter-label {
+    display: none;
+  }
+
+  .mw-class-filter button {
+    min-height: var(--mw-ds-touch);
+    padding: 4px 9px 4px 5px;
+  }
+
+  .mw-class-filter .mw-class-icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .catalog > .collection-switcher {
+    min-height: 0 !important;
+  }
+
+  .catalog .toolbar {
+    display: grid !important;
+    gap: 6px !important;
+  }
+
+  .catalog .toolbar .search {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .catalog .split {
+    display: block !important;
+  }
+
+  .catalog .items {
+    max-height: none !important;
+  }
+
+  .catalog .detail-head {
+    grid-template-columns: 60px minmax(0, 1fr) !important;
+  }
+
+  .catalog .detail-head > .sprite {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .catalog .detail-head > .primary {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .mw-graph-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mw-graph-canvas {
+    min-height: 420px;
+    padding: 10px !important;
+  }
+
+  .mw-graph-card {
+    min-width: 520px;
+  }
+
+  .mw-graph-actions .acquisition-button {
+    width: var(--mw-ds-touch);
+    min-width: var(--mw-ds-touch);
+    height: var(--mw-ds-touch);
+    min-height: var(--mw-ds-touch);
+  }
+
+  /* Small catalogs do not need virtualized paint placeholders. Keeping rows
+     fully rendered avoids blank bands during mobile scroll and screenshots. */
+  .catalog .items > article {
+    content-visibility: visible !important;
+    contain-intrinsic-size: none !important;
+  }
+
+  /* Phone item detail is a navigation-stack screen. Its own back control is
+     authoritative, so the persistent tab bar must not cover recipe actions. */
+  body.mobile-v4-detail-open .mobile-v4-tabbar {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body.mobile-v4-detail-open .catalog .detail {
+    bottom: 0 !important;
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .catalog .detail .acquisition-button,
+  .catalog .detail .craftable-indicator,
+  .catalog .detail button {
+    scroll-margin-bottom: 24px;
+  }
+}

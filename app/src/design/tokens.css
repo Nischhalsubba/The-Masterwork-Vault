@@ -1,0 +1,109 @@
+/*
+ * Masterwork Vault design tokens
+ * Semantic source of truth for density, hierarchy and responsive layout.
+ * Components should consume the --mw-ds-* tokens rather than adding raw values.
+ */
+:root {
+  /* Base palette */
+  --mw-ds-white: #ffffff;
+  --mw-ds-slate-25: #fbfcfe;
+  --mw-ds-slate-50: #f6f8fb;
+  --mw-ds-slate-100: #eef2f6;
+  --mw-ds-slate-200: #dde4ed;
+  --mw-ds-slate-300: #c6d0dc;
+  --mw-ds-slate-500: #667085;
+  --mw-ds-slate-600: #475467;
+  --mw-ds-slate-700: #344054;
+  --mw-ds-slate-900: #101828;
+  --mw-ds-blue-50: #eaf2ff;
+  --mw-ds-blue-100: #d8e8ff;
+  --mw-ds-blue-600: #1f6feb;
+  --mw-ds-blue-700: #175fc4;
+  --mw-ds-green-600: #2f8f55;
+  --mw-ds-amber-700: #9a6700;
+  --mw-ds-red-700: #b42318;
+
+  /* Semantic color */
+  --mw-ds-bg: var(--mw-ds-slate-50);
+  --mw-ds-surface: var(--mw-ds-white);
+  --mw-ds-surface-subtle: var(--mw-ds-slate-25);
+  --mw-ds-surface-muted: var(--mw-ds-slate-100);
+  --mw-ds-border: var(--mw-ds-slate-200);
+  --mw-ds-border-strong: var(--mw-ds-slate-300);
+  --mw-ds-text: var(--mw-ds-slate-900);
+  --mw-ds-text-secondary: var(--mw-ds-slate-600);
+  --mw-ds-text-muted: var(--mw-ds-slate-500);
+  --mw-ds-accent: var(--mw-ds-blue-600);
+  --mw-ds-accent-strong: var(--mw-ds-blue-700);
+  --mw-ds-accent-soft: var(--mw-ds-blue-50);
+
+  /* Type */
+  --mw-ds-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mw-ds-text-xs: 0.6875rem;
+  --mw-ds-text-sm: 0.75rem;
+  --mw-ds-text-md: 0.8125rem;
+  --mw-ds-text-base: 0.875rem;
+  --mw-ds-text-lg: 1rem;
+  --mw-ds-heading-sm: 1.125rem;
+  --mw-ds-heading-md: clamp(1.35rem, 1.65vw, 1.75rem);
+  --mw-ds-line-tight: 1.2;
+  --mw-ds-line-body: 1.5;
+
+  /* 4px spacing rhythm */
+  --mw-ds-space-1: 4px;
+  --mw-ds-space-2: 8px;
+  --mw-ds-space-3: 12px;
+  --mw-ds-space-4: 16px;
+  --mw-ds-space-5: 20px;
+  --mw-ds-space-6: 24px;
+  --mw-ds-space-8: 32px;
+  --mw-ds-space-12: 48px;
+  --mw-ds-space-16: 64px;
+
+  /* Shape and elevation */
+  --mw-ds-radius-xs: 6px;
+  --mw-ds-radius-sm: 8px;
+  --mw-ds-radius-md: 12px;
+  --mw-ds-radius-lg: 16px;
+  --mw-ds-radius-round: 999px;
+  --mw-ds-shadow-focus: 0 0 0 3px rgba(31, 111, 235, .18);
+  --mw-ds-shadow-float: 0 12px 30px rgba(16, 24, 40, .08);
+
+  /* Ergonomic sizing */
+  --mw-ds-control-sm: 36px;
+  --mw-ds-control: 40px;
+  --mw-ds-touch: 44px;
+  --mw-ds-rail: 208px;
+  --mw-ds-page-inline: 18px;
+  --mw-ds-page-block: 16px;
+  --mw-ds-layout-gap: 12px;
+  --mw-ds-list-width: clamp(390px, 32vw, 560px);
+
+  /* Compatibility aliases: old surfaces now resolve through the system. */
+  --mw-shell-bg: var(--mw-ds-bg);
+  --mw-shell-surface: var(--mw-ds-surface);
+  --mw-shell-surface-subtle: var(--mw-ds-surface-subtle);
+  --mw-shell-border: var(--mw-ds-border);
+  --mw-shell-border-strong: var(--mw-ds-border-strong);
+  --mw-shell-text: var(--mw-ds-text);
+  --mw-shell-text-muted: var(--mw-ds-text-muted);
+  --mw-shell-accent: var(--mw-ds-accent);
+  --mw-shell-accent-soft: var(--mw-ds-accent-soft);
+  --mw-shell-rail: var(--mw-ds-rail);
+  --mw-shell-page-gap: var(--mw-ds-layout-gap);
+}
+
+@media (max-width: 1180px) {
+  :root {
+    --mw-ds-page-inline: 14px;
+    --mw-ds-page-block: 12px;
+  }
+}
+
+@media (max-width: 680px) {
+  :root {
+    --mw-ds-page-inline: 10px;
+    --mw-ds-page-block: 10px;
+    --mw-ds-layout-gap: 8px;
+  }
+}

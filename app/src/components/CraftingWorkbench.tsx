@@ -39,6 +39,7 @@ import {
   type InventoryRecord,
   type PlanSelection,
 } from '../lib/crafting'
+import { craftRequirementLabel } from '../lib/craftRequirement'
 
 const catalog = catalogJson as CatalogData
 const norm = (s: string) => s.toLowerCase().replace(/\+1/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ')
@@ -428,7 +429,7 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
             {!entries.length ? <EmptyState title="No craftables selected" body="Add items from Catalog, or load a saved plan." /> : entries.map(({ item, quantity }) => (
               <div className="plan-row spacious" key={item.id}>
                 <Icon src={item.icon} alt={item.name} size={48} />
-                <div className="grow"><strong>{item.name}</strong><small>{item.profession || item.kind} · {item.classes.join(' · ')}</small></div>
+                <div className="grow"><strong>{item.name}</strong><small>{item.profession || item.kind} · {item.classes.join(' · ')} · {craftRequirementLabel(item)}</small></div>
                 <div className="qty"><button onClick={() => changeQuantity(item.id, quantity - 1)} aria-label={`Decrease ${item.name}`}><Minus size={15} /></button><b>{quantity}</b><button onClick={() => changeQuantity(item.id, quantity + 1)} aria-label={`Increase ${item.name}`}><Plus size={15} /></button></div>
               </div>
             ))}
@@ -468,10 +469,10 @@ export function CraftingWorkbench({ selected, setSelected, onOpenMaterial }: { s
             <div className="section-head workbench-section-head"><div><small>INVENTORY CHECK</small><h2>What can I craft now?</h2></div><span className="ready-count"><PackageCheck size={15} />{readyItems.length + readyMaterials.length} ready</span></div>
             <h3>Final craftables</h3>
             {readyItems.length === 0 ? <EmptyState title="No final craftable is fully covered yet" body="Enter the materials you own. Intermediate materials in inventory are consumed before the planner expands their recipes." /> : (
-              <div className="ready-list">{readyItems.map(({ item }) => <div className="ready-card" key={item.id}><Icon src={item.icon} alt={item.name} size={44} /><div className="grow"><strong>{item.name}</strong><small>{item.profession || item.kind}</small></div><span><Check size={14} />Ready</span><button onClick={() => changeQuantity(item.id, Math.max(1, selected.get(item.id) || 0) + (selected.has(item.id) ? 1 : 0))}>{selected.has(item.id) ? '+1 to plan' : 'Add to plan'}</button></div>)}</div>
+              <div className="ready-list">{readyItems.map(({ item }) => <div className="ready-card" key={item.id}><Icon src={item.icon} alt={item.name} size={44} /><div className="grow"><strong>{item.name}</strong><small>{item.profession || item.kind} · {craftRequirementLabel(item)}</small></div><span><Check size={14} />Ready</span><button onClick={() => changeQuantity(item.id, Math.max(1, selected.get(item.id) || 0) + (selected.has(item.id) ? 1 : 0))}>{selected.has(item.id) ? '+1 to plan' : 'Add to plan'}</button></div>)}</div>
             )}
             <h3 className="subhead">Closest final craftables</h3>
-            <div className="near-ready-list">{nearItems.map(({ item, plan, missingUnits }) => <div className="near-ready-row" key={item.id}><Icon src={item.icon} alt={item.name} size={38} /><div className="grow"><strong>{item.name}</strong><small>{[...plan.unresolved, ...plan.missingRaw].slice(0, 3).map((row) => `${row.name} ×${row.required}`).join(' · ')}</small></div><b>{missingUnits} units short</b></div>)}</div>
+            <div className="near-ready-list">{nearItems.map(({ item, plan, missingUnits }) => <div className="near-ready-row" key={item.id}><Icon src={item.icon} alt={item.name} size={38} /><div className="grow"><strong>{item.name}</strong><small>{craftRequirementLabel(item)} · {[...plan.unresolved, ...plan.missingRaw].slice(0, 3).map((row) => `${row.name} ×${row.required}`).join(' · ')}</small></div><b>{missingUnits} units short</b></div>)}</div>
 
             <h3 className="subhead">Craftable materials</h3>
             {readyMaterials.length > 0 && <div className="ready-list">{readyMaterials.map(({ material, recipe }) => <div className="ready-card ready-material-card" key={material.name}><Icon src={material.icon} alt={material.name} size={44} /><div className="grow"><strong>{material.name}</strong><small>{material.profession || recipe.profession || 'Crafted material'} · produces ×{recipe.outputQuantity}</small></div><span><Check size={14} />Ready</span></div>)}</div>}
@@ -646,7 +647,7 @@ export function MaterialsWorkbench({ onOpenItem, selected, initialMaterialName }
             <p>{selectedCraftCount > 0 ? `Total optimized requirement across ${selectedCraftCount} selected final craft${selectedCraftCount === 1 ? '' : 's'}, before inventory is applied.` : 'No final craftables are currently selected in the Plan.'}</p>
           </div>
           <div className="reverse-grid">
-            <section><h4>Final craftables</h4>{finalUses.length ? <div className="reverse-list">{finalUses.map((item) => <button onClick={() => onOpenItem(item)} key={item.id}><Icon src={item.icon} alt={item.name} size={34} /><span><strong>{item.name}</strong><small>{item.profession || item.kind}</small></span><ChevronRight size={14} /></button>)}</div> : <p className="quiet-note">No final craftable directly uses this material.</p>}</section>
+            <section><h4>Final craftables</h4>{finalUses.length ? <div className="reverse-list">{finalUses.map((item) => <button onClick={() => onOpenItem(item)} key={item.id}><Icon src={item.icon} alt={item.name} size={34} /><span><strong>{item.name}</strong><small>{item.profession || item.kind} · {craftRequirementLabel(item)}</small></span><ChevronRight size={14} /></button>)}</div> : <p className="quiet-note">No final craftable directly uses this material.</p>}</section>
             <section><h4>Crafted materials</h4>{materialUses.length ? <div className="reverse-list">{materialUses.map((row) => <button onClick={() => openMaterial(row.name)} key={row.name}><Icon src={row.icon} alt={row.name} size={34} /><span><strong>{row.name}</strong><small>{row.profession || 'Crafted material'}</small></span><ChevronRight size={14} /></button>)}</div> : <p className="quiet-note">No intermediate material directly uses this material.</p>}</section>
           </div>
         </div>
