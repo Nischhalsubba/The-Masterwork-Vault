@@ -181,7 +181,6 @@ export function buildDataHealthReport() {
       professionMechanics.xpThresholds === null ? 'Profession XP thresholds Level 1→20' : null,
       'Current Morale refill rate and Workshop capacities',
       'Rescaled Workshop quest triggers',
-      'Minimum cross-profession gates and later-book binding',
       'Complete current Chultan recipe inventory and any post-Menzoberranzan tiers',
     ].filter(Boolean),
   }
