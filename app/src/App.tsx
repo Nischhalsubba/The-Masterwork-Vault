@@ -27,6 +27,8 @@ import { sharandarWorkshopReference } from './data/sharandarSupplement'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
 import { calculateCraftingPlan, expandSingleMaterial, isRecipePlannable } from './lib/crafting'
 import { CraftingWorkbench, ItemRecipeEvidence, MaterialsWorkbench } from './components/CraftingWorkbench'
+import { ClassIcon } from './components/ClassIcon'
+import { craftRequirementLabel, getCraftRequirement } from './lib/craftRequirement'
 
 const catalog = catalogJson as CatalogData
 const norm = (s: string) => s.toLowerCase().replace(/\+1/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ')
@@ -281,6 +283,8 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
   const statCount = (itemLevel ? 1 : 0) + statEntries.length
   const hasStats = statCount > 0
   const setData = item.set as { name?: string; twoPiece?: string[]; note?: string } | null | undefined
+  const craftRequirement = getCraftRequirement(item)
+  const craftLevelLabel = craftRequirementLabel(item)
   const openCraftable: OpenCraftable = (material, required) => setMaterialTrail((trail) => [...trail, { name: material.name, required }])
 
   if (materialTrail.length > 0) {
@@ -308,6 +312,10 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
           <div className="pills"><Source value={item.sourceStatus} /><CampaignBadge value={item.campaign} /><span>{item.profession || item.kind}</span></div>
           <h2>{item.name}</h2>
           <p>{classLabel} · {item.slot || item.kind}</p>
+          <div className="mw-detail-requirement">
+            <span className={craftRequirement.professionLevel == null ? '' : 'verified'}><Hammer size={13} aria-hidden="true" />{craftLevelLabel}</span>
+            <span>{item.profession ? `${item.profession} crafting` : 'Profession not captured'}</span>
+          </div>
         </div>
         <button className="primary" disabled={!hasRecipe} onClick={togglePlan}>{!hasRecipe ? 'Recipe needed' : inPlan ? 'Remove from plan' : 'Add to plan'}</button>
       </div>
@@ -338,7 +346,12 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
         <button className="stats-drawer-scrim" tabIndex={statsOpen ? 0 : -1} onClick={() => setStatsOpen(false)} aria-label="Close item details" />
         <aside id="item-stats-drawer" className="stats-drawer" role="dialog" aria-modal="true" aria-label={`${item.name} details`}>
           <div className="stats-drawer-head"><div><small>ITEM DETAILS</small><h3>{item.name}</h3><p>{v?.quality || v?.name || item.kind}</p></div><button className="stats-drawer-close" autoFocus={statsOpen} onClick={() => setStatsOpen(false)} aria-label="Close item details"><X size={18} aria-hidden="true" /></button></div>
-          <section className="stats-drawer-section"><div className="stats-drawer-section-head"><small>STATS</small><h4>Weapon & item stats</h4></div>{hasStats ? <div className="stats-drawer-grid">{itemLevel && <div><span>Item level</span><strong>{Number(itemLevel).toLocaleString()}</strong></div>}{statEntries.map(([key, value]) => <div key={key}><span>{key}</span><strong>{typeof value === 'number' ? `+${value.toLocaleString()}` : value}</strong></div>)}</div> : <p className="stats-drawer-empty">No stat fields are recorded for this item.</p>}{hasStats && <p className="stats-drawer-note">Stats reflect the currently selected quality variant. Recipe quantities remain unchanged.</p>}</section>
+          <section className="stats-drawer-section">
+            <div className="mw-drawer-craft-requirement"><span>Crafting requirement</span><strong>{craftLevelLabel}</strong></div>
+            <div className="stats-drawer-section-head"><small>STATS</small><h4>Weapon & item stats</h4></div>
+            {hasStats ? <div className="stats-drawer-grid">{itemLevel && <div><span>Item level</span><strong>{Number(itemLevel).toLocaleString()}</strong></div>}{statEntries.map(([key, value]) => <div key={key}><span>{key}</span><strong>{typeof value === 'number' ? `+${value.toLocaleString()}` : value}</strong></div>)}</div> : <p className="stats-drawer-empty">No stat fields are recorded for this item.</p>}
+            {hasStats && <p className="stats-drawer-note">Stats reflect the currently selected quality variant. Recipe quantities remain unchanged.</p>}
+          </section>
           <div className="stats-drawer-evidence"><ItemRecipeEvidence item={item} /></div>
         </aside>
       </div>
@@ -580,11 +593,11 @@ export default function App() {
               </div>
             </section>
 
-            <aside>
-              <small>CLASSES</small>
-              <button className={cls === 'All' ? 'active' : ''} onClick={() => selectClass('All')}>All craftables</button>
-              {availableClasses.map((className) => <button className={cls === className ? 'active' : ''} onClick={() => selectClass(className)} key={className}>{className}</button>)}
-            </aside>
+            <section className="mw-class-filter" aria-label="Filter craftables by class">
+              <div className="mw-class-filter-label"><small>CLASS</small><strong>Choose a class</strong></div>
+              <button type="button" className={cls === 'All' ? 'active' : ''} aria-pressed={cls === 'All'} onClick={() => selectClass('All')}><ClassIcon className="All" all /><span>All craftables</span></button>
+              {availableClasses.map((className) => <button type="button" className={cls === className ? 'active' : ''} aria-pressed={cls === className} aria-label={`Filter by ${className}`} onClick={() => selectClass(className)} key={className}><ClassIcon className={className} /><span>{className}</span></button>)}
+            </section>
 
             <div className="workspace">
               <div className="toolbar panel">
@@ -601,7 +614,7 @@ export default function App() {
                     return <article className={entry.id === item?.id ? 'selected' : ''} key={entry.id}>
                       <button className="item-main" data-item-id={entry.id} data-item-campaign={entry.campaign || ''} onClick={() => requestAppRoute({ view: 'catalog', itemId: entry.id })}>
                         <Icon src={entry.icon} alt={entry.name} />
-                        <div className="grow"><small><IconFor k={entry.kind} />{entry.slot || entry.kind}</small><strong>{entry.name}</strong><span>{entry.classes.includes('All') ? 'All classes' : entry.classes.length ? entry.classes.join(' · ') : 'Class not captured'}</span></div>
+                        <div className="grow"><small><IconFor k={entry.kind} />{entry.slot || entry.kind}</small><strong>{entry.name}</strong><div className="mw-item-meta-line"><span>{entry.classes.includes('All') ? 'All classes' : entry.classes.length ? entry.classes.join(' · ') : 'Class not captured'}</span><span className={`mw-craft-level ${getCraftRequirement(entry).professionLevel == null ? '' : 'verified'}`}><Hammer size={11} aria-hidden="true" />{craftRequirementLabel(entry)}</span></div></div>
                       </button>
                       <div className="item-foot"><div className="item-source-line"><Source value={entry.sourceStatus} /><CampaignBadge value={entry.campaign} /></div>{canPlan ? <button onClick={() => toggle(entry)}>{plan.has(entry.id) ? 'In plan' : '+ Plan'}</button> : <span className="recipe-needed">Recipe needed</span>}</div>
                     </article>
