@@ -13,7 +13,22 @@ test('catalog uses a compact NW-Hub icon-backed class filter instead of a tall c
     await expect(button).toBeVisible()
     const image = button.locator('img')
     await expect(image).toHaveCount(1)
-    await expect(image).toHaveAttribute('src', new RegExp(`^https://nw-hub\\.com/assets/classes/emblems/${name.toLowerCase()}\\.webp$`))
+    await expect(image).toHaveAttribute('src', new RegExp(`^https://nw-hub\\.com/assets/classes/emblems/${name.toLowerCase()}\\.webpimport { expect, test } from '@playwright/test'
+
+const classNames = ['Barbarian', 'Bard', 'Cleric', 'Fighter', 'Paladin', 'Ranger', 'Rogue', 'Warlock', 'Wizard']
+
+test('catalog uses a compact NW-Hub icon-backed class filter instead of a tall class rail', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/catalog')
+  const filter = page.locator('.mw-class-filter')
+  await expect(filter).toBeVisible()
+
+  for (const name of classNames) {
+    const button = filter.getByRole('button', { name: new RegExp(name, 'i') })
+    await expect(button).toBeVisible()
+    const image = button.locator('img')
+))
+    await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true)
   }
 
   const box = await filter.boundingBox()
