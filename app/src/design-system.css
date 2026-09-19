@@ -503,6 +503,35 @@ input:focus-visible,
   box-shadow: none !important;
 }
 
+.mw-graph-actions {
+  min-width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mw-graph-actions > b {
+  flex: 0 0 auto;
+  font-size: 12px;
+}
+
+.mw-graph-actions .acquisition-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: var(--mw-ds-radius-sm);
+}
+
+.mw-graph-actions .acquisition-button span {
+  display: none;
+}
+
 /* ---------- Desktop shell / fluid workspace ---------- */
 @media (min-width: 1181px) {
   .tablet-v4-sidebar {
@@ -688,6 +717,20 @@ input:focus-visible,
 
   .mw-graph-card {
     min-width: 520px;
+  }
+
+  .mw-graph-actions .acquisition-button {
+    width: var(--mw-ds-touch);
+    min-width: var(--mw-ds-touch);
+    height: var(--mw-ds-touch);
+    min-height: var(--mw-ds-touch);
+  }
+
+  /* Small catalogs do not need virtualized paint placeholders. Keeping rows
+     fully rendered avoids blank bands during mobile scroll and screenshots. */
+  .catalog .items > article {
+    content-visibility: visible !important;
+    contain-intrinsic-size: none !important;
   }
 
   /* Phone item detail is a navigation-stack screen. Its own back control is
