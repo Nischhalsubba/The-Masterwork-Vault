@@ -62,3 +62,23 @@ test('unsupported Sharandar facts stay explicit instead of being guessed', async
     await expect(page.locator('.catalog .items .item-main').filter({ hasText: name }).first()).toBeVisible()
   }
 })
+
+test('Data Health names only the remaining attributable class and recipe gaps', async ({ page }) => {
+  await page.goto('/data-health')
+
+  const classPanel = page.locator('.mw-health-panel').filter({ hasText: 'Missing class assignments' })
+  const recipePanel = page.locator('.mw-health-panel').filter({ hasText: 'Missing item recipes' })
+
+  await expect(classPanel).toBeVisible()
+  await expect(recipePanel).toBeVisible()
+
+  for (const entry of recovered) {
+    await expect(classPanel).not.toContainText(entry.name)
+    await expect(recipePanel).not.toContainText(entry.name)
+  }
+
+  for (const name of ['Feywood Bark', 'Feywood Bark Barbute', 'Feywood Blightbark']) {
+    await expect(classPanel).toContainText(name)
+  }
+  await expect(recipePanel).toContainText('Feywood Blightbark')
+})
