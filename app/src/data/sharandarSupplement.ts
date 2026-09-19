@@ -491,11 +491,14 @@ for (const rawItem of sharandarItems) {
       item.provenance.evidence = Array.from(new Set([...(item.provenance.evidence ?? []), ...recipe.evidence]))
       item.verification = {
         ...(item.verification ?? {}),
-        status: 'strong-current',
+        status: allClassAccessories.has(item.name) ? 'historical' : 'strong-current',
         lastVerified: '2026-09-19',
         notes: Array.from(new Set([
           ...(item.verification?.notes ?? []),
-          'Recipe/profession reconciled from a maintained Sharandar profession task table. This is community-maintained current evidence, not a live-server capture.',
+          allClassAccessories.has(item.name)
+            ? 'Recipe/profession reconciled from a maintained Sharandar task table; the +1 item-level identity remains the 2023 publisher correction, and current +1 stats/bind/live availability are not inferred.'
+            : 'Recipe/profession reconciled from a maintained Sharandar profession task table. This is community-maintained current evidence, not a live-server capture.',
+          'For +1 records, shared recipe inputs describe the underlying task and do not imply a guaranteed high-quality result.',
         ])),
       }
     }
