@@ -90,3 +90,9 @@ test('visual capture smoke records critical surfaces', async ({ page }, testInfo
     await page.screenshot({ path: testInfo.outputPath(`${route.slice(1) || 'home'}-mobile.png`), fullPage: true })
   }
 })
+
+test('resolved evidence queues stay resolved', async ({ page }) => {
+  await page.goto('/data-health')
+  await expect(page.getByText('Every multi-quality item carries variant-specific evidence.')).toBeVisible()
+  await expect(page.getByText('Minimum cross-profession gates and later-book binding')).toHaveCount(0)
+})
