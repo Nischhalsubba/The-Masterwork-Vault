@@ -29,6 +29,8 @@ import './responsive-workspace.css'
 import './accessibility.css'
 import './utility-placement.css'
 import './workspace-shell.css'
+import './design/tokens.css'
+import './design-system.css'
 
 const App = lazy(() => import('./App'))
 const WorkspaceShell = lazy(() => import('./components/WorkspaceShell').then((module) => ({ default: module.WorkspaceShell })))
