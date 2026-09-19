@@ -88,6 +88,7 @@ const sharandarWiki = {
   artificing: 'https://neverwinter.fandom.com/ru/wiki/%D0%9C%D0%B0%D1%81%D1%82%D0%B5%D1%80%D1%81%D0%BA%D0%B8%D0%B5_%D1%80%D0%B5%D1%86%D0%B5%D0%BF%D1%82%D1%8B_%D0%BD%D0%B0%D0%BD%D0%B5%D1%81%D0%B5%D0%BD%D0%B8%D1%8F_%D1%83%D0%B7%D0%BE%D1%80%D0%BE%D0%B2',
   leatherworking: 'https://neverwinter.fandom.com/ru/wiki/%D0%9C%D0%B0%D1%81%D1%82%D0%B5%D1%80%D1%81%D0%BA%D0%B8%D0%B5_%D1%80%D0%B5%D1%86%D0%B5%D0%BF%D1%82%D1%8B_%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B8_%D0%BA%D0%BE%D0%B6%D0%B8',
   tailoring: 'https://neverwinter.fandom.com/ru/wiki/%D0%9C%D0%B0%D1%81%D1%82%D0%B5%D1%80%D1%81%D0%BA%D0%B8%D0%B5_%D1%80%D0%B5%D1%86%D0%B5%D0%BF%D1%82%D1%8B_%D0%BA%D1%80%D0%BE%D0%B9%D0%BA%D0%B8_%D0%B8_%D1%88%D0%B8%D1%82%D1%8C%D1%8F',
+  jewelcrafting: 'https://neverwinter.fandom.com/ru/wiki/%D0%9C%D0%B0%D1%81%D1%82%D0%B5%D1%80%D1%81%D0%BA%D0%B8%D0%B5_%D1%80%D0%B5%D1%86%D0%B5%D0%BF%D1%82%D1%8B_%D1%8E%D0%B2%D0%B5%D0%BB%D0%B8%D1%80%D0%BD%D0%BE%D0%B3%D0%BE_%D0%B4%D0%B5%D0%BB%D0%B0',
 } as const
 
 const wikiYield = (outputQuantity:number, sourceUrl:string): SharandarYieldEvidence => ({
@@ -339,6 +340,165 @@ export const sharandarItems: Array<Record<string, unknown>> = [
   },
   ...publisherSharandarItems,
 ]
+
+// ---------------------------------------------------------------------------
+// 2026-09-19 current-source reconciliation
+// ---------------------------------------------------------------------------
+// The original Sharandar pack intentionally left class/recipe fields empty when a
+// screenshot crop did not expose them. Maintained profession/task tables now let
+// us fill a subset without guessing. These rows keep the screenshot identity and
+// add an explicit community-source limitation; live recipe UI always wins.
+
+const currentCommunityEvidence = {
+  tailoring: sharandarWiki.tailoring,
+  leatherworking: sharandarWiki.leatherworking,
+  jewelcrafting: sharandarWiki.jewelcrafting,
+  leatherworkingIndex: 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0_%D0%BA%D0%BE%D0%B6%D0%B8',
+  tailoringIndex: 'https://neverwinter.fandom.com/ru/wiki/%D0%9A%D1%80%D0%BE%D0%B9%D0%BA%D0%B0_%D0%B8_%D1%88%D0%B8%D1%82%D1%8C%D0%B5',
+} as const
+
+const communityRecipeNote = (sourceUrl: string, localizedName?: string) =>
+  `Maintained Neverwinter Wiki Sharandar task table reviewed 2026-09-19${localizedName ? ` · localized row: ${localizedName}` : ''} · ${sourceUrl} · community-maintained evidence, not a live-server capture; live recipe UI wins if it differs.`
+
+const reconciledRecipes: SharandarRecipe[] = [
+  {
+    name: "Fey'd Leaf Wood Wraps", outputQuantity: 1, quantityExplicit: true, profession: 'Tailoring',
+    materials: [need('Crystalline Ornament',2),need("Lacquered 'Aged' Leather",2),need('Fey Fibers',3),need('Salty Tears Varnish',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.tailoring, 'Деревянные обмотки с листьями фэйри')],
+  },
+  {
+    name: "Fey'd Leaf Branch Crown", outputQuantity: 1, quantityExplicit: true, profession: 'Tailoring',
+    materials: [need('Woven Whiskers',2),need('Thorned Ornament',2),need('Woven Fey Leaves',3),need('Salty Tears Varnish',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.tailoring, 'Корона из веток с листьями фэйри')],
+  },
+  {
+    name: 'Twig Crown', outputQuantity: 1, quantityExplicit: true, profession: 'Leatherworking',
+    materials: [need("Lacquered 'Aged' Leather",2),need('Woven Whiskers',2),need('Fey Fibers',3),need('Salty Tears Varnish',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.leatherworking, 'Корона из прутиков')],
+  },
+  {
+    name: 'Petrified Armlets', outputQuantity: 1, quantityExplicit: true, profession: 'Leatherworking',
+    materials: [need("Lacquered 'Aged' Leather",2),need('Thorned Ornament',2),need('Fey Fibers',3),need('Salty Tears Varnish',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.leatherworking, 'Окаменевшие наручи')],
+  },
+  {
+    name: 'Petrified Guards', outputQuantity: 1, quantityExplicit: true, profession: 'Leatherworking',
+    materials: [need("Lacquered 'Aged' Leather",2),need('Woven Whiskers',2),need('Lacquered Leaves',3),need('Salty Tears Varnish',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.leatherworking, 'Окаменевшие щитки')],
+  },
+  {
+    name: 'Petrified Wristguards', outputQuantity: 1, quantityExplicit: true, profession: 'Leatherworking',
+    materials: [need("Lacquered 'Aged' Leather",2),need('Thorned Ornament',2),need('Fey Fibers',3),need('Salty Tears Varnish',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.leatherworking, 'Окаменевшие напястники')],
+  },
+  {
+    name: 'Petrified Barbute', outputQuantity: 1, quantityExplicit: true, profession: 'Leatherworking',
+    materials: [need("Lacquered 'Aged' Leather",2),need('Thorned Ornament',2),need('Fey Fibers',3),need('Salty Tears Varnish',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.leatherworking, 'Окаменевший барбют')],
+  },
+  {
+    name: 'Thorned Amulet +1', outputQuantity: 1, quantityExplicit: true, profession: 'Jewelcrafting',
+    materials: [need('Living Feywood',1),need('Thorned Ornament',2),need('Beads of Light',4),need("Ears 'n Tears",1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.jewelcrafting, 'Шипастый амулет')],
+  },
+  {
+    name: 'Feywood Amulet +1', outputQuantity: 1, quantityExplicit: true, profession: 'Jewelcrafting',
+    materials: [need('Living Feywood',1),need('Feywood Lumber',2),need('Beads of Light',4),need("Ears 'n Tears",1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.jewelcrafting, 'Амулет из дерева фэйри')],
+  },
+  {
+    name: 'Thorned Sash +1', outputQuantity: 1, quantityExplicit: true, profession: 'Tailoring',
+    materials: [need("Frozen Dawn's Dew",1),need('Thorned Ornament',2),need('Woven Fey Leaves',4),need('Woven Whiskers',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.tailoring, 'Шипастый кушак')],
+  },
+  {
+    name: 'Feywood Sash +1', outputQuantity: 1, quantityExplicit: true, profession: 'Tailoring',
+    materials: [need('Living Feywood',1),need('Beads of Light',2),need('Woven Fey Leaves',4),need('Woven Whiskers',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.tailoring, 'Кушак из дерева фэйри')],
+  },
+  {
+    name: "Dawn's Light Sash +1", outputQuantity: 1, quantityExplicit: true, profession: 'Tailoring',
+    materials: [need("Dawn's Silver Enamel",1),need('Silver Vines',2),need('Woven Fey Leaves',4),need('Woven Whiskers',1)],
+    evidence: [communityRecipeNote(currentCommunityEvidence.tailoring, 'Легкий кушак рассвета')],
+  },
+]
+
+const recipeIndex = new Map(sharandarRecipes.map((recipe) => [recipe.name, recipe]))
+for (const recipe of reconciledRecipes) {
+  const current = recipeIndex.get(recipe.name)
+  if (current) Object.assign(current, recipe)
+  else {
+    sharandarRecipes.push(recipe)
+    recipeIndex.set(recipe.name, recipe)
+  }
+}
+
+const classCorrections: Record<string, { classes: string[]; profession: string; sourceUrl: string; localizedName: string }> = {
+  'Lacquered Leaf Waders': { classes: ['Cleric'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Болотники из лакированных листьев' },
+  'Petrified Braces': { classes: ['Bard'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Окаменевшие браслеты' },
+  'Petrified Wraps': { classes: ['Bard'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Окаменевшие обмотки' },
+  'Petrified Wristlets': { classes: ['Bard'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Окаменевшие напульсники' },
+  'Petrified Armlets': { classes: ['Bard'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Окаменевшие наручи' },
+  'Petrified Guards': { classes: ['Bard'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Окаменевшие щитки' },
+  'Petrified Wristguards': { classes: ['Bard'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Окаменевшие напястники' },
+  'Petrified Bark Barbute': { classes: ['Rogue'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Барбют из окаменевшей коры' },
+  'Petrified Barbute': { classes: ['Rogue'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Окаменевший барбют' },
+  'Sprouting Crown': { classes: ['Wizard'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Прорастающая корона' },
+  'Twig Crown': { classes: ['Warlock'], profession: 'Leatherworking', sourceUrl: currentCommunityEvidence.leatherworkingIndex, localizedName: 'Корона из прутиков' },
+  "Fey'd Leaf Branches": { classes: ['Wizard'], profession: 'Tailoring', sourceUrl: currentCommunityEvidence.tailoringIndex, localizedName: 'Ветки с листьями фэйри' },
+  "Fey'd Leaf Wood Wraps": { classes: ['Wizard'], profession: 'Tailoring', sourceUrl: currentCommunityEvidence.tailoringIndex, localizedName: 'Деревянные обмотки с листьями фэйри' },
+  "Fey'd Leaf Branch Crown": { classes: ['Wizard'], profession: 'Tailoring', sourceUrl: currentCommunityEvidence.tailoringIndex, localizedName: 'Корона из веток с листьями фэйри' },
+  "Fey'd Leaf Wood Crown": { classes: ['Wizard'], profession: 'Tailoring', sourceUrl: currentCommunityEvidence.tailoringIndex, localizedName: 'Деревянная корона с листьями фэйри' },
+}
+
+const allClassAccessories = new Set(['Thorned Amulet +1','Feywood Amulet +1','Thorned Sash +1','Feywood Sash +1',"Dawn's Light Sash +1"])
+
+for (const rawItem of sharandarItems) {
+  const item = rawItem as any
+  const classCorrection = classCorrections[item.name]
+  const recipe = recipeIndex.get(item.name)
+
+  if (classCorrection) {
+    item.classes = [...classCorrection.classes]
+    item.profession = classCorrection.profession
+    item.levelRequirement = 20
+    item.categories = (item.categories ?? []).filter((value: string) => value !== 'Class restriction not visible')
+    item.provenance = item.provenance ?? { evidence: [] }
+    item.provenance.evidence = Array.from(new Set([
+      ...(item.provenance.evidence ?? []),
+      `Maintained profession index reviewed 2026-09-19 · ${classCorrection.localizedName} · ${classCorrection.sourceUrl}`,
+      'Class token comes from the maintained profession index; live item tooltip wins if the game changes.',
+    ]))
+  }
+
+  if (allClassAccessories.has(item.name)) {
+    item.classes = ['All']
+    item.levelRequirement = 20
+  }
+
+  if (recipe) {
+    item.materials = recipe.materials.map((entry) => ({ ...entry }))
+    item.profession = recipe.profession ?? item.profession ?? null
+    if (reconciledRecipes.some((entry) => entry.name === item.name)) {
+      item.recipeKnown = true
+      item.levelRequirement = 20
+      item.sourceStatus = item.sourceStatus === 'publisher-patch' ? 'publisher-plus-community-reconciled' : 'community-reconciled'
+      item.categories = (item.categories ?? []).filter((value: string) => value !== 'Recipe not captured')
+      item.provenance = item.provenance ?? { evidence: [] }
+      item.provenance.recipe = recipe.evidence[0]
+      item.provenance.evidence = Array.from(new Set([...(item.provenance.evidence ?? []), ...recipe.evidence]))
+      item.verification = {
+        ...(item.verification ?? {}),
+        status: 'strong-current',
+        lastVerified: '2026-09-19',
+        notes: Array.from(new Set([
+          ...(item.verification?.notes ?? []),
+          'Recipe/profession reconciled from a maintained Sharandar profession task table. This is community-maintained current evidence, not a live-server capture.',
+        ])),
+      }
+    }
+  }
+}
 
 export const sharandarWorkshopReference = {
   sourceUrls: [
