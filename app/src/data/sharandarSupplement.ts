@@ -349,6 +349,8 @@ export const sharandarItems: Array<Record<string, unknown>> = [
 // us fill a subset without guessing. These rows keep the screenshot identity and
 // add an explicit community-source limitation; live recipe UI always wins.
 
+const need = (name: string, required: number): SharandarNeed => ({ name, required })
+
 const currentCommunityEvidence = {
   tailoring: sharandarWiki.tailoring,
   leatherworking: sharandarWiki.leatherworking,
