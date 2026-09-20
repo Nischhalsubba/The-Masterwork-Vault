@@ -22,7 +22,7 @@ test('journey uses all captured outputs without inventing missing recipes', asyn
   await page.goto('/journey')
   const library = page.locator('#journey-craftables')
   await expect(library).toContainText('110 item records')
-  await expect(library).toContainText(/\\d+ recipe records/)
+  await expect(library).toContainText(/\d+ recipe records/)
   await expect(library).toContainText('not every recipe in the game')
   await expect(library.locator('.journey-output')).toHaveCount(30)
   await expect(library.locator('.journey-output-detail')).toHaveCount(0)
