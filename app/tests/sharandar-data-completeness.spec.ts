@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { sharandarIconDataUri, verifiedSharandarIconAliases } from '../src/data/sharandarSprite'
+import { sharandarIconDataUri, verifiedSharandarIconAliases, verifiedSharandarRemoteIcons } from '../src/data/sharandarSprite'
 
 type ExpectedCraft = {
   name: string
@@ -96,19 +96,39 @@ test('verified Sharandar icon aliases reuse the exact local game asset', () => {
   }
 })
 
+test('verified Sharandar remote icons resolve through the app media proxy', () => {
+  for (const [name, evidence] of Object.entries(verifiedSharandarRemoteIcons)) {
+    const actual = sharandarIconDataUri(name)
+    expect(actual, name).toBe(`/media/neverwinter/${encodeURIComponent(evidence.assetFile)}`)
+    expect(evidence.assetFile, name).toMatch(/\.png$/)
+    expect(evidence.sourceUrl, name).toMatch(/^https:\/\/neverwinter\.fandom\.com\/ru\/wiki\//)
+  }
+})
+
 test('Data Health exposes authentic artwork gaps instead of hiding reference icons', async ({ page }) => {
   await page.goto('/data-health')
   await expect(page.getByText('Authentic artwork gaps', { exact: true })).toBeVisible()
   const queue = page.locator('.mw-health-panel').filter({ hasText: 'Authentic artwork gap queue' })
   await expect(queue).toBeVisible()
 
-  // These still use category-derived reference art and must remain visible as research work.
-  for (const name of ["Dawn's Light Sash +1", 'Crafted Potion of Accuracy Rank 13', 'Twig Crown']) {
+  // Exact potion and amulet asset filenames are still not proven and must remain research work.
+  for (const name of ['Crafted Potion of Accuracy Rank 13', 'Thorned Amulet +1', 'Feywood Amulet +1']) {
     await expect(queue).toContainText(name)
   }
 
   // These now reuse exact, source-attributed Neverwinter game assets.
-  for (const name of ["Fey'd Leaf Wood Wraps", "Fey'd Leaf Branch Crown", 'Petrified Armlets', 'Petrified Guards', 'Petrified Wristguards', 'Petrified Barbute']) {
+  for (const name of [
+    "Fey'd Leaf Wood Wraps",
+    "Fey'd Leaf Branch Crown",
+    'Petrified Armlets',
+    'Petrified Guards',
+    'Petrified Wristguards',
+    'Petrified Barbute',
+    'Twig Crown',
+    'Thorned Sash +1',
+    'Feywood Sash +1',
+    "Dawn's Light Sash +1",
+  ]) {
     await expect(queue).not.toContainText(name)
   }
 })
