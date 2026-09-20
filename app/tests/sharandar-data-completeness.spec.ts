@@ -116,6 +116,13 @@ test('verified Sharandar remote icons render through the app media proxy', async
     ['Feywood Sash +1', 'Inventory Waist Stronghold Crafted Physical Feywood.png'],
     ['Thorned Sash +1', 'Inventory Waist Stronghold Crafted Healer Thorned.png'],
     ["Dawn's Light Sash +1", 'Inventory Waist Stronghold Crafted Tank Silvervine.png'],
+    ['Thorned Amulet +1', 'Inventory_Neck_Stronghold_Crafted_Healer_Thorned.png'],
+    ['Feywood Amulet +1', 'Inventory_Neck_Stronghold_Crafted_Physical_Feywood.png'],
+    ['Crafted Potion of Accuracy Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Blue.png'],
+    ['Crafted Potion of Critical Strike Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Electric.png'],
+    ['Crafted Potion of Defense Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Water.png'],
+    ['Crafted Potion of Deflect Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Green.png'],
+    ['Crafted Potion of Power Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Yellowgreen.png'],
   ] as const
 
   for (const [name, assetFile] of expected) {
@@ -123,6 +130,7 @@ test('verified Sharandar remote icons render through the app media proxy', async
     const image = page.locator('.catalog .items .item-main').filter({ hasText: name }).first().locator('img.thumb')
     await expect(image, name).toBeVisible()
     await expect(image, name).toHaveAttribute('src', '/media/neverwinter/' + encodeURIComponent(assetFile))
+    await expect.poll(async () => image.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0), { message: name + ' should decode real image pixels' }).toBe(true)
   }
 })
 
@@ -131,11 +139,6 @@ test('Data Health exposes authentic artwork gaps instead of hiding reference ico
   await expect(page.getByText('Authentic artwork gaps', { exact: true })).toBeVisible()
   const queue = page.locator('.mw-health-panel').filter({ hasText: 'Authentic artwork gap queue' })
   await expect(queue).toBeVisible()
-
-  // Exact potion and amulet asset filenames are still not proven and must remain research work.
-  for (const name of ['Crafted Potion of Accuracy Rank 13', 'Thorned Amulet +1', 'Feywood Amulet +1']) {
-    await expect(queue).toContainText(name)
-  }
 
   // These now reuse exact, source-attributed Neverwinter game assets.
   for (const name of [
@@ -149,6 +152,13 @@ test('Data Health exposes authentic artwork gaps instead of hiding reference ico
     'Thorned Sash +1',
     'Feywood Sash +1',
     "Dawn's Light Sash +1",
+    'Thorned Amulet +1',
+    'Feywood Amulet +1',
+    'Crafted Potion of Accuracy Rank 13',
+    'Crafted Potion of Critical Strike Rank 13',
+    'Crafted Potion of Defense Rank 13',
+    'Crafted Potion of Deflect Rank 13',
+    'Crafted Potion of Power Rank 13',
   ]) {
     await expect(queue).not.toContainText(name)
   }
