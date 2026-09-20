@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { sharandarIconDataUri, verifiedSharandarIconAliases } from '../src/data/sharandarSprite'
 
 type ExpectedCraft = {
   name: string
@@ -81,4 +82,33 @@ test('Data Health names only the remaining attributable class and recipe gaps', 
     await expect(classPanel).toContainText(name)
   }
   await expect(recipePanel).toContainText('Feywood Blightbark')
+})
+
+
+test('verified Sharandar icon aliases reuse the exact local game asset', () => {
+  for (const [name, evidence] of Object.entries(verifiedSharandarIconAliases)) {
+    const actual = sharandarIconDataUri(name)
+    const canonical = sharandarIconDataUri(evidence.canonical)
+    expect(actual, name).toBeTruthy()
+    expect(actual, name).toBe(canonical)
+    expect(evidence.assetFile, name).toMatch(/^Icons Inventory Masterwork /)
+    expect(evidence.sourceUrl, name).toMatch(/^https:\/\/neverwinter\.fandom\.com\/ru\/wiki\//)
+  }
+})
+
+test('Data Health exposes authentic artwork gaps instead of hiding reference icons', async ({ page }) => {
+  await page.goto('/data-health')
+  await expect(page.getByText('Authentic artwork gaps', { exact: true })).toBeVisible()
+  const queue = page.locator('.mw-health-panel').filter({ hasText: 'Authentic artwork gap queue' })
+  await expect(queue).toBeVisible()
+
+  // These still use category-derived reference art and must remain visible as research work.
+  for (const name of ["Dawn's Light Sash +1", 'Crafted Potion of Accuracy Rank 13', 'Twig Crown']) {
+    await expect(queue).toContainText(name)
+  }
+
+  // These now reuse exact, source-attributed Neverwinter game assets.
+  for (const name of ["Fey'd Leaf Wood Wraps", "Fey'd Leaf Branch Crown", 'Petrified Armlets', 'Petrified Guards', 'Petrified Wristguards', 'Petrified Barbute']) {
+    await expect(queue).not.toContainText(name)
+  }
 })
