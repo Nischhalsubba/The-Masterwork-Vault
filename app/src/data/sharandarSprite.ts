@@ -58,7 +58,7 @@ export const verifiedSharandarIconAliases = {
   'Petrified Wristguards': {
     canonical: 'Petrified Braces',
     assetFile: 'Icons Inventory Masterwork Arms Bard Fey Druidic M 01',
-    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B8_%D0%BA%D0%BE%D0%B6%D0%B8',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0_%D0%BA%D0%BE%D0%B6%D0%B8',
   },
   'Petrified Barbute': {
     canonical: 'Petrified Bark Barbute',
