@@ -6,7 +6,7 @@ const neverwinterMediaProxy = {
     target: 'https://neverwinter.fandom.com',
     changeOrigin: true,
     secure: true,
-    rewrite: (path: string) => path.replace(/^\\/media\\/neverwinter\\//, '/wiki/Special:Redirect/file/'),
+    rewrite: (path: string) => path.replace(/^\/media\/neverwinter\//, '/wiki/Special:Redirect/file/'),
   },
 }
 
