@@ -82,3 +82,84 @@ test('Data Health names only the remaining attributable class and recipe gaps', 
   }
   await expect(recipePanel).toContainText('Feywood Blightbark')
 })
+
+
+test('verified Sharandar icon aliases reuse the exact rendered local game asset', async ({ page }) => {
+  const aliases = [
+    ["Fey'd Leaf Wood Wraps", "Fey'd Leaf Branches"],
+    ["Fey'd Leaf Branch Crown", "Fey'd Leaf Wood Crown"],
+    ['Petrified Armlets', 'Petrified Braces'],
+    ['Petrified Guards', 'Petrified Braces'],
+    ['Petrified Wristguards', 'Petrified Braces'],
+    ['Petrified Barbute', 'Petrified Bark Barbute'],
+  ] as const
+
+  for (const [alias, canonical] of aliases) {
+    await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(alias))
+    const aliasImage = page.locator('.catalog .items .item-main').filter({ hasText: alias }).first().locator('img.thumb')
+    await expect(aliasImage, alias).toBeVisible()
+    const aliasSrc = await aliasImage.getAttribute('src')
+
+    await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(canonical))
+    const canonicalImage = page.locator('.catalog .items .item-main').filter({ hasText: canonical }).first().locator('img.thumb')
+    await expect(canonicalImage, canonical).toBeVisible()
+    const canonicalSrc = await canonicalImage.getAttribute('src')
+
+    expect(aliasSrc, alias).toBeTruthy()
+    expect(aliasSrc, alias).toBe(canonicalSrc)
+  }
+})
+
+test('verified Sharandar remote icons render through the app media proxy', async ({ page }) => {
+  const expected = [
+    ['Twig Crown', 'Icons Inventory Masterwork Head Warlock Fey Druidic M 01.png'],
+    ['Feywood Sash +1', 'Inventory Waist Stronghold Crafted Physical Feywood.png'],
+    ['Thorned Sash +1', 'Inventory Waist Stronghold Crafted Healer Thorned.png'],
+    ["Dawn's Light Sash +1", 'Inventory Waist Stronghold Crafted Tank Silvervine.png'],
+    ['Thorned Amulet +1', 'Inventory_Neck_Stronghold_Crafted_Healer_Thorned.png'],
+    ['Feywood Amulet +1', 'Inventory_Neck_Stronghold_Crafted_Physical_Feywood.png'],
+    ['Crafted Potion of Accuracy Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Blue.png'],
+    ['Crafted Potion of Critical Strike Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Electric.png'],
+    ['Crafted Potion of Defense Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Water.png'],
+    ['Crafted Potion of Deflect Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Green.png'],
+    ['Crafted Potion of Power Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Yellowgreen.png'],
+  ] as const
+
+  for (const [name, assetFile] of expected) {
+    await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(name))
+    const image = page.locator('.catalog .items .item-main').filter({ hasText: name }).first().locator('img.thumb')
+    await expect(image, name).toBeVisible()
+    await expect(image, name).toHaveAttribute('src', '/media/neverwinter/' + encodeURIComponent(assetFile))
+    await expect.poll(async () => image.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0), { message: name + ' should decode real image pixels' }).toBe(true)
+  }
+})
+
+test('Data Health exposes authentic artwork gaps instead of hiding reference icons', async ({ page }) => {
+  await page.goto('/data-health')
+  await expect(page.getByText('Authentic artwork gaps', { exact: true })).toBeVisible()
+  const queue = page.locator('.mw-health-panel').filter({ hasText: 'Authentic artwork gap queue' })
+  await expect(queue).toBeVisible()
+
+  // These now reuse exact, source-attributed Neverwinter game assets.
+  for (const name of [
+    "Fey'd Leaf Wood Wraps",
+    "Fey'd Leaf Branch Crown",
+    'Petrified Armlets',
+    'Petrified Guards',
+    'Petrified Wristguards',
+    'Petrified Barbute',
+    'Twig Crown',
+    'Thorned Sash +1',
+    'Feywood Sash +1',
+    "Dawn's Light Sash +1",
+    'Thorned Amulet +1',
+    'Feywood Amulet +1',
+    'Crafted Potion of Accuracy Rank 13',
+    'Crafted Potion of Critical Strike Rank 13',
+    'Crafted Potion of Defense Rank 13',
+    'Crafted Potion of Deflect Rank 13',
+    'Crafted Potion of Power Rank 13',
+  ]) {
+    await expect(queue).not.toContainText(name)
+  }
+})

@@ -129,8 +129,10 @@ export function buildDataHealthReport() {
   const unknownYields = catalog.recipes.filter((recipe) => recipe.quantityExplicit === false)
   const missingItemClasses = catalog.items.filter((item) => !item.classes?.length)
   const missingItemRecipes = catalog.items.filter((item) => item.recipeKnown === false || !item.materials?.length)
-  const missingArtwork = [...catalog.items, ...catalog.materials].filter((entity) => artworkProvenance(entity) === 'missing')
-  const rejectedArtwork = [...catalog.items, ...catalog.materials].filter((entity) => artworkProvenance(entity) === 'rejected')
+  const allArtworkEntities = [...catalog.items, ...catalog.materials]
+  const missingArtwork = allArtworkEntities.filter((entity) => artworkProvenance(entity) === 'missing')
+  const authenticArtworkGaps = allArtworkEntities.filter((entity) => ['reference-derived', 'placeholder', 'missing'].includes(artworkProvenance(entity)))
+  const rejectedArtwork = allArtworkEntities.filter((entity) => artworkProvenance(entity) === 'rejected')
   const missingProfessionRecipes = catalog.recipes.filter((recipe) => !recipe.profession)
   const orphanCraftableMaterials = catalog.materials.filter((material) => material.craftable && !recipeNames.has(norm(material.name)))
   const duplicateItems = findDuplicates(catalog.items.map((item) => item.name))
@@ -167,6 +169,7 @@ export function buildDataHealthReport() {
       missingItemClasses,
       missingItemRecipes,
       missingArtwork,
+      authenticArtworkGaps,
       rejectedArtwork,
       missingProfessionRecipes,
       orphanCraftableMaterials,

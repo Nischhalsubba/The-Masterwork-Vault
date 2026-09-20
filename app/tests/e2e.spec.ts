@@ -17,15 +17,25 @@ test('zero-result search has a real empty state', async ({ page }) => {
   await expect(search).toHaveValue('')
 })
 
-test('publisher-confirmed Sharandar accessories are visible with reference icons and honest recipe state', async ({ page }) => {
-  const items = ['Thorned Amulet +1','Feywood Amulet +1','Thorned Sash +1','Feywood Sash +1',"Dawn's Light Sash +1"]
-  for (const name of items) {
+test('publisher-confirmed Sharandar accessories expose reconciled recipes and item level', async ({ page }) => {
+  const items = [
+    ['Thorned Amulet +1', 'Jewelcrafting'],
+    ['Feywood Amulet +1', 'Jewelcrafting'],
+    ['Thorned Sash +1', 'Tailoring'],
+    ['Feywood Sash +1', 'Tailoring'],
+    ["Dawn's Light Sash +1", 'Tailoring'],
+  ] as const
+
+  for (const [name, profession] of items) {
     await page.goto(`/catalog?campaign=Sharandar&q=${encodeURIComponent(name)}`)
     const row = page.locator('.catalog .items .item-main').filter({ hasText: name }).first()
     await expect(row).toBeVisible()
     await expect(row.locator('img.thumb')).toBeVisible()
     await row.click()
-    await expect(page.getByRole('main')).toContainText('Recipe not captured')
+    const main = page.getByRole('main')
+    await expect(main).not.toContainText('Recipe not captured yet')
+    await expect(main).toContainText(`${profession} crafting`)
+    await expect(main).toContainText('Profession level 20')
     await page.getByRole('button', { name: /Details/ }).click()
     const details = page.getByRole('dialog')
     await expect(details).toContainText('1,300')

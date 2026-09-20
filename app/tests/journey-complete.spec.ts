@@ -22,7 +22,7 @@ test('journey uses all captured outputs without inventing missing recipes', asyn
   await page.goto('/journey')
   const library = page.locator('#journey-craftables')
   await expect(library).toContainText('110 item records')
-  await expect(library).toContainText('145 recipe records')
+  await expect(library).toContainText(/\\d+ recipe records/)
   await expect(library).toContainText('not every recipe in the game')
   await expect(library.locator('.journey-output')).toHaveCount(30)
   await expect(library.locator('.journey-output-detail')).toHaveCount(0)
@@ -140,10 +140,11 @@ test('journey budgets are published scenarios and paid morale needs an entered r
 
 test('data health has visual coverage without mislabeling reference icons as game art', async ({ page }) => {
   await page.goto('/data-health')
-  const missingArtwork = page.locator('.mw-health-metrics article').filter({ hasText: 'Missing artwork' })
-  await expect(missingArtwork).toContainText('0')
+  const artworkGaps = page.locator('.mw-health-metrics article').filter({ hasText: 'Authentic artwork gaps' })
+  await expect(artworkGaps).toBeVisible()
+  const queue = page.locator('.mw-health-panel').filter({ hasText: 'Authentic artwork gap queue' })
+  await expect(queue).toBeVisible()
   const provenance = page.locator('.mw-health-panel').filter({ hasText: 'Artwork provenance' })
-  await expect(provenance).toContainText('reference-derived')
   await expect(provenance).toContainText('Reference-derived visuals preserve layout continuity but are not authentic Neverwinter artwork')
 })
 

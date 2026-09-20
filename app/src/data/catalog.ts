@@ -10,7 +10,7 @@ import {
   recoveredMaterialSpecs,
 } from './extractedSupplement'
 import { sharandarItems, sharandarRecipes } from './sharandarSupplement'
-import { sharandarIconDataUri } from './sharandarSprite'
+import { sharandarIconDataUri, verifiedSharandarRemoteIconEvidence } from './sharandarSprite'
 import { referenceIconDataUri, referenceIconKindForEntity } from './referenceIcons.ts'
 
 const catalog = structuredClone(generatedCatalog)
@@ -273,6 +273,25 @@ for (const raw of sharandarItems) {
     provenance: raw.provenance ?? { evidence: [] },
   }
   if (!item.icon) item.icon = sharandarIconDataUri(itemName)
+
+  // A reference-derived fallback from the supplemental row must never override a later
+  // exact Neverwinter asset match. Replace it and record the external evidence explicitly.
+  const remoteArtwork = verifiedSharandarRemoteIconEvidence(itemName)
+  if (remoteArtwork) {
+    item.icon = sharandarIconDataUri(itemName)
+    item.artwork = {
+      provenance: 'verified-game-asset',
+      sourceId: remoteArtwork.sourceUrl,
+      lastVerified: '2026-09-20',
+    }
+    item.provenance = item.provenance ?? { evidence: [] }
+    item.provenance.image = `Neverwinter profession table · ${remoteArtwork.assetFile}`
+    item.provenance.evidence = Array.from(new Set([
+      ...(item.provenance.evidence ?? []).filter((entry: string) => !entry.includes('Reference icon is category-derived')),
+      `${remoteArtwork.sourceUrl} · exact game asset: ${remoteArtwork.assetFile}`,
+    ]))
+  }
+
   const key = norm(item.name)
   const previous = sharandarByName.get(key)
   if (!previous || itemScore(item) > itemScore(previous)) sharandarByName.set(key, item)
