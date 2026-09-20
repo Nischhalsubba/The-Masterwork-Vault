@@ -110,7 +110,7 @@ test('verified Sharandar icon aliases reuse the exact rendered local game asset'
   }
 })
 
-test('verified Sharandar remote icons render through the app media proxy', async ({ page }) => {
+test('verified Sharandar icons request exact game art and fall back without broken thumbnails', async ({ page }) => {
   const expected = [
     ['Twig Crown', 'Icons Inventory Masterwork Head Warlock Fey Druidic M 01.png'],
     ['Feywood Sash +1', 'Inventory Waist Stronghold Crafted Physical Feywood.png'],
@@ -125,12 +125,29 @@ test('verified Sharandar remote icons render through the app media proxy', async
     ['Crafted Potion of Power Rank 13', 'Inventory_Consumables_Potion_T13_Alchemical_Yellowgreen.png'],
   ] as const
 
+  const requested: string[] = []
+  await page.route('https://neverwinter.fandom.com/**', async (route) => {
+    requested.push(route.request().url())
+    await route.abort()
+  })
+
   for (const [name, assetFile] of expected) {
+    requested.length = 0
     await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(name))
-    const image = page.locator('.catalog .items .item-main').filter({ hasText: name }).first().locator('img.thumb')
+    const row = page.locator('.catalog .items .item-main').filter({ hasText: name }).first()
+    await expect(row, name).toBeVisible()
+
+    await expect.poll(() => requested.some((url) => url.includes('/wiki/Special:Redirect/file/' + encodeURIComponent(assetFile))), {
+      message: name + ' should request the exact verified Neverwinter asset',
+    }).toBe(true)
+
+    const image = row.locator('img.thumb')
     await expect(image, name).toBeVisible()
-    await expect(image, name).toHaveAttribute('src', '/media/neverwinter/' + encodeURIComponent(assetFile))
-    await expect.poll(async () => image.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0), { message: name + ' should decode real image pixels' }).toBe(true)
+    await expect(image, name).toHaveClass(/reference-fallback/)
+    await expect(row.locator('.sprite.fallback'), name).toHaveCount(0)
+    await expect.poll(async () => image.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0), {
+      message: name + ' should retain a renderable fallback when the remote host is unavailable',
+    }).toBe(true)
   }
 })
 

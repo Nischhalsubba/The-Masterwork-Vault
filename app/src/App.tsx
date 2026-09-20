@@ -23,6 +23,7 @@ import {
 import catalogJson from './data/catalog'
 import spriteDataUri from './data/sprite'
 import { sharandarIconIndex, sharandarSprite } from './data/sharandarSprite'
+import { referenceIconDataUri, referenceIconKindForEntity } from './data/referenceIcons'
 import { sharandarWorkshopReference } from './data/sharandarSupplement'
 import type { CatalogData, ItemEntry, MaterialEntry } from './types'
 import { calculateCraftingPlan, expandSingleMaterial, isRecipePlannable } from './lib/crafting'
@@ -37,6 +38,9 @@ const recipeByName = new Map(catalog.recipes.map((r) => [norm(r.name), r]))
 const iconIndexByName = new Map<string, number>()
 for (const item of catalog.items) if (item.iconIndex != null) iconIndexByName.set(norm(item.name), item.iconIndex)
 for (const material of catalog.materials) if (material.iconIndex != null) iconIndexByName.set(norm(material.name), material.iconIndex)
+const referenceIconByName = new Map<string, string>()
+for (const item of catalog.items) referenceIconByName.set(norm(item.name), referenceIconDataUri(referenceIconKindForEntity(item.kind, item.slot)))
+for (const material of catalog.materials) referenceIconByName.set(norm(material.name), referenceIconDataUri('material'))
 const MAX_PLAN_QUANTITY = 999
 
 type AppRouteDetail = { view: 'catalog' | 'plan' | 'materials' | 'reference'; itemId?: string; campaign?: CampaignFilter }
@@ -99,11 +103,27 @@ function Icon({ src, alt, size = 48 }: { src?: string | null; alt: string; size?
     return <AtlasIcon dataUri={sharandarSprite.dataUri} index={sharandarIndex} columns={sharandarSprite.columns} count={sharandarSprite.count} alt={alt} size={size} />
   }
 
-  if (verifiedIndex == null) {
-    return <span className="sprite fallback" style={{ width: size, height: size }} role="img" aria-label={`${alt}, image unavailable`} />
+  if (verifiedIndex != null) {
+    return <AtlasIcon dataUri={spriteDataUri} index={verifiedIndex} columns={catalog.meta.sprite.columns || 10} count={catalog.meta.sprite.count} alt={alt} size={size} />
   }
 
-  return <AtlasIcon dataUri={spriteDataUri} index={verifiedIndex} columns={catalog.meta.sprite.columns || 10} count={catalog.meta.sprite.count} alt={alt} size={size} />
+  const referenceFallback = referenceIconByName.get(norm(alt))
+  if (referenceFallback) {
+    return (
+      <img
+        className="sprite thumb reference-fallback"
+        src={referenceFallback}
+        alt={alt}
+        width={size}
+        height={size}
+        loading="lazy"
+        decoding="async"
+        style={{ width: size, height: size, objectFit: 'cover' }}
+      />
+    )
+  }
+
+  return <span className="sprite fallback" style={{ width: size, height: size }} role="img" aria-label={`${alt}, image unavailable`} />
 }
 
 function Source({ value }: { value: string }) {

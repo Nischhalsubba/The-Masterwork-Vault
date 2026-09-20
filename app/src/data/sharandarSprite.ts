@@ -132,7 +132,7 @@ const remoteIconByName = new Map<string, (typeof verifiedSharandarRemoteIcons)[k
 
 export const verifiedSharandarRemoteIconEvidence = (name: string) => remoteIconByName.get(normalize(name)) ?? null
 
-const neverwinterMediaUrl = (assetFile: string) => `/media/neverwinter/${encodeURIComponent(assetFile)}`
+const neverwinterMediaUrl = (assetFile: string) => `https://neverwinter.fandom.com/wiki/Special:Redirect/file/${encodeURIComponent(assetFile)}`
 
 const indexByName = new Map<string, number>(names.map((name, index) => [normalize(name), index]))
 const dataUri = `data:image/webp;base64,${c0}${c1}${c2}${c3}${c4}`
