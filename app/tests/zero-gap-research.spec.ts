@@ -40,6 +40,31 @@ test('temporary research: inspect NW-Hub gear data and network endpoints', async
       const hit = clip(body, target)
       if (hit) console.log('NWHUB_HIT ' + target + '=' + JSON.stringify(hit))
     }
+
+    const search = page.getByRole('textbox', { name: /Search name/i }).first()
+    if (await search.count()) {
+      const researchNames = [
+        ...targets,
+        'Feywood Barkbrace',
+        'Heavy Feywood Barbute',
+        'Feywood Breastplate',
+        'Feywood Chestguard',
+        'Feywood Cuirass',
+        'Hardened Feywood Cuirass',
+        'Feywood Sallet',
+        'Feywood Wristguards',
+        'Feywood Gauntlets',
+      ]
+      for (const target of researchNames) {
+        await search.fill(target)
+        await page.waitForTimeout(250)
+        const filtered = await page.locator('body').innerText().catch(() => '')
+        const tableStart = filtered.indexOf('Name')
+        console.log('NWHUB_FILTER ' + target + '=' + JSON.stringify(filtered.slice(Math.max(0, tableStart), Math.min(filtered.length, Math.max(0, tableStart) + 7000))))
+      }
+      await search.fill('')
+    }
+
     const resources = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => (entry as PerformanceResourceTiming).name))
     console.log('NWHUB_RESOURCES=' + JSON.stringify(resources.filter((url) => /api|gear|item|equipment|json/i.test(url)).slice(0, 160)))
   } catch (error) {
