@@ -97,6 +97,23 @@
   --mw-shell-accent-soft: var(--mw-ds-accent-soft);
   --mw-shell-rail: var(--mw-ds-rail);
   --mw-shell-page-gap: var(--mw-ds-layout-gap);
+
+  /* Legacy route aliases resolve through the same semantic system. */
+  --mw-bg: var(--mw-ds-bg);
+  --mw-surface: var(--mw-ds-surface);
+  --mw-text: var(--mw-ds-text);
+  --mw-muted: var(--mw-ds-text-muted);
+  --mw-line: var(--mw-ds-border);
+  --mw-blue: var(--mw-ds-accent);
+  --mw-blue-ink: var(--mw-ds-accent-strong);
+  --mw-success: var(--mw-ds-green-600);
+  --mw-warning: var(--mw-ds-amber-700);
+  --mw-danger: var(--mw-ds-red-700);
+  --mw-r-sm: var(--mw-ds-radius-sm);
+  --mw-r-md: var(--mw-ds-radius-md);
+  --mw-r-lg: var(--mw-ds-radius-lg);
+  --mw-shadow-1: none;
+  --mw-shadow-2: var(--mw-ds-shadow-float);
 }
 
 @media (max-width: 1180px) {
