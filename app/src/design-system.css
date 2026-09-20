@@ -1042,3 +1042,358 @@ input:focus-visible,
     padding: 4px 2px 12px !important;
   }
 }
+
+
+/* ---------- UI revamp slice 2: planning, materials and progression ---------- */
+.crafting-workbench {
+  display: grid;
+  gap: var(--mw-ds-space-3);
+}
+
+.workbench-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--mw-ds-space-4);
+  padding: 18px 20px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.workbench-header .eyebrow {
+  color: var(--mw-ds-accent-strong) !important;
+}
+
+.workbench-header h1 {
+  max-width: 720px;
+  margin: 4px 0 6px !important;
+  font-size: clamp(26px, 2.2vw, 36px) !important;
+  line-height: 1.08 !important;
+}
+
+.workbench-header p {
+  max-width: 72ch;
+  margin: 0 !important;
+  color: var(--mw-ds-text-secondary) !important;
+}
+
+.workbench-tabs {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  gap: 3px;
+  padding: 4px;
+  overflow-x: auto;
+  border: 1px solid var(--mw-ds-border);
+  border-radius: 10px;
+  background: var(--mw-ds-surface);
+}
+
+.workbench-tabs button {
+  min-height: 38px !important;
+  border-radius: 7px !important;
+}
+
+.workbench-tabs button.active {
+  border-color: var(--mw-ds-blue-100) !important;
+  background: var(--mw-ds-accent-soft) !important;
+  color: var(--mw-ds-accent-strong) !important;
+  box-shadow: none !important;
+}
+
+.workbench-grid {
+  gap: var(--mw-ds-space-3) !important;
+}
+
+.workbench-grid > .panel,
+.checklist-panel,
+.professions-panel,
+.saved-grid > .panel,
+.inventory-ready-grid > .panel {
+  border: 1px solid var(--mw-ds-border) !important;
+  background: var(--mw-ds-surface) !important;
+  box-shadow: 0 12px 34px rgba(16, 24, 40, .045) !important;
+}
+
+.workbench-metrics {
+  gap: var(--mw-ds-space-2) !important;
+}
+
+.workbench-metrics > div {
+  border: 1px solid var(--mw-ds-border);
+  border-radius: 10px;
+  background: var(--mw-ds-surface-subtle);
+}
+
+.plan-row,
+.ready-card,
+.near-ready-row,
+.shopping-acquisition-row,
+.craft-sequence-step,
+.profession-card,
+.saved-plan-row {
+  border-color: var(--mw-ds-border) !important;
+}
+
+.plan-row:hover,
+.ready-card:hover,
+.near-ready-row:hover,
+.saved-plan-row:hover {
+  border-color: var(--mw-ds-border-strong) !important;
+  background: var(--mw-ds-surface-subtle);
+}
+
+.materials-workbench {
+  display: grid !important;
+  grid-template-columns: minmax(300px, 370px) minmax(0, 1fr) !important;
+  gap: var(--mw-ds-space-3) !important;
+  align-items: start;
+}
+
+.materials-browser {
+  position: sticky;
+  top: var(--mw-ds-page-block);
+  max-height: calc(100dvh - (var(--mw-ds-page-block) * 2));
+  overflow: hidden;
+  padding: 12px !important;
+  border: 1px solid var(--mw-ds-border) !important;
+  background: var(--mw-ds-surface) !important;
+  box-shadow: 0 12px 34px rgba(16, 24, 40, .045) !important;
+}
+
+.materials-browser > .search {
+  min-height: 42px !important;
+  margin-block: var(--mw-ds-space-2) !important;
+  border: 1px solid var(--mw-ds-border);
+  background: var(--mw-ds-surface-subtle) !important;
+}
+
+.material-list {
+  max-height: calc(100dvh - 210px);
+  overflow-y: auto;
+  padding-right: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mw-ds-border-strong) transparent;
+}
+
+.material-list button {
+  min-height: 54px !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  border: 1px solid transparent !important;
+  border-radius: 9px !important;
+}
+
+.material-list button + button {
+  margin-top: 2px !important;
+}
+
+.material-list button:hover {
+  border-color: var(--mw-ds-border) !important;
+  background: var(--mw-ds-surface-subtle) !important;
+}
+
+.material-list button.active {
+  border-color: var(--mw-ds-blue-100) !important;
+  background: linear-gradient(90deg, rgba(0, 113, 227, .1), rgba(0, 113, 227, .04)) !important;
+  box-shadow: inset 3px 0 0 var(--mw-ds-accent);
+}
+
+.material-intelligence {
+  min-width: 0;
+  padding: 18px !important;
+  border: 1px solid var(--mw-ds-border) !important;
+  background: var(--mw-ds-surface) !important;
+  box-shadow: 0 12px 34px rgba(16, 24, 40, .045) !important;
+}
+
+.material-intelligence-head {
+  padding-bottom: var(--mw-ds-space-4);
+  border-bottom: 1px solid var(--mw-ds-border);
+}
+
+.reverse-lookup {
+  margin-top: var(--mw-ds-space-5);
+  padding-top: var(--mw-ds-space-4);
+  border-top: 1px solid var(--mw-ds-border);
+}
+
+.plan-demand-card {
+  border: 1px solid var(--mw-ds-border) !important;
+  background: var(--mw-ds-surface-subtle) !important;
+}
+
+.plan-demand-card.active {
+  border-color: var(--mw-ds-blue-100) !important;
+  background: var(--mw-ds-accent-soft) !important;
+}
+
+.journey-section-nav {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  margin: 0 0 var(--mw-ds-space-4) !important;
+  padding: 7px 10px !important;
+  border: 1px solid var(--mw-ds-border) !important;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, .045);
+  backdrop-filter: blur(14px);
+}
+
+.journey-section-nav a {
+  min-height: 36px !important;
+  padding: 0 9px;
+  border-radius: 7px;
+  color: var(--mw-ds-text-secondary) !important;
+  font-size: 12px !important;
+}
+
+.journey-section-nav a:hover {
+  background: var(--mw-ds-surface-muted);
+  color: var(--mw-ds-text) !important;
+}
+
+.journey-learning-grid {
+  grid-template-columns: 210px minmax(0, 1fr) !important;
+  gap: var(--mw-ds-space-4) !important;
+}
+
+.journey-chapter-nav {
+  top: 72px !important;
+  padding: 6px !important;
+  border: 1px solid var(--mw-ds-border) !important;
+  border-radius: 10px;
+  background: var(--mw-ds-surface);
+}
+
+.journey-v3 .journey-roadmap-step {
+  min-height: 48px !important;
+  padding: 9px 10px !important;
+  border-radius: 7px !important;
+}
+
+.journey-v3 .journey-roadmap-step.active {
+  background: var(--mw-ds-accent-soft) !important;
+  color: var(--mw-ds-accent-strong) !important;
+  box-shadow: inset 3px 0 0 var(--mw-ds-accent) !important;
+}
+
+.journey-chapter {
+  max-width: none !important;
+  padding: clamp(18px, 2.4vw, 30px) !important;
+  border: 1px solid var(--mw-ds-border) !important;
+  background: var(--mw-ds-surface) !important;
+  box-shadow: 0 12px 34px rgba(16, 24, 40, .045) !important;
+}
+
+.journey-chapter h2 {
+  max-width: 36ch !important;
+}
+
+.journey-v3 .journey-task {
+  border-color: var(--mw-ds-border) !important;
+  background: var(--mw-ds-surface-subtle) !important;
+}
+
+.journey-v3 .journey-task > span {
+  border-color: var(--mw-ds-blue-100) !important;
+  background: var(--mw-ds-accent-soft);
+  color: var(--mw-ds-accent-strong) !important;
+  font-weight: 750;
+}
+
+.journey-caution {
+  border-left-color: var(--mw-ds-amber-700) !important;
+  background: #fff9eb !important;
+}
+
+.journey-milestone button[aria-pressed="true"] {
+  border-color: var(--mw-ds-blue-100) !important;
+  background: var(--mw-ds-accent-soft) !important;
+  color: var(--mw-ds-accent-strong) !important;
+}
+
+.journey-professions,
+.journey-library,
+.journey-planning,
+.journey-evidence {
+  border-top-color: var(--mw-ds-border) !important;
+}
+
+@media (max-width: 900px) {
+  .materials-workbench {
+    grid-template-columns: 1fr !important;
+  }
+
+  .materials-browser {
+    position: static;
+    max-height: none;
+  }
+
+  .material-list {
+    max-height: 420px;
+  }
+
+  .journey-learning-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .journey-chapter-nav {
+    position: static !important;
+    display: flex !important;
+    overflow-x: auto;
+    border-radius: 10px;
+  }
+
+  .journey-v3 .journey-roadmap-step {
+    min-width: 180px;
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .workbench-header {
+    grid-template-columns: 1fr;
+    padding: 4px 2px 10px !important;
+  }
+
+  .workbench-tabs {
+    width: 100%;
+  }
+
+  .workbench-tabs button {
+    min-height: var(--mw-ds-touch) !important;
+  }
+
+  .materials-browser,
+  .material-intelligence,
+  .journey-chapter {
+    box-shadow: none !important;
+  }
+
+  .material-list {
+    max-height: none;
+  }
+
+  .journey-section-nav {
+    position: static;
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+  }
+
+  .journey-section-nav a {
+    flex: 0 0 auto;
+    min-height: var(--mw-ds-touch) !important;
+  }
+
+  .journey-v3 .journey-checkpoints {
+    grid-template-columns: 1fr !important;
+  }
+
+  .journey-chapter {
+    padding: 16px !important;
+  }
+}
