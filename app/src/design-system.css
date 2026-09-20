@@ -2607,3 +2607,21 @@ input:focus-visible,
     line-height: 1.6 !important;
   }
 }
+
+
+@media (min-width: 1181px) and (max-width: 1320px) {
+  .journey-page-main,
+  .mw-readiness-main,
+  .mw-health-main,
+  .mw-explore-main,
+  .mw-graph-main {
+    width: calc(100% - var(--mw-ds-rail) - var(--mw-ds-space-2)) !important;
+    margin-right: var(--mw-ds-space-2) !important;
+  }
+
+  .mw-readiness-hero,
+  .mw-health-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(230px, 280px) !important;
+    gap: var(--mw-ds-space-4) !important;
+  }
+}
