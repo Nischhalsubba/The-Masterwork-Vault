@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test'
-import { sharandarIconDataUri, verifiedSharandarIconAliases, verifiedSharandarRemoteIcons } from '../src/data/sharandarSprite'
 
 type ExpectedCraft = {
   name: string
@@ -85,23 +84,45 @@ test('Data Health names only the remaining attributable class and recipe gaps', 
 })
 
 
-test('verified Sharandar icon aliases reuse the exact local game asset', () => {
-  for (const [name, evidence] of Object.entries(verifiedSharandarIconAliases)) {
-    const actual = sharandarIconDataUri(name)
-    const canonical = sharandarIconDataUri(evidence.canonical)
-    expect(actual, name).toBeTruthy()
-    expect(actual, name).toBe(canonical)
-    expect(evidence.assetFile, name).toMatch(/^Icons Inventory Masterwork /)
-    expect(evidence.sourceUrl, name).toMatch(/^https:\/\/neverwinter\.fandom\.com\/ru\/wiki\//)
+test('verified Sharandar icon aliases reuse the exact rendered local game asset', async ({ page }) => {
+  const aliases = [
+    ["Fey'd Leaf Wood Wraps", "Fey'd Leaf Branches"],
+    ["Fey'd Leaf Branch Crown", "Fey'd Leaf Wood Crown"],
+    ['Petrified Armlets', 'Petrified Braces'],
+    ['Petrified Guards', 'Petrified Braces'],
+    ['Petrified Wristguards', 'Petrified Braces'],
+    ['Petrified Barbute', 'Petrified Bark Barbute'],
+  ] as const
+
+  for (const [alias, canonical] of aliases) {
+    await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(alias))
+    const aliasImage = page.locator('.catalog .items .item-main').filter({ hasText: alias }).first().locator('img.thumb')
+    await expect(aliasImage, alias).toBeVisible()
+    const aliasSrc = await aliasImage.getAttribute('src')
+
+    await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(canonical))
+    const canonicalImage = page.locator('.catalog .items .item-main').filter({ hasText: canonical }).first().locator('img.thumb')
+    await expect(canonicalImage, canonical).toBeVisible()
+    const canonicalSrc = await canonicalImage.getAttribute('src')
+
+    expect(aliasSrc, alias).toBeTruthy()
+    expect(aliasSrc, alias).toBe(canonicalSrc)
   }
 })
 
-test('verified Sharandar remote icons resolve through the app media proxy', () => {
-  for (const [name, evidence] of Object.entries(verifiedSharandarRemoteIcons)) {
-    const actual = sharandarIconDataUri(name)
-    expect(actual, name).toBe(`/media/neverwinter/${encodeURIComponent(evidence.assetFile)}`)
-    expect(evidence.assetFile, name).toMatch(/\.png$/)
-    expect(evidence.sourceUrl, name).toMatch(/^https:\/\/neverwinter\.fandom\.com\/ru\/wiki\//)
+test('verified Sharandar remote icons render through the app media proxy', async ({ page }) => {
+  const expected = [
+    ['Twig Crown', 'Icons Inventory Masterwork Head Warlock Fey Druidic M 01.png'],
+    ['Feywood Sash +1', 'Inventory Waist Stronghold Crafted Physical Feywood.png'],
+    ['Thorned Sash +1', 'Inventory Waist Stronghold Crafted Healer Thorned.png'],
+    ["Dawn's Light Sash +1", 'Inventory Waist Stronghold Crafted Tank Silvervine.png'],
+  ] as const
+
+  for (const [name, assetFile] of expected) {
+    await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(name))
+    const image = page.locator('.catalog .items .item-main').filter({ hasText: name }).first().locator('img.thumb')
+    await expect(image, name).toBeVisible()
+    await expect(image, name).toHaveAttribute('src', '/media/neverwinter/' + encodeURIComponent(assetFile))
   }
 })
 
