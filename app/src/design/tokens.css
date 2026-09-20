@@ -6,19 +6,19 @@
 :root {
   /* Base palette */
   --mw-ds-white: #ffffff;
-  --mw-ds-slate-25: #fbfcfe;
-  --mw-ds-slate-50: #f6f8fb;
-  --mw-ds-slate-100: #eef2f6;
-  --mw-ds-slate-200: #dde4ed;
-  --mw-ds-slate-300: #c6d0dc;
+  --mw-ds-slate-25: #fbfcfd;
+  --mw-ds-slate-50: #f3f5f8;
+  --mw-ds-slate-100: #e9eef4;
+  --mw-ds-slate-200: #d5dee9;
+  --mw-ds-slate-300: #bbc8d7;
   --mw-ds-slate-500: #667085;
   --mw-ds-slate-600: #475467;
   --mw-ds-slate-700: #344054;
   --mw-ds-slate-900: #101828;
-  --mw-ds-blue-50: #eaf2ff;
-  --mw-ds-blue-100: #d8e8ff;
-  --mw-ds-blue-600: #1f6feb;
-  --mw-ds-blue-700: #175fc4;
+  --mw-ds-blue-50: #e8f2ff;
+  --mw-ds-blue-100: #cfe4ff;
+  --mw-ds-blue-600: #0071e3;
+  --mw-ds-blue-700: #005bb8;
   --mw-ds-green-600: #2f8f55;
   --mw-ds-amber-700: #9a6700;
   --mw-ds-red-700: #b42318;
@@ -36,6 +36,12 @@
   --mw-ds-accent: var(--mw-ds-blue-600);
   --mw-ds-accent-strong: var(--mw-ds-blue-700);
   --mw-ds-accent-soft: var(--mw-ds-blue-50);
+  --mw-ds-rail-bg: #17191d;
+  --mw-ds-rail-surface: #20232a;
+  --mw-ds-rail-border: #2d3139;
+  --mw-ds-rail-text: #f7f8fa;
+  --mw-ds-rail-muted: #aab2c0;
+  --mw-ds-rail-active: #273b59;
 
   /* Type */
   --mw-ds-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -66,18 +72,18 @@
   --mw-ds-radius-md: 12px;
   --mw-ds-radius-lg: 16px;
   --mw-ds-radius-round: 999px;
-  --mw-ds-shadow-focus: 0 0 0 3px rgba(31, 111, 235, .18);
-  --mw-ds-shadow-float: 0 12px 30px rgba(16, 24, 40, .08);
+  --mw-ds-shadow-focus: 0 0 0 3px rgba(0, 113, 227, .2);
+  --mw-ds-shadow-float: 0 18px 50px rgba(16, 24, 40, .1);
 
   /* Ergonomic sizing */
   --mw-ds-control-sm: 36px;
   --mw-ds-control: 40px;
   --mw-ds-touch: 44px;
-  --mw-ds-rail: 208px;
-  --mw-ds-page-inline: 18px;
+  --mw-ds-rail: 224px;
+  --mw-ds-page-inline: 22px;
   --mw-ds-page-block: 16px;
   --mw-ds-layout-gap: 12px;
-  --mw-ds-list-width: clamp(390px, 32vw, 560px);
+  --mw-ds-list-width: clamp(400px, 31vw, 540px);
 
   /* Compatibility aliases: old surfaces now resolve through the system. */
   --mw-shell-bg: var(--mw-ds-bg);
