@@ -2579,3 +2579,31 @@ input:focus-visible,
     padding: 18px !important;
   }
 }
+
+
+/* ---------- UI revamp QA corrections ---------- */
+.mw-graph-card {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+@media (min-width: 1181px) {
+  .journey-page-main,
+  .mw-readiness-main,
+  .mw-health-main,
+  .mw-explore-main,
+  .mw-graph-main {
+    width: calc(100% - var(--mw-ds-rail)) !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .mw-readiness-hero p,
+  .mw-health-hero p,
+  .mw-explore-hero p,
+  .mw-graph-hero p {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+  }
+}
