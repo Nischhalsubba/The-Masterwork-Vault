@@ -110,7 +110,7 @@ test('verified Sharandar icon aliases reuse the exact rendered local game asset'
   }
 })
 
-test('verified Sharandar remote icons render through the app media proxy', async ({ page }) => {
+test('verified Sharandar icons render from bundled local game assets', async ({ page }) => {
   const expected = [
     ['Twig Crown', 'Icons Inventory Masterwork Head Warlock Fey Druidic M 01.png'],
     ['Feywood Sash +1', 'Inventory Waist Stronghold Crafted Physical Feywood.png'],
@@ -129,7 +129,7 @@ test('verified Sharandar remote icons render through the app media proxy', async
     await page.goto('/catalog?campaign=Sharandar&q=' + encodeURIComponent(name))
     const image = page.locator('.catalog .items .item-main').filter({ hasText: name }).first().locator('img.thumb')
     await expect(image, name).toBeVisible()
-    await expect(image, name).toHaveAttribute('src', '/media/neverwinter/' + encodeURIComponent(assetFile))
+    await expect(image, name).toHaveAttribute('src', '/assets/neverwinter/' + encodeURIComponent(assetFile))
     await expect.poll(async () => image.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0), { message: name + ' should decode real image pixels' }).toBe(true)
   }
 })
