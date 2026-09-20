@@ -2609,16 +2609,28 @@ input:focus-visible,
 }
 
 
-@media (min-width: 1181px) and (max-width: 1320px) {
-  .journey-page-main,
-  .mw-readiness-main,
-  .mw-health-main,
-  .mw-explore-main,
-  .mw-graph-main {
-    width: calc(100% - var(--mw-ds-rail) - var(--mw-ds-space-2)) !important;
-    margin-right: var(--mw-ds-space-2) !important;
-  }
+/* Keep wide internal data tables from contributing min-content width to the page. */
+.mw-readiness-main {
+  grid-template-columns: minmax(0, 1fr);
+}
 
+.mw-readiness-main > *,
+.mw-profession-section,
+.mw-profession-table-wrap,
+.mw-state-tools,
+.mw-readiness-bottom-grid {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mw-profession-table-wrap {
+  width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+
+@media (min-width: 1181px) and (max-width: 1320px) {
   .mw-readiness-hero,
   .mw-health-hero {
     grid-template-columns: minmax(0, 1fr) minmax(230px, 280px) !important;
