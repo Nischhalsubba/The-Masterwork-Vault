@@ -73,6 +73,39 @@ const iconAliasByName = new Map<string, string>(
 
 const resolveSharandarIconName = (name: string) => iconAliasByName.get(normalize(name)) ?? name
 
+const tailoringSource = 'https://neverwinter.fandom.com/ru/wiki/%D0%9A%D1%80%D0%BE%D0%B9%D0%BA%D0%B0_%D0%B8_%D1%88%D0%B8%D1%82%D1%8C%D0%B5'
+const leatherworkingSource = 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0_%D0%BA%D0%BE%D0%B6%D0%B8'
+
+// Exact game asset names exposed by the maintained Neverwinter profession tables.
+// The app serves them through its own /media/neverwinter proxy so catalog rendering
+// does not depend on direct third-party image hotlinks.
+export const verifiedSharandarRemoteIcons = {
+  'Twig Crown': {
+    assetFile: 'Icons Inventory Masterwork Head Warlock Fey Druidic M 01.png',
+    sourceUrl: leatherworkingSource,
+  },
+  'Feywood Sash +1': {
+    assetFile: 'Inventory Waist Stronghold Crafted Physical Feywood.png',
+    sourceUrl: tailoringSource,
+  },
+  'Thorned Sash +1': {
+    assetFile: 'Inventory Waist Stronghold Crafted Healer Thorned.png',
+    sourceUrl: tailoringSource,
+  },
+  "Dawn's Light Sash +1": {
+    assetFile: 'Inventory Waist Stronghold Crafted Tank Silvervine.png',
+    sourceUrl: tailoringSource,
+  },
+} as const
+
+const remoteIconByName = new Map<string, (typeof verifiedSharandarRemoteIcons)[keyof typeof verifiedSharandarRemoteIcons]>(
+  Object.entries(verifiedSharandarRemoteIcons).map(([name, row]) => [normalize(name), row]),
+)
+
+export const verifiedSharandarRemoteIconEvidence = (name: string) => remoteIconByName.get(normalize(name)) ?? null
+
+const neverwinterMediaUrl = (assetFile: string) => `/media/neverwinter/${encodeURIComponent(assetFile)}`
+
 const indexByName = new Map<string, number>(names.map((name, index) => [normalize(name), index]))
 const dataUri = `data:image/webp;base64,${c0}${c1}${c2}${c3}${c4}`
 
@@ -95,6 +128,9 @@ export const sharandarIconIndex = (name: string) => {
 export const sharandarIconDataUri = (name: string) => {
   const materialOverride = gatheringMaterialIconOverrides[materialKey(name)]
   if (materialOverride) return materialOverride
+
+  const remoteIcon = verifiedSharandarRemoteIconEvidence(name)
+  if (remoteIcon) return neverwinterMediaUrl(remoteIcon.assetFile)
 
   const verifiedWeapon = verifiedSharandarWeaponIconDataUri(name)
   if (verifiedWeapon) return verifiedWeapon
