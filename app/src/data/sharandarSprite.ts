@@ -31,6 +31,48 @@ const normalize = (value: string) => value
 
 const materialKey = (value: string) => normalize(value).replace(/ /g, '-')
 
+// Some Sharandar outputs intentionally share the exact same Neverwinter inventory asset.
+// These aliases are evidence-backed by the maintained Neverwinter Wiki inventory tables;
+// they let us reuse an already-extracted local game icon instead of falling back to generic UI art.
+export const verifiedSharandarIconAliases = {
+  "Fey'd Leaf Wood Wraps": {
+    canonical: "Fey'd Leaf Branches",
+    assetFile: 'Icons Inventory Masterwork Arms Control Fey Druidic M 01',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9A%D1%80%D0%BE%D0%B9%D0%BA%D0%B0_%D0%B8_%D1%88%D0%B8%D1%82%D1%8C%D0%B5',
+  },
+  "Fey'd Leaf Branch Crown": {
+    canonical: "Fey'd Leaf Wood Crown",
+    assetFile: 'Icons Inventory Masterwork Head Control Fey Druidic M 01',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9A%D1%80%D0%BE%D0%B9%D0%BA%D0%B0_%D0%B8_%D1%88%D0%B8%D1%82%D1%8C%D0%B5',
+  },
+  'Petrified Armlets': {
+    canonical: 'Petrified Braces',
+    assetFile: 'Icons Inventory Masterwork Arms Bard Fey Druidic M 01',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0_%D0%BA%D0%BE%D0%B6%D0%B8',
+  },
+  'Petrified Guards': {
+    canonical: 'Petrified Braces',
+    assetFile: 'Icons Inventory Masterwork Arms Bard Fey Druidic M 01',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0_%D0%BA%D0%BE%D0%B6%D0%B8',
+  },
+  'Petrified Wristguards': {
+    canonical: 'Petrified Braces',
+    assetFile: 'Icons Inventory Masterwork Arms Bard Fey Druidic M 01',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B8_%D0%BA%D0%BE%D0%B6%D0%B8',
+  },
+  'Petrified Barbute': {
+    canonical: 'Petrified Bark Barbute',
+    assetFile: 'Icons Inventory Masterwork Head Trickster Fey Druidic M 01',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%9E%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0_%D0%BA%D0%BE%D0%B6%D0%B8',
+  },
+} as const
+
+const iconAliasByName = new Map<string, string>(
+  Object.entries(verifiedSharandarIconAliases).map(([name, row]) => [normalize(name), row.canonical]),
+)
+
+const resolveSharandarIconName = (name: string) => iconAliasByName.get(normalize(name)) ?? name
+
 const indexByName = new Map<string, number>(names.map((name, index) => [normalize(name), index]))
 const dataUri = `data:image/webp;base64,${c0}${c1}${c2}${c3}${c4}`
 
@@ -47,7 +89,7 @@ export const sharandarSprite = {
 // incorrect tile.
 export const sharandarIconIndex = (name: string) => {
   if (verifiedSharandarWeaponIconIndex(name) != null) return null
-  return indexByName.get(normalize(name)) ?? null
+  return indexByName.get(normalize(resolveSharandarIconName(name))) ?? null
 }
 
 export const sharandarIconDataUri = (name: string) => {
