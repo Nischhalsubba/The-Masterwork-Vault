@@ -96,6 +96,34 @@ export const verifiedSharandarRemoteIcons = {
     assetFile: 'Inventory Waist Stronghold Crafted Tank Silvervine.png',
     sourceUrl: tailoringSource,
   },
+  'Thorned Amulet +1': {
+    assetFile: 'Inventory_Neck_Stronghold_Crafted_Healer_Thorned.png',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%A8%D0%B8%D0%BF%D0%B0%D1%81%D1%82%D1%8B%D0%B9_%D0%B0%D0%BC%D1%83%D0%BB%D0%B5%D1%82',
+  },
+  'Feywood Amulet +1': {
+    assetFile: 'Inventory_Neck_Stronghold_Crafted_Physical_Feywood.png',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%90%D0%BC%D1%83%D0%BB%D0%B5%D1%82_%D0%B8%D0%B7_%D0%B4%D0%B5%D1%80%D0%B5%D0%B2%D0%B0_%D1%84%D1%8D%D0%B9%D1%80%D0%B8',
+  },
+  'Crafted Potion of Accuracy Rank 13': {
+    assetFile: 'Inventory_Consumables_Potion_T13_Alchemical_Blue.png',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%A1%D0%B4%D0%B5%D0%BB%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%B7%D0%B5%D0%BB%D1%8C%D0%B5_%D1%82%D0%BE%D1%87%D0%BD%D0%BE%D1%81%D1%82%D0%B8_13_%D1%83%D1%80%D0%BE%D0%B2%D0%BD%D1%8F',
+  },
+  'Crafted Potion of Critical Strike Rank 13': {
+    assetFile: 'Inventory_Consumables_Potion_T13_Alchemical_Electric.png',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%A1%D0%B4%D0%B5%D0%BB%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%B7%D0%B5%D0%BB%D1%8C%D0%B5_%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B3%D0%BE_%D1%83%D0%B4%D0%B0%D1%80%D0%B0_13_%D1%83%D1%80%D0%BE%D0%B2%D0%BD%D1%8F',
+  },
+  'Crafted Potion of Defense Rank 13': {
+    assetFile: 'Inventory_Consumables_Potion_T13_Alchemical_Water.png',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%A1%D0%B4%D0%B5%D0%BB%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%B7%D0%B5%D0%BB%D1%8C%D0%B5_%D0%BE%D0%B1%D0%BE%D1%80%D0%BE%D0%BD%D1%8B_13_%D1%83%D1%80%D0%BE%D0%B2%D0%BD%D1%8F',
+  },
+  'Crafted Potion of Deflect Rank 13': {
+    assetFile: 'Inventory_Consumables_Potion_T13_Alchemical_Green.png',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%A1%D0%B4%D0%B5%D0%BB%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%B7%D0%B5%D0%BB%D1%8C%D0%B5_%D0%BF%D0%B0%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F_13_%D1%83%D1%80%D0%BE%D0%B2%D0%BD%D1%8F',
+  },
+  'Crafted Potion of Power Rank 13': {
+    assetFile: 'Inventory_Consumables_Potion_T13_Alchemical_Yellowgreen.png',
+    sourceUrl: 'https://neverwinter.fandom.com/ru/wiki/%D0%A1%D0%B4%D0%B5%D0%BB%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%B7%D0%B5%D0%BB%D1%8C%D0%B5_%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F_13_%D1%83%D1%80%D0%BE%D0%B2%D0%BD%D1%8F',
+  },
 } as const
 
 const remoteIconByName = new Map<string, (typeof verifiedSharandarRemoteIcons)[keyof typeof verifiedSharandarRemoteIcons]>(
