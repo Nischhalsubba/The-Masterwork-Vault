@@ -374,3 +374,35 @@
  #root .catalog .detail-controls{display:flex!important;justify-content:flex-end!important}
  #root .catalog .stats-trigger{min-height:44px!important}
 }
+
+/* Approved editorial heading outranks legacy #root typography overrides. */
+@media(min-width:1181px){
+ #root .app .mw-core-page-header{
+  border:0!important;border-left:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  padding:8px 2px 18px!important;
+  margin:0 0 16px!important;
+ }
+ #root .app .mw-core-page-header h1{
+  font:400 clamp(44px,4.1vw,64px)/1.06 Georgia,"Times New Roman",serif!important;
+  letter-spacing:-.033em!important;
+  color:#f0e7d5!important;
+  max-width:830px
+ }
+ #root .app .mw-core-page-header p{
+  max-width:640px!important;
+  color:#c5b7aa!important;
+  font-size:14px!important;
+  line-height:1.6!important
+ }
+}
+@media(min-width:681px) and (max-width:1180px){
+ #root .app .mw-core-page-header h1{font-size:clamp(30px,3vw,43px)!important}
+}
+@media(max-width:680px){
+ #root .app .mw-core-page-header h1{
+  font-size:29px!important;
+  line-height:1.13!important;
+ }
+}
