@@ -1,0 +1,36 @@
+name: Forge V4 UI validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/src/**'
+      - 'app/index.html'
+      - 'app/public/manifest.webmanifest'
+      - '.github/workflows/forge-v4-ui-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: app/.node-version
+      - name: Install dependencies without changing lockfile
+        run: npm ci --no-fund
+      - name: Build V4 application with catalog verification
+        run: npm run build
+      - name: Install Playwright Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Validate responsive flows and crafting regressions
+        run: npx --no-install playwright test --workers=2 --global-timeout=480000 --reporter=list

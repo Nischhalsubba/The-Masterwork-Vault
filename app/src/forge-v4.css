@@ -1,0 +1,245 @@
+/*
+ * NEVERWINTER FORGE V4 — presentation layer
+ * Original data, sprite atlas, recipes and behavior are unchanged.
+ * Loaded LAST to supersede older light-theme generations.
+ * Palette is a Neverwinter-inspired interpretation, not official brand hex codes.
+ */
+:root {
+  color-scheme: dark;
+  --canvas:#0b0d12;--elevated:#11141a;--surface:#171a21;--surface-secondary:#1d2129;
+  --label:#f0e7d5;--label-secondary:#b8b1ab;--label-tertiary:#958f91;
+  --separator:#39373b;--separator-strong:#655347;
+  --fill:#24232a;--fill-hover:#342a2c;
+  --interactive:#d9b77a;--interactive-hover:#f0cd93;--selected:#31272b;
+  --success:#a9cfb5;--warning:#dfb67e;--danger:#e29da1;
+  --success-bg:#20342b;--warning-bg:#322a20;--danger-bg:#39232c;
+  --shadow-1:none;--shadow-2:0 22px 56px #0007;
+  --radius-sm:3px;--radius-md:4px;--radius-lg:5px;--radius-xl:7px;
+  --mw-shell-bg:#0b0d12;--mw-shell-surface:#171a21;--mw-shell-surface-subtle:#1d2129;
+  --mw-shell-border:#39373b;--mw-shell-border-strong:#655347;
+  --mw-shell-text:#f0e7d5;--mw-shell-text-muted:#b8b1ab;
+  --mw-shell-accent:#d9b77a;--mw-shell-accent-soft:#302628;
+  --mw-shell-success:#a9cfb5;--mw-shell-warning:#dfb67e;--mw-shell-danger:#e29da1;
+  --mw-shell-radius:4px;
+  --mw-ds-rail:244px;--mw-ds-list-width:clamp(310px,31vw,460px);
+  --forge-gold:#d9b77a;--forge-ivory:#f0e7d5;--forge-crimson:#791e2d;
+  --forge-serif:Georgia,"Times New Roman",serif;
+  --forge-mono:ui-monospace,Consolas,"Cascadia Code",monospace;
+  --forge-motion:cubic-bezier(.22,1,.36,1);
+}
+html,body,#root{background:#0b0d12!important;color:#f0e7d5!important;color-scheme:dark}
+body{background-image:radial-gradient(ellipse 900px 280px at 55% -90px,#70392725,transparent 73%);background-attachment:fixed}
+*{scrollbar-color:#544943 #15171d;scrollbar-width:thin}
+::selection{background:#783740;color:#fff0d6}
+h1,h2,h3,h4,p,small,strong,span,li,dd,dt{overflow-wrap:break-word}
+button,input,select,textarea{font-family:inherit}
+:where(input,select,textarea){accent-color:#d9b77a}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[role=button]:focus-visible{
+ outline:2px solid #f0cd93!important;outline-offset:3px!important;
+}
+:where(.panel,.workbench-header,.material-intelligence,.mw-summary-card,.mw-health-panel,.mw-explore-card,.mw-graph-canvas,.journey-chapter,.journey-personal-progress){
+ background:#171a21!important;color:#f0e7d5!important;border:1px solid #39373b!important;border-radius:4px!important;box-shadow:none!important
+}
+:where(.panel,.mw-explore-card,.mw-summary-card,.mw-graph-card,.items article,.catalog aside button,.tablet-v4-nav a,.tablet-v4-nav button){
+ transition:background-color .24s var(--forge-motion),border-color .24s var(--forge-motion),color .24s var(--forge-motion),transform .24s var(--forge-motion)
+}
+:where(.mw-core-page-header,.workbench-header,.mw-explore-hero,.mw-graph-hero,.mw-journey-hero,.mw-readiness-hero,.mw-health-hero) {
+ background:linear-gradient(103deg,#231c23 0%,#171a21 70%)!important;border:1px solid #55403a!important;
+ border-radius:4px!important;box-shadow:inset 0 1px 0 #d9b77a12!important;color:#f0e7d5!important
+}
+:where(.mw-core-page-header,.workbench-header,.mw-explore-hero,.mw-graph-hero)::before{background:transparent!important}
+:where(.mw-core-page-header h1,.workbench-header h1,.mw-explore-hero h1,.mw-graph-hero h1,.journey-hero h1,.mw-journey-hero h1,.mw-readiness-hero h1){
+ font-family:var(--forge-serif)!important;font-weight:400!important;letter-spacing:-.028em!important;
+ color:#f0e7d5!important;line-height:1.12!important
+}
+:where(.mw-core-page-header small,.eyebrow,.hero-kicker,.mw-eyebrow,.workbench-header .eyebrow,.mw-nav-group-label){
+ font-family:var(--forge-mono)!important;letter-spacing:.13em!important;text-transform:uppercase;color:#d9b77a!important;font-size:10px
+}
+:where(.mw-core-page-header p,.workbench-header p,.mw-explore-hero p,.mw-graph-hero p,.quiet-note){color:#b8b1ab!important}
+:where(.mw-core-page-header,.workbench-header){border-left:3px solid #9f7350!important}
+/* Shell / navigation: replace SaaS rail with an engraved workshop index. */
+.tablet-v4-sidebar.mw-workspace-sidebar{
+ background:linear-gradient(180deg,#101217 0%,#151319 100%)!important;
+ border-right:1px solid #4f3c39!important;color:#f0e7d5!important
+}
+.tablet-v4-brand,.mobile-v4-brand{color:#f0e7d5!important;text-decoration:none!important}
+.tablet-v4-brand strong,.mobile-v4-brand strong{
+ font-family:var(--forge-serif)!important;font-weight:600!important;font-size:20px!important;letter-spacing:.012em!important;
+ color:#efcf93!important
+}
+.tablet-v4-brand small,.mobile-v4-brand small{color:#aaa19f!important;letter-spacing:.07em}
+.tablet-v4-brand img,.mobile-v4-brand img{filter:sepia(.45) saturate(.85) brightness(.94)}
+.mw-nav-group-label{color:#b38e64!important;margin-top:25px!important}
+.tablet-v4-nav button,.tablet-v4-nav a{border-radius:2px!important;color:#bfb5b0!important;font-weight:500!important;box-shadow:none!important}
+.tablet-v4-nav :is(button,a):hover{background:#292229!important;color:#f1e2ca!important}
+.tablet-v4-nav :is(button,a).active,.tablet-v4-nav [aria-current=page]{
+ background:linear-gradient(90deg,#4b2832 0%,#282027 95%)!important;color:#f0dfbb!important;
+ border:1px solid #715343!important;box-shadow:inset 3px 0 0 #d9b77a!important
+}
+.tablet-v4-nav :is(button,a).active svg{color:#e4c28b}
+.mw-sidebar-health{background:#1b1c22!important;border-color:#56483f!important;color:#e5cda7!important;border-radius:3px!important}
+.mw-sidebar-health :is(strong,small,svg){color:#cbbca9!important}
+.mobile-v4-topbar,.mobile-v4-tabbar{background:#12141a!important;border-color:#4f3c39!important;box-shadow:0 4px 18px #0005!important;color:#f0e7d5!important}
+.mobile-v4-tabbar :is(button,a){color:#a9a2a2!important}
+.mobile-v4-tabbar :is(button,a).active{color:#ebc685!important;background:#39272b!important}
+.workspace-tools-menu[open] nav{background:#171a21!important;border:1px solid #655347!important;color:#f0e7d5!important}
+.workspace-tools-menu nav a{color:#ded0b8!important}
+.badge{background:#9c6d44!important;color:#0b0d12!important}
+/* Crafting: preserve the real item images and records, replace their presentation. */
+.catalog{border-color:#39373b!important}
+.catalog aside{background:#14161b!important;border-color:#39373b!important}
+.catalog aside button{color:#b8b1ab!important;border-radius:3px!important}
+.catalog aside button.active{background:#39272b!important;color:#eace98!important;border-left:2px solid #d9b77a!important}
+.workspace,.page,.mw-explore-main,.mw-graph-main{color:#f0e7d5!important}
+.toolbar{background:#171a21!important;border-color:#39373b!important;border-radius:4px!important;box-shadow:none!important}
+.search,.mw-explore-search{background:#101318!important;border:1px solid #50463f!important;border-radius:3px!important;color:#b8b1ab!important}
+.search:focus-within,.mw-explore-search:focus-within{border-color:#d9b77a!important;background:#14171d!important;box-shadow:0 0 0 2px #d9b77a22!important}
+:where(.search input,.mw-explore-search input,input:not([type=checkbox]):not([type=radio]),select,textarea){
+ color:#f0e7d5!important
+}
+:where(.search input,.mw-explore-search input)::placeholder{color:#88858c!important}
+:where(.filters button,.seg button,.collection-seg button,.workbench-tabs button,.reference-tabs button,.mw-class-filter button){
+ background:transparent!important;border:1px solid #403d41!important;color:#c4b8ad!important;border-radius:3px!important
+}
+:where(.filters button,.seg button,.collection-seg button,.workbench-tabs button,.reference-tabs button,.mw-class-filter button):hover{
+ background:#2a2528!important;border-color:#8a6e4f!important;color:#f0e7d5!important
+}
+:where(.filters button,.seg button,.collection-seg button,.workbench-tabs button,.reference-tabs button,.mw-class-filter button).active{
+ background:#462630!important;border-color:#97714d!important;color:#f4d6a6!important;box-shadow:none!important
+}
+.mw-class-filter{background:#171a21!important;border-color:#39373b!important;border-radius:3px!important}
+.mw-class-icon{border-radius:2px!important;background:#24232a!important}
+.items{gap:7px!important}
+.items article,.mw-explore-card{background:#181b22!important;border:1px solid #35353c!important;border-radius:3px!important;box-shadow:none!important}
+.items article:hover,.mw-explore-card:hover{background:#232129!important;border-color:#80664e!important;transform:translateY(-1px)}
+.items article.selected{background:#2b222a!important;border-color:#9d7852!important;box-shadow:inset 3px 0 0 #d9b77a!important}
+.item-main{color:#f0e7d5!important;padding:13px!important}
+.item-main strong{color:#ebdfc9!important;font-weight:600!important}
+.item-main :is(small,span),.item-foot{color:#b8b1ab!important}
+.item-foot{border-color:#39373b!important}
+.sprite{border:1px solid #665347!important;border-radius:2px!important;background:#20252c!important}
+.sprite img{image-rendering:auto}
+.detail{background:#171a21!important;border-color:#50453f!important;border-radius:3px!important}
+.detail-head h2{font-family:var(--forge-serif)!important;font-weight:400!important;color:#f2dfbf!important;letter-spacing:-.015em!important;font-size:clamp(29px,2.45vw,42px)!important}
+.detail-head p{color:#b8b1ab!important}
+.recipe-list{border-color:#39373b!important}
+.recipe-row{border-color:#39373b!important;background:#181b22!important;color:#f0e7d5!important}
+.recipe-row:hover{background:#242028!important}
+.recipe-row strong,.recipe-row b{color:#e8dbcb!important}
+.recipe-row small{color:#a9a09e!important}
+.source,.pills span,.tags span,.campaign-badge,.craftable-pill{
+ border:1px solid #665347!important;background:#282329!important;color:#d5bea0!important;
+ border-radius:2px!important
+}
+:where(.stats > div,.drilldown-summary > div,.batches > div,.workbench-metrics > div,.mw-summary-card){
+ background:#1d2129!important;border:1px solid #403a3d!important;color:#f0e7d5!important;border-radius:3px!important
+}
+:where(.stats strong,.batches strong,.drilldown-summary strong){color:#f3dbb3!important}
+:where(.stats span,.drilldown-summary span,.batches small){color:#ada49f!important}
+.callout,.data-caveat{background:#26222a!important;border:1px solid #6b5143!important;color:#e3ccab!important;border-radius:3px!important}
+.callout p{color:#bdb0ab!important}
+:where(.primary,.mw-core-page-actions>a,.mw-core-page-actions>button,.workbench-primary-action){
+ border:1px solid #e6be7d!important;border-radius:3px!important;background:linear-gradient(180deg,#efd5a2,#cda36e)!important;
+ color:#1c1718!important;font-weight:700!important;box-shadow:none!important
+}
+:where(.primary,.mw-core-page-actions>a,.mw-core-page-actions>button,.workbench-primary-action):hover{
+ background:#f3dcae!important;border-color:#f2d198!important;color:#141116!important
+}
+:where(.ghost,.item-foot button,.mw-explore-meta i,.stats-trigger){color:#dfbc82!important}
+:where(.ghost,.stats-trigger):hover{background:#33292a!important}
+:where(.qty button,.detail-controls button,.number-input button){border-color:#665347!important;color:#ead2ac!important}
+:where(.mw-explore-filters,.mw-graph-layout>aside,.mw-graph-canvas,.mw-graph-card,.mw-explore-card,.mw-explore-hero,.mw-graph-hero){
+ background:#171a21!important;border-color:#39373b!important;color:#f0e7d5!important
+}
+.mw-explore-hero h1,.mw-graph-hero h1{color:#f0e7d5!important}
+.mw-explore-count strong,.mw-graph-summary strong{font-family:var(--forge-serif)!important;color:#e9c486!important}
+.mw-graph-picker button{background:#1a1d24!important;color:#d6c9bd!important;border-color:#39373b!important}
+.mw-graph-picker button.active{background:#39272b!important;border-color:#97714d!important;color:#f5deba!important}
+.mw-graph-card{border-radius:3px!important}
+.mw-graph-card strong{color:#f0e7d5!important}
+/* Inventory and multi-item plan sections keep their existing layout/data. */
+:where(.workbench-page,.materials,.planner,.mw-journey-page,.mw-readiness-page,.mw-health-page,.mw-explore-page,.mw-graph-page){background:transparent!important;color:#f0e7d5!important}
+:where(.material-list,.workbench-grid,.workbench-tabs,.workbench-header,.workbench-metrics,.mw-material-grid,.mw-summary-grid){
+ color:#f0e7d5!important
+}
+:where(.material-list input,.workbench-page input,.materials input,.planner input,.mw-journey-page input){
+ background:#11141b!important;border:1px solid #645349!important;color:#f0e7d5!important;border-radius:2px!important
+}
+:where(.workbench-page h2,.workbench-page h3,.materials h2,.materials h3,.planner h2,.planner h3,.reference h2,.reference h3,.mw-graph-canvas h2){
+ font-family:var(--forge-serif)!important;font-weight:400!important;color:#f0e7d5!important
+}
+:where(.mw-filter-group,.reference-grid .panel,.south-seas-panel,.artisan-grid article,.journey-chapter){
+ background:#171a21!important;border-color:#41393b!important;color:#f0e7d5!important
+}
+:where(.mw-filter-group legend,.section-head small,.result-meta,.result-meta small,.quiet-note){color:#c3a478!important}
+:where(.mw-progressive-sentinel,.catalog-empty-state,.mw-explore-empty,.workbench-empty){
+ background:#171a21!important;color:#b8b1ab!important;border-color:#54453f!important
+}
+:where(.mw-page-loading){background:#0b0d12!important}
+.mw-page-loading span{background:#d9b77a!important}
+:where(.stats-drawer,.command-palette,.mw-command-dialog,.mw-modal,.material-source-panel){
+ background:#171a21!important;color:#f0e7d5!important;border-color:#665347!important
+}
+/* Densify the desktop recipe workbench to better match approved V4. */
+@media(min-width:1181px){
+ .split{grid-template-columns:minmax(300px,.84fr) minmax(460px,1.16fr)!important;gap:15px!important}
+ .detail{position:sticky;top:18px}
+ .catalog aside{border-right:1px solid #39373b!important}
+}
+@media(max-width:1180px){
+ .split{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+ .detail{position:static!important}
+}
+@media(max-width:680px){
+ :root{--mw-ds-page-inline:12px;--mw-ds-layout-gap:9px}
+ .toolbar,.mw-core-page-header{border-radius:0!important}
+ .detail{padding:15px!important}
+ .detail-head h2{font-size:30px!important}
+ .item-main{padding:12px!important}
+ .mw-explore-card{padding:12px!important}
+ .mobile-v4-tabbar{border-top:1px solid #665347!important}
+ .mw-core-page-header h1{font-size:30px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+
+/* Priority-safe canonical typography after multiple historical style layers. */
+#root .mw-core-page-header h1,
+#root .mw-explore-hero h1,
+#root .mw-graph-hero h1,
+#root .mw-readiness-hero h1,
+#root .mw-health-hero h1,
+#root .mw-journey-hero h1,
+#root .workbench-header h1,
+#root .journey-hero h1 {
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-size:clamp(26px,2vw,32px)!important;
+  font-weight:400!important;
+  line-height:1.12!important;
+  letter-spacing:-.025em!important;
+  color:#f0e7d5!important;
+}
+#root .mw-core-page-header,
+#root .workbench-header,
+#root .mw-explore-hero,
+#root .mw-graph-hero {
+  background:linear-gradient(105deg,#251b22,#171a21 68%)!important;
+  border:1px solid #55443d!important;
+  border-left:3px solid #b38c5a!important;
+}
+#root .panel,
+#root .mw-summary-card,
+#root .mw-explore-card,
+#root .mw-graph-canvas,
+#root .workbench-grid > .panel {
+  background:#171a21!important;
+  color:#f0e7d5!important;
+  border-color:#39373b!important;
+}
+#root .primary {
+  color:#161416!important;
+  background:linear-gradient(#efd6a6,#cfaa73)!important;
+  border-color:#d9b77a!important;
+}
