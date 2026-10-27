@@ -1,80 +1,49 @@
 import { useEffect } from 'react'
 import { gsap } from 'gsap'
 
-/**
- * Shared Forge V4 motion. Animates presentation only; never mutates crafting data
- * or UI state. Deliberately short, non-looping, and disabled for reduced motion.
+/** Route changes emphasize the new context without hiding the user's data.
+ * Fine-grained crafting feedback is animated in ForgeWorkOrder.
  */
 export function ForgeMotion() {
   useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
     let frame = 0
     let followup = 0
-    let active: Element[] = []
-
-    const play = () => {
+    let current: HTMLElement[] = []
+    const reset = () => {
       window.cancelAnimationFrame(frame)
       window.cancelAnimationFrame(followup)
-      if (reduce.matches) return
+      gsap.killTweensOf(current)
+      if (current.length) gsap.set(current, { clearProps: 'transform,opacity,visibility' })
+      current = []
+    }
+    const play = () => {
+      reset()
+      if (motionPreference.matches) return
       frame = window.requestAnimationFrame(() => {
         followup = window.requestAnimationFrame(() => {
-          const titles = Array.from(document.querySelectorAll<HTMLElement>(
-            '.mw-core-page-header, .workbench-header, .mw-explore-hero, .mw-graph-hero, .mw-journey-hero',
-          )).filter((node) => node.getClientRects().length)
-          const surfaces = Array.from(document.querySelectorAll<HTMLElement>(
-            '.toolbar, .mw-class-filter, .collection-switcher, .workbench-tabs, .mw-explore-filters',
-          )).filter((node) => node.getClientRects().length).slice(0, 5)
-          const rows = Array.from(document.querySelectorAll<HTMLElement>(
-            '.items article, .mw-graph-picker button, .mw-explore-card',
-          )).filter((node) => node.getClientRects().length).slice(0, 8)
-          active = [...titles, ...surfaces, ...rows]
-          gsap.killTweensOf(active)
-          if (titles.length) gsap.fromTo(titles,
-            { y: 13, autoAlpha: 0 },
-            { y: 0, autoAlpha: 1, duration: .45, ease: 'power2.out', stagger: .045,
-              clearProps: 'opacity,visibility,transform', overwrite: 'auto' })
-          if (surfaces.length) gsap.fromTo(surfaces,
-            { y: 9, autoAlpha: 0 },
-            { y: 0, autoAlpha: 1, duration: .36, delay: .06, stagger: .045,
-              ease: 'power2.out', clearProps: 'opacity,visibility,transform', overwrite: 'auto' })
-          if (rows.length) gsap.fromTo(rows,
-            { x: -8, autoAlpha: 0 },
-            { x: 0, autoAlpha: 1, duration: .3, delay: .09, stagger: .025,
-              ease: 'power2.out', clearProps: 'opacity,visibility,transform', overwrite: 'auto' })
+          const headings = Array.from(document.querySelectorAll<HTMLElement>(
+            '.mw-core-page-header h1, .workbench-header h1, .mw-explore-hero h1, .mw-graph-hero h1, .mw-journey-hero h1',
+          )).filter((node) => node.getClientRects().length).slice(0, 3)
+          current = headings
+          if (!headings.length) return
+          gsap.fromTo(headings, { y: 7 },
+            { y: 0, duration: .22, ease: 'power2.out', stagger: .035,
+              overwrite: 'auto', clearProps: 'transform' })
         })
       })
     }
-
-    const cleanupAnimations = () => {
-      window.cancelAnimationFrame(frame)
-      window.cancelAnimationFrame(followup)
-      gsap.killTweensOf(active)
-      for (const el of active) {
-        if (el instanceof HTMLElement) {
-          el.style.removeProperty('opacity')
-          el.style.removeProperty('visibility')
-          el.style.removeProperty('transform')
-        }
-      }
-      active = []
-    }
-
-    const onMotionPreferenceChange = () => {
-      if (reduce.matches) cleanupAnimations()
-      else play()
-    }
-
     play()
+    const onPreferenceChange = () => { if (motionPreference.matches) reset(); else play() }
     document.addEventListener('masterwork:navigate', play)
     window.addEventListener('popstate', play)
-    reduce.addEventListener('change', onMotionPreferenceChange)
+    motionPreference.addEventListener('change', onPreferenceChange)
     return () => {
       document.removeEventListener('masterwork:navigate', play)
       window.removeEventListener('popstate', play)
-      reduce.removeEventListener('change', onMotionPreferenceChange)
-      cleanupAnimations()
+      motionPreference.removeEventListener('change', onPreferenceChange)
+      reset()
     }
   }, [])
-
   return null
 }
