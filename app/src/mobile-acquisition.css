@@ -326,3 +326,24 @@
 }
 
 #root .app .catalog .forge-source-location small{display:block;font-size:10px;line-height:1.45;color:#b2a69f;margin-top:2px}
+
+#root .app .catalog .forge-item-effects{margin:8px 0 14px;min-width:0;border:1px solid #554741;border-radius:4px;background:#1c1c24}
+#root .app .catalog .forge-item-effects>summary{
+ min-height:44px;padding:12px 14px;display:list-item;
+ font-size:12px;font-weight:600;color:#d9bd8e;cursor:pointer
+}
+#root .app .catalog .forge-item-effects[open]>summary{border-bottom:1px solid #554741}
+#root .app .catalog .forge-item-effects .callout{
+ margin:10px!important;padding:12px!important;width:calc(100% - 20px)!important;
+ max-width:calc(100% - 20px)!important;box-sizing:border-box!important;
+ font-size:12px!important;line-height:1.55!important
+}
+@media(max-width:680px){
+ #root .app .catalog .forge-selected-pane .recipe-row-actions{
+  max-width:100%!important;box-sizing:border-box!important;
+  justify-self:stretch!important;align-self:stretch!important;
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row-actions :is(.acquisition-button,.craftable-indicator){
+  box-sizing:border-box!important;max-width:min(100%,190px)!important;
+ }
+}
