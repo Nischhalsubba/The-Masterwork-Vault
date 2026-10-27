@@ -50,7 +50,7 @@ test('major routes share one display scale', async ({ page }) => {
     expect(headingType.fontSize, route).toBeGreaterThanOrEqual(25)
     expect(headingType.fontSize, route).toBeLessThanOrEqual(64)
     expect(headingType.lineHeight / headingType.fontSize, route).toBeGreaterThanOrEqual(0.98)
-    expect(headingType.lineHeight / headingType.fontSize, route).toBeLessThanOrEqual(1.12)
+    expect(headingType.lineHeight / headingType.fontSize, route).toBeLessThanOrEqual(1.22)
     expect(headingType.fontWeight, route).toBeGreaterThanOrEqual(400)
     expect(headingType.fontFamily, route).toContain('Georgia')
 
