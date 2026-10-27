@@ -1,0 +1,63 @@
+import { expect, test } from '@playwright/test'
+
+test('single-stage recipe uses compact guidance instead of a fake dependency diagram', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1600, height: 900 })
+  await page.goto('/catalog')
+  await expect(page.locator('.forge-production-simple')).toBeVisible()
+  await expect(page.locator('.forge-production-route')).toHaveCount(0)
+  await expect(page.getByText('Ingredients', { exact: true })).toBeVisible()
+  await expect(page.locator('.forge-work-order .forge-order-primary')).toBeVisible()
+  await page.screenshot({ path: testInfo.outputPath('forge-phase-a-single-stage.png'), fullPage: false })
+})
+
+test('complex recipe shows the actual intermediate steps and allows search clearing', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1600, height: 900 })
+  await page.goto('/catalog')
+  const search = page.getByRole('textbox', { name: 'Search catalog' })
+  await search.fill('Feywood Broad Slab')
+  await page.locator('.items article .item-main').filter({ hasText: 'Feywood Broad Slab' }).first().click()
+  await expect(page.locator('.forge-production-multi')).toBeVisible()
+  await expect(page.locator('.forge-production-multi li').first()).toBeVisible()
+  await expect(page.locator('.forge-production-final')).toContainText('Feywood Broad Slab')
+  await page.getByRole('button', { name: 'Clear catalog search' }).click()
+  await expect(search).toHaveValue('')
+  await page.screenshot({ path: testInfo.outputPath('forge-phase-a-multistage.png'), fullPage: false })
+})
+
+test('work order displays preserved material icons and does not claim exact art when generic', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 })
+  await page.goto('/catalog')
+  const order = page.locator('.forge-work-order')
+  await expect(order.locator('.forge-material-icon').first()).toBeVisible()
+  const bad = await order.locator('.forge-material-icon').evaluateAll((nodes) => nodes.filter(el =>
+    el instanceof HTMLImageElement && el.complete && el.naturalWidth === 0).length)
+  expect(bad).toBe(0)
+})
+
+test('manual AD prices remain optional, show incompleteness, and persist locally', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1600, height: 900 })
+  await page.goto('/catalog')
+  const costs = page.locator('.forge-economics')
+  await costs.locator('summary').click()
+  await expect(costs.getByText('The Vault does not connect to live Auction House listings.', { exact: false })).toBeVisible()
+  const material = costs.locator('input[aria-label^="Estimated AD per unit of"]').first()
+  await material.fill('25')
+  await expect(costs.getByText(/Priced-material subtotal \(incomplete\)/)).toBeVisible()
+  const finished = costs.locator('input[aria-label^="Estimated AD to buy"]').first()
+  await finished.fill('5000')
+  await expect(costs.getByText('5,000 AD')).toBeVisible()
+  await page.screenshot({ path: testInfo.outputPath('forge-phase-c-pricing.png'), fullPage: false })
+  await page.reload()
+  await page.locator('.forge-economics > summary').click()
+  await expect(page.locator('.forge-economics input[aria-label^="Estimated AD per unit of"]').first()).toHaveValue('25')
+})
+
+test('mobile craft detail preserves compact guidance and no document overflow', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/catalog')
+  await page.locator('.items article .item-main').first().click()
+  await expect(page.locator('.forge-selected-pane .forge-production-simple')).toBeVisible()
+  const horizontal = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+  expect(horizontal).toBeLessThanOrEqual(1)
+  await page.screenshot({ path: testInfo.outputPath('forge-phase-a-mobile.png'), fullPage: false })
+})
