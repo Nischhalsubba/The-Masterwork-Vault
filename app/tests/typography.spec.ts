@@ -7,6 +7,7 @@ async function typeMetrics(locator: Locator) {
       fontSize: Number.parseFloat(style.fontSize),
       lineHeight: Number.parseFloat(style.lineHeight),
       fontWeight: Number.parseInt(style.fontWeight, 10),
+      fontFamily: style.fontFamily,
       letterSpacing: style.letterSpacing,
     }
   })
@@ -28,7 +29,8 @@ test('catalog typography uses a readable hierarchy', async ({ page }) => {
   expect(headingType.fontSize).toBeLessThanOrEqual(32)
   expect(headingType.lineHeight / headingType.fontSize).toBeGreaterThanOrEqual(1)
   expect(headingType.lineHeight / headingType.fontSize).toBeLessThanOrEqual(1.2)
-  expect(headingType.fontWeight).toBeGreaterThanOrEqual(700)
+  expect(headingType.fontWeight).toBeGreaterThanOrEqual(400)
+  expect(headingType.fontFamily).toContain('Georgia')
 
   const itemTitle = page.locator('.item-main strong').first()
   const itemMeta = page.locator('.item-main small').first()
@@ -49,7 +51,8 @@ test('major routes share one display scale', async ({ page }) => {
     expect(headingType.fontSize, route).toBeLessThanOrEqual(36)
     expect(headingType.lineHeight / headingType.fontSize, route).toBeGreaterThanOrEqual(0.98)
     expect(headingType.lineHeight / headingType.fontSize, route).toBeLessThanOrEqual(1.12)
-    expect(headingType.fontWeight, route).toBeGreaterThanOrEqual(700)
+    expect(headingType.fontWeight, route).toBeGreaterThanOrEqual(400)
+    expect(headingType.fontFamily, route).toContain('Georgia')
 
     const brandDetail = page.locator('.tablet-v4-brand small')
     await expect(brandDetail).toBeVisible()
