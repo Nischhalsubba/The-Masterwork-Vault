@@ -267,6 +267,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
   const [mode, setMode] = useState<'direct' | 'scratch'>('direct')
   const [materialTrail, setMaterialTrail] = useState<MaterialTarget[]>([])
   const [statsOpen, setStatsOpen] = useState(false)
+  const detailRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const current = materialTrail[materialTrail.length - 1]
@@ -300,6 +301,16 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
     }
   }, [statsOpen])
 
+  useEffect(() => {
+    const panel = detailRef.current
+    if (!panel || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const parts = Array.from(panel.querySelectorAll<HTMLElement>('.detail-head, .recipe-row')).slice(0, 10)
+    // Navigation feedback remains visible if JS or motion fails; avoid opacity choreography.
+    const tween = gsap.fromTo(parts, { y: 6 }, { y: 0, duration: .22,
+      stagger: .018, ease: 'power2.out', overwrite: 'auto', clearProps: 'transform' })
+    return () => { tween.kill(); gsap.set(parts, { clearProps: 'transform' }) }
+  }, [item.id, mode])
+
   const hasRecipe = item.recipeKnown !== false && item.materials.length > 0
   const calc = useMemo(() => hasRecipe ? calculateCraftingPlan([{ item, quantity }], catalog.recipes) : { direct: [], raw: [], unresolved: [], batches: [] }, [item, hasRecipe, quantity])
   const v = item.variants[variant]
@@ -317,7 +328,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
     const target = materialTrail[materialTrail.length - 1]
     const previous = materialTrail.length > 1 ? materialTrail[materialTrail.length - 2].name : item.name
     return (
-      <section className="detail panel enter">
+      <section ref={detailRef} className="detail panel enter">
         <MaterialDrilldown
           target={target}
           backLabel={previous}
@@ -331,7 +342,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
   const classLabel = item.classes.includes('All') ? 'All classes' : item.classes.length ? item.classes.join(' · ') : 'Class restriction not captured'
 
   return (
-    <section className="detail panel enter">
+    <section ref={detailRef} className="detail panel enter">
       <div className="detail-head">
         <Icon src={item.icon} alt={item.name} size={88} />
         <div className="grow">
