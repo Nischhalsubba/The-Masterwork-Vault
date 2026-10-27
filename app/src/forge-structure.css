@@ -205,14 +205,14 @@
 /* Responsive order: inspector below recipe on tablets; stacked on phone. */
 @media(min-width:681px) and (max-width:1180px){
  .app .catalog .split{display:grid!important;grid-template-columns:minmax(250px,.88fr) minmax(0,1.12fr)!important;gap:0!important;border:1px solid #554741}
- .app .catalog .split>.forge-work-order{grid-column:1/-1;border-left:0;border-top:1px solid #66504a;position:static}
+ .app .catalog .forge-selected-pane>.forge-work-order{grid-column:1/-1;border-left:0;border-top:1px solid #66504a;position:static}
  .forge-order-body{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px}
  .forge-order-actions{max-width:none}
 }
 @media(max-width:680px){
  .app .catalog .result-meta{background:#20212a!important}
  .app .catalog .item-foot{background:#171920!important}
- .app .catalog .split>.forge-work-order{position:static;max-height:none;margin:12px 0 0;border:1px solid #55413e}
+ .app .catalog .forge-selected-pane>.forge-work-order{position:static;max-height:none;margin:12px 0 0;border:1px solid #55413e}
  .forge-order-heading{padding:18px}
  .forge-order-body{padding:16px}
  .forge-order-actions{padding:16px}
@@ -230,4 +230,45 @@
  .mobile-v4-brand span{min-width:0!important;overflow:hidden}
  .mobile-v4-brand strong{font-size:16px!important;line-height:1.18!important}
  .mobile-v4-brand small{font-size:10px!important;line-height:1.2!important}
+}
+
+/* A shared recipe/work-order container provides one continuous mobile detail
+   instead of isolating the inspector outside the navigation stack. */
+.forge-selected-pane{display:contents}
+@media(max-width:680px){
+ .app .catalog .forge-selected-pane{
+   display:block!important;position:fixed!important;
+   top:calc(var(--m-topbar) + env(safe-area-inset-top,0px))!important;
+   inset-inline:0!important;bottom:0!important;z-index:200!important;
+   max-width:100vw!important;overflow-y:auto!important;overflow-x:hidden!important;
+   overscroll-behavior:contain;background:#101218!important;
+   opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+   transform:translate3d(100%,0,0)!important;
+   transition:transform .22s cubic-bezier(.2,0,0,1),opacity .16s ease,visibility 0s linear .22s
+ }
+ body.mobile-v4-detail-open .app .catalog .forge-selected-pane{
+   opacity:1!important;visibility:visible!important;pointer-events:auto!important;
+   transform:translate3d(0,0,0)!important;transition-delay:0s!important;
+ }
+ .app .catalog .forge-selected-pane>.detail{
+   position:relative!important;inset:auto!important;top:auto!important;bottom:auto!important;
+   left:auto!important;right:auto!important;display:block!important;
+   width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+   overflow:visible!important;opacity:1!important;visibility:visible!important;
+   pointer-events:auto!important;transform:none!important;transition:none!important;
+   background:#171a21!important;margin:0!important;
+ }
+ .app .catalog .forge-selected-pane>.forge-work-order{
+   display:flex!important;position:relative!important;inset:auto!important;max-height:none!important;
+   width:100%!important;min-width:0!important;margin:0!important;
+   border:0!important;border-top:1px solid #70524b!important;padding-bottom:max(24px,env(safe-area-inset-bottom,0px))!important;
+ }
+ /* The original full-screen detail rule belongs to the old sibling layout.
+    Its layout/visibility is owned by the common parent above. */
+ .app .catalog .forge-selected-pane button:focus-visible,
+ .app .catalog .forge-selected-pane input:focus-visible{outline:2px solid #f0cd93!important;outline-offset:2px!important}
+ .mobile-v4-brand{transform:translateY(1px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .app .catalog .forge-selected-pane{transition:none!important}
 }
