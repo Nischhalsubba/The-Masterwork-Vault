@@ -1,0 +1,265 @@
+/* MASTERWORK V4 · ROUTE AND COMPONENT CONSISTENCY
+   Shared presentation rules for existing screens. All source data, icons, calculations,
+   saved plans and navigation contracts remain unchanged. Loaded after legacy layers. */
+:root {
+  --forge-ui-canvas:#0b0d12;
+  --forge-ui-elevation:#13161c;
+  --forge-ui-surface:#191c24;
+  --forge-ui-raised:#22232c;
+  --forge-ui-hover:#2a252c;
+  --forge-ui-border:#484047;
+  --forge-ui-border-strong:#78604e;
+  --forge-ui-text:#f0e7d5;
+  --forge-ui-subtext:#c1b5ac;
+  --forge-ui-hint:#a9a1a3;
+  --forge-ui-gold:#d9b77a;
+  --forge-ui-gold-bright:#f0d1a0;
+  --forge-ui-gold-soft:#362a28;
+  --forge-ui-red:#4b2a35;
+  --forge-ui-success:#b8ddbf;
+  --forge-ui-warning:#e6c693;
+  --forge-ui-danger:#ecb0b5;
+}
+@media(max-width:1180px){
+ :root{
+  --m-bg:var(--forge-ui-canvas);
+  --m-surface:var(--forge-ui-surface);
+  --m-surface-2:var(--forge-ui-raised);
+  --m-fill:#302931;
+  --m-fill-strong:#40353a;
+  --m-text:var(--forge-ui-text);
+  --m-text-2:var(--forge-ui-subtext);
+  --m-border:var(--forge-ui-border);
+  --m-border-strong:var(--forge-ui-border-strong);
+  --m-blue:var(--forge-ui-gold);
+  --m-blue-soft:var(--forge-ui-gold-soft);
+  --m-success:var(--forge-ui-success);
+  --m-danger:var(--forge-ui-danger);
+  --m-radius:5px;
+  --m-radius-sm:3px
+ }
+}
+/* Reuse one visual grammar on catalog, planner, material browser and deep tools. */
+#root :is(.crafting-workbench,.materials-workbench,.workbench-page,.reference,.journey-page,
+ .mw-explore-page,.mw-graph-page,.mw-readiness-page,.mw-health-page){
+ color:var(--forge-ui-text);color-scheme:dark;
+}
+#root :is(.workbench-header,.materials-browser,.material-intelligence,.plan-row,
+ .inventory-panel,.tree-panel,.checklist-panel,.professions-panel,.workbench-grid>.panel,
+ .ready-panel,.reference-grid>.panel,.reference-hero,.artisan-grid article,.journey-chapter,
+ .journey-personal-progress,.journey-planning,.mw-explore-filters,.mw-explore-results,
+ .mw-graph-layout>aside,.mw-graph-canvas,.mw-summary-card,.mw-health-panel,
+ .mw-policy-card,.mw-state-tools,.mw-workshop-strip,.mw-tier-card-grid>article,
+ .acquisition-guide,.acquisition-route,.mw-compare-dialog,.acquisition-dialog){
+ background:var(--forge-ui-surface)!important;
+ color:var(--forge-ui-text)!important;
+ border:1px solid var(--forge-ui-border)!important;
+ border-radius:4px!important;
+ box-shadow:none!important
+}
+#root :is(.workbench-header,.journey-page-hero,.mw-explore-hero,.mw-graph-hero,.mw-readiness-hero,.mw-health-hero,.reference-hero){
+ background:linear-gradient(112deg,#261d26 0%,#171a21 76%)!important;
+ border:1px solid #57433e!important;
+ color:var(--forge-ui-text)!important;
+ border-radius:4px!important;
+ box-shadow:none!important
+}
+#root :is(.workbench-header h1,.workbench-header h2,.workbench-section-head h2,
+ .materials-workbench h2,.material-intelligence h2,.journey-page-hero h1,
+ .journey-chapter h2,.journey-chapter h3,.reference-hero h2,
+ .mw-explore-hero h1,.mw-graph-hero h1,.mw-readiness-hero h1,.mw-health-hero h1){
+ font-family:Georgia,"Times New Roman",serif!important;
+ color:var(--forge-ui-text)!important;
+ font-weight:400!important;
+ letter-spacing:-.024em!important;
+ line-height:1.17!important
+}
+#root :is(.workbench-header p,.workbench-section-head p,.quiet-note,.journey-chapter p,
+ .mw-explore-hero p,.mw-graph-hero p,.mw-readiness-hero p,.mw-health-hero p,
+ .materials-workbench p,.mw-filter-group p,.reference p){
+ color:var(--forge-ui-subtext)!important
+}
+#root :is(.workbench-header small,.workbench-section-head small,.mw-eyebrow,
+ .mw-section-heading small,.journey-eyebrow,.mw-filter-group legend,
+ .mw-explore-meta,.mw-graph-kind,.mw-health-metrics small,.mw-priority-rank){
+ color:var(--forge-ui-gold)!important;
+ font-variant-numeric:tabular-nums;
+}
+/* Tabs, segmented controls and filters must share a single button vocabulary. */
+#root :is(.workbench-tabs,.reference-tabs,.journey-section-nav,.acquisition-filters,
+ .mw-class-filter,.mw-recent-searches,.mw-explore-filters .mw-filter-group,
+ .mw-graph-picker,.mw-workshop-strip){
+ border-color:var(--forge-ui-border)!important;
+ background:var(--forge-ui-surface)!important;
+ color:var(--forge-ui-text)!important;
+}
+#root :is(.workbench-tabs button,.reference-tabs button,.journey-section-nav button,
+ .mw-graph-picker button,.acquisition-filters button,.workbench-grid .ghost,
+ .saved-plan-row button,.mw-filter-clear,.mw-explore-filters button){
+ background:transparent!important;
+ color:var(--forge-ui-subtext)!important;
+ border-color:var(--forge-ui-border)!important;
+ border-radius:3px!important;
+ box-shadow:none!important;
+ transition:background-color .2s ease,color .2s ease,border-color .2s ease
+}
+#root :is(.workbench-tabs button,.reference-tabs button,.journey-section-nav button,
+ .mw-graph-picker button,.acquisition-filters button,.mw-explore-filters button):hover{
+ background:var(--forge-ui-hover)!important;color:var(--forge-ui-text)!important;
+ border-color:var(--forge-ui-border-strong)!important
+}
+#root :is(.workbench-tabs button,.reference-tabs button,.journey-section-nav button,
+ .mw-graph-picker button,.acquisition-filters button).active,
+#root :is(.workbench-tabs button,.reference-tabs button,.journey-section-nav button,
+ .mw-graph-picker button,.acquisition-filters button)[aria-selected=true],
+#root :is(.mw-graph-picker button,.mw-filter-group button)[aria-pressed=true]{
+ background:var(--forge-ui-red)!important;
+ color:var(--forge-ui-gold-bright)!important;
+ border-color:var(--forge-ui-border-strong)!important
+}
+/* Material and project row treatments. */
+#root :is(.plan-row,.inventory-row,.availability-row,.ready-card,.near-ready-row,
+ .ready-material-card,.shopping-acquisition-row,.saved-plan-row,.profession-step,
+ .mw-explore-card,.mw-graph-card,.mw-priority-list>li,.mw-priority-list>article,
+ .mw-profession-cards>article,.mw-tier-card-grid>article,
+ .material-list>button,.reverse-list>button,.acquisition-results>article){
+ background:var(--forge-ui-surface)!important;
+ color:var(--forge-ui-text)!important;
+ border-color:var(--forge-ui-border)!important;
+ border-radius:3px!important;
+ box-shadow:none!important
+}
+#root :is(.inventory-row,.plan-row,.availability-row,.saved-plan-row,
+ .mw-explore-card,.mw-graph-card,.near-ready-row):hover{
+ border-color:var(--forge-ui-border-strong)!important;
+ background:var(--forge-ui-hover)!important;
+}
+#root :is(.plan-row strong,.inventory-row strong,.availability-row strong,
+ .ready-card strong,.saved-plan-row strong,.profession-step strong,
+ .mw-explore-card strong,.mw-graph-card strong,.mw-priority-copy strong){
+ color:var(--forge-ui-text)!important
+}
+#root :is(.inventory-row small,.availability-row small,.saved-plan-row small,.profession-step small,
+ .mw-explore-card small,.mw-graph-card small,.plan-row small){
+ color:var(--forge-ui-subtext)!important
+}
+#root :is(.workbench-metrics>div,.mw-health-metrics>div,
+ .mw-summary-grid>.mw-summary-card,.journey-planning-total,
+ .mw-hero-progress,.mw-explore-count,.mw-graph-summary){
+ background:var(--forge-ui-raised)!important;
+ border-color:var(--forge-ui-border)!important;
+ color:var(--forge-ui-text)!important
+}
+#root :is(.workbench-metrics strong,.mw-health-metrics strong,.mw-summary-card strong,
+ .journey-planning-total strong,.mw-explore-count strong,.mw-graph-summary strong){
+ color:var(--forge-ui-gold-bright)!important;
+ font-variant-numeric:tabular-nums!important
+}
+/* One field language: dark, accessible, no legacy white or blue outlines. */
+#root :is(.inventory-input input,.inventory-row input,.workbench-page input,
+ .workbench-page select,.materials-workbench input,.materials-workbench select,
+ .journey-page input,.journey-page select,.mw-explore-page input,
+ .mw-readiness-page input,.mw-health-page input,.mw-graph-page input,
+ .mw-command-search input,.acquisition-search input,.acquisition-query-field,
+ .saved-name-field input,.share-url input,.mw-filter-group input){
+ background:#11141b!important;
+ border:1px solid #6a5a51!important;
+ border-radius:3px!important;
+ color:var(--forge-ui-text)!important;
+ caret-color:var(--forge-ui-gold-bright)!important;
+ box-shadow:none!important
+}
+#root :is(input,textarea,select)::placeholder{color:#afa6a2!important;opacity:1}
+#root :is(input,textarea,select,button,a,summary,[role=button]):focus-visible{
+ outline:2px solid var(--forge-ui-gold-bright)!important;
+ outline-offset:2px!important
+}
+#root :is(.primary,.workbench-primary-action,.mw-page-primary,
+ .mw-readiness-main .primary,.mw-health-main .primary,.acquisition-dialog .primary){
+ background:linear-gradient(180deg,#eed6a5,#cfa36b)!important;
+ color:#1c1617!important;border:1px solid #e5be82!important;border-radius:3px!important;
+ box-shadow:none!important;font-weight:650!important
+}
+#root :is(.primary,.workbench-primary-action,.mw-page-primary):hover{
+ background:#f2dfb8!important;color:#171216!important
+}
+#root button:disabled{cursor:not-allowed;opacity:.53}
+/* Acquisition, craft sequence, evidence, and provenance: no false facts or invented colors. */
+#root :is(.acquisition-route,.acquisition-notice,.acquisition-steps,
+ .material-intelligence,.planner-evidence-warning,.evidence-card,.evidence-grid,
+ .journey-source-ledger,.mw-health-ledger,.mw-ledger){
+ background:var(--forge-ui-surface)!important;
+ color:var(--forge-ui-text)!important;
+ border-color:var(--forge-ui-border)!important;
+}
+#root :is(.verification-badge,.optimization-chip,.ready-count,
+ .checklist-progress,.yield-chip,.source,.pills span,.tags span,
+ .journey-milestone,.acquisition-coverage){
+ background:#302b31!important;
+ border-color:#66554e!important;
+ color:#dfc8a3!important
+}
+#root :is(.verification-badge.verified,.ready-count.ready,.mw-priority-complete){
+ color:var(--forge-ui-success)!important;background:#20352c!important;
+ border-color:#41674d!important
+}
+#root :is(.verification-badge.unresolved,.evidence-conflict,.planner-evidence-warning,
+ .journey-caution,.acquisition-notice){
+ color:var(--forge-ui-warning)!important;background:#33271e!important;
+ border-color:#796043!important
+}
+#root :is(.mw-compare-dialog,.acquisition-dialog,.stats-drawer,.mw-command-dialog,.command-palette){
+ background:var(--forge-ui-elevation)!important;
+ color:var(--forge-ui-text)!important;
+ border-color:var(--forge-ui-border-strong)!important
+}
+#root :is(.compare-table,.mw-profession-table,.mw-ledger-table,.legacy-artisan-table,.material-list){
+ color:var(--forge-ui-text)!important;
+ border-color:var(--forge-ui-border)!important
+}
+#root :is(.compare-table th,.mw-profession-table th,.mw-ledger-table th,.legacy-artisan-table>div:first-child){
+ background:var(--forge-ui-raised)!important;
+ color:var(--forge-ui-gold-bright)!important
+}
+#root :is(.compare-table tr,.mw-profession-table tr,.mw-ledger-table tr){
+ background:var(--forge-ui-surface)!important;
+ border-color:var(--forge-ui-border)!important
+}
+#root :is(.compare-table tr:nth-child(even),.mw-profession-table tr:nth-child(even),.mw-ledger-table tr:nth-child(even)){
+ background:#1d2028!important
+}
+/* Keep grids and long material names usable instead of introducing horizontal clipping. */
+#root :is(.workbench-grid,.materials-workbench,.mw-explore-layout,.mw-graph-layout,
+ .mw-readiness-bottom-grid,.mw-health-grid,.journey-learning-grid){min-width:0}
+#root :is(.plan-row,.inventory-row,.mw-explore-card,.mw-graph-card,
+ .availability-row,.mw-priority-copy){min-width:0}
+#root :is(.mw-explore-card,.mw-graph-card,.plan-row,.inventory-row,.availability-row) :is(strong,small){
+ overflow-wrap:anywhere;
+}
+@media(max-width:1180px){
+ #root :is(.workbench-grid,.materials-workbench,.mw-explore-layout,
+ .mw-graph-layout,.mw-readiness-bottom-grid,.mw-health-grid){max-width:100%}
+ #root :is(.mw-explore-filters,.mw-graph-layout>aside,.workbench-tabs,.reference-tabs){
+  max-width:100%;overflow-x:auto
+ }
+ #root :is(.workbench-header,.journey-page-hero,.mw-explore-hero,.mw-graph-hero,
+ .mw-readiness-hero,.mw-health-hero){padding:clamp(14px,2vw,24px)!important}
+}
+@media(max-width:680px){
+ #root :is(.workbench-grid,.ready-grid,.journey-planning-grid,
+ .journey-learning-grid,.mw-readiness-bottom-grid,.mw-health-grid,.mw-graph-layout){
+  grid-template-columns:minmax(0,1fr)!important
+ }
+ #root :is(.mw-explore-layout,.materials-workbench,.workbench-grid,
+ .mw-health-grid,.mw-readiness-bottom-grid){
+  overflow-wrap:anywhere
+ }
+ #root :is(.plan-row,.inventory-row,.availability-row,.saved-plan-row,
+ .mw-explore-card,.mw-graph-card){max-width:100%}
+ #root :is(.mw-explore-hero h1,.mw-graph-hero h1,.mw-readiness-hero h1,
+ .mw-health-hero h1,.journey-page-hero h1){font-size:clamp(25px,6vw,32px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #root :is(.workbench-tabs button,.reference-tabs button,.mw-explore-card,
+ .mw-graph-card,.ready-card){transition:none!important}
+}
