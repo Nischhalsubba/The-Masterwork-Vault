@@ -344,3 +344,33 @@
 }
 /* One action authority per selected recipe: the work-order inspector owns saving. */
 .app .catalog .detail-head>.primary{display:none!important}
+
+/* Browser screenshot QA: real items remain painted even when virtualized
+   content or interrupted entrance tweens would otherwise leave blank rows. */
+#root .catalog .forge-formula-browser>.items>article{
+ content-visibility:visible!important;
+ contain-intrinsic-size:none!important;
+ opacity:1!important;
+ visibility:visible!important;
+ transform:none!important
+}
+/* Replace legacy pale background around the item Details control. */
+#root .catalog .detail-controls{
+ background:transparent!important;
+ color:#f0e7d5!important;
+ border:0!important;
+ box-shadow:none!important
+}
+#root .catalog .stats-trigger{
+ background:#22242d!important;
+ color:#e8cfaa!important;
+ border:1px solid #6c574b!important;
+ border-radius:3px!important;
+ box-shadow:none!important
+}
+#root .catalog .stats-trigger:hover{background:#392c31!important}
+#root .catalog .detail-controls .seg{background:#21222a!important;color:#e7d5bc!important}
+@media(max-width:680px){
+ #root .catalog .detail-controls{display:flex!important;justify-content:flex-end!important}
+ #root .catalog .stats-trigger{min-height:44px!important}
+}
