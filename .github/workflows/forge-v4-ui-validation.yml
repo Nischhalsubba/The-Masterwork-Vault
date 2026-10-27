@@ -9,6 +9,10 @@ on:
       - 'app/public/manifest.webmanifest'
       - '.github/workflows/forge-v4-ui-validation.yml'
 
+concurrency:
+  group: forge-v4-ui-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -32,5 +36,17 @@ jobs:
         run: npm run build
       - name: Install Playwright Chromium
         run: npx --no-install playwright install --with-deps chromium
-      - name: Validate responsive flows and crafting regressions
+      - name: Validate V4 layout and phone navigation first
+        run: npx --no-install playwright test tests/forge-v4-structure.spec.ts tests/phone-header-brand.spec.ts --workers=2 --reporter=list
+      - name: Validate all responsive flows and crafting regressions
         run: npx --no-install playwright test --workers=2 --global-timeout=480000 --reporter=list
+      - name: Upload V4 browser evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: forge-v4-layout-evidence
+          path: |
+            app/test-results/**/forge-workbench-*.png
+            app/test-results/**/error-context.md
+          retention-days: 2
+          if-no-files-found: warn

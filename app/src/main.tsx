@@ -32,6 +32,8 @@ import './workspace-shell.css'
 import './design/tokens.css'
 import './design-system.css'
 import './forge-v4.css'
+import './forge-structure.css'
+import './forge-route-consistency.css'
 import { ForgeMotion } from './components/ForgeMotion'
 
 const App = lazy(() => import('./App'))

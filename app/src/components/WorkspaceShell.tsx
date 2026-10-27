@@ -92,6 +92,8 @@ export function WorkspaceShell() {
   const [detailTitle, setDetailTitle] = useState(itemTitleFromPath)
   const [nested, setNested] = useState(false)
   const menu = useRef<HTMLDetailsElement>(null)
+  const detailBackButton = useRef<HTMLButtonElement>(null)
+  const wasDetailOpen = useRef(false)
 
   useEffect(() => {
     const phone = window.matchMedia(PHONE_QUERY)
@@ -142,6 +144,20 @@ export function WorkspaceShell() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!window.matchMedia(PHONE_QUERY).matches) return
+    const previouslyOpen = wasDetailOpen.current
+    wasDetailOpen.current = detailOpen
+    if (detailOpen && !previouslyOpen) {
+      const handle = window.requestAnimationFrame(() => detailBackButton.current?.focus())
+      return () => window.cancelAnimationFrame(handle)
+    }
+    if (!detailOpen && previouslyOpen) {
+      const handle = window.requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.catalog .items article.selected .item-main')?.focus())
+      return () => window.cancelAnimationFrame(handle)
+    }
+  }, [detailOpen])
+
   const navigate = (view: CoreView) => {
     if (!coreViews.has(viewFromPath() as CoreView)) {
       window.location.assign(`/${view}`)
@@ -178,12 +194,34 @@ export function WorkspaceShell() {
 
   return (
     <>
+      <header className="forge-desktop-topbar">
+        <a href="/catalog" className="forge-desktop-brand" aria-label="The Masterwork Vault home">
+          <img src="/assets/brand/masterwork-vault-mark.svg" alt="" />
+          <span><strong>MASTERWORK</strong><small>NEVERWINTER CRAFTING COMPANION</small></span>
+        </a>
+        <nav className="forge-desktop-nav" aria-label="Masterwork primary navigation">
+          {workspaceButtons.slice(0, 3)}
+          <a href="/journey" className={activeView === 'journey' ? 'active' : ''} aria-current={activeView === 'journey' ? 'page' : undefined}>Progression</a>
+          {workspaceButtons.slice(3)}
+        </nav>
+        <details className="forge-desktop-tools">
+          <summary>More tools <Menu size={14} aria-hidden="true"/></summary>
+          <div className="forge-desktop-tools-panel">
+            {tools.map(({ view, label, detail, Icon }) => (
+              <a href={'/' + view} key={view} aria-current={activeView === view ? 'page' : undefined}>
+                <Icon size={16} aria-hidden="true"/><span><strong>{label}</strong><small>{detail}</small></span>
+              </a>
+            ))}
+          </div>
+        </details>
+      </header>
       <header className={`mobile-v4-topbar ${detailOpen ? 'detail-mode' : ''}`}>
         {detailOpen ? (
           <>
             <button
               type="button"
               className="mobile-v4-back"
+              ref={detailBackButton}
               onClick={goBack}
               aria-label={nested ? 'Back to previous recipe' : 'Back to catalog'}
             >
