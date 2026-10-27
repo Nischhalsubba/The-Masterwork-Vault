@@ -6,7 +6,7 @@
 #root .app .catalog .detail-head h2{font-size:clamp(29px,2.8vw,43px)!important;line-height:1.08!important;text-wrap:balance}
 #root .app .catalog .detail-head p{color:#cfc3b5!important;font-size:13px!important;line-height:1.55}
 #root .app .catalog .detail-head .pills{gap:6px!important}
-#root .app .catalog .item-main .grow strong{font-size:13px!important;line-height:1.35!important}
+#root .app .catalog .item-main .grow strong{font-size:14px!important;line-height:1.35!important}
 #root .app .catalog .item-main .mw-item-meta-line{gap:8px!important}
 #root .app .catalog .item-foot{background:#15171e!important;min-height:28px!important;gap:8px!important}
 #root .app .catalog .item-foot .item-source-line{font-size:10px!important;letter-spacing:.015em!important;color:#aea49c!important}
