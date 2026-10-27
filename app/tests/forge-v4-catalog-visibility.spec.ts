@@ -71,3 +71,33 @@ test('phone catalogue list keeps full item rows and no document overflow', async
   expect(overflow).toBeLessThanOrEqual(1)
   await page.screenshot({ path: testInfo.outputPath('forge-catalog-readable-mobile.png'), fullPage: false })
 })
+
+test('desktop utility buttons occupy the navigation region without covering the work order', async ({ page }) => {
+  await page.setViewportSize({ width: 1728, height: 900 })
+  await page.goto('/catalog')
+  const search = page.getByRole('button', { name: 'Open universal search', exact: true })
+  const density = page.locator('.ux-density-menu > summary')
+  const more = page.locator('.forge-desktop-tools > summary')
+  await expect(search).toBeVisible()
+  await expect(density).toBeVisible()
+  await expect(more).toBeVisible()
+  const rects = await Promise.all([search, density, more].map(locator => locator.boundingBox()))
+  for (const rect of rects) {
+    expect(rect).not.toBeNull()
+    expect(rect!.top).toBeLessThan(80)
+    expect(rect!.bottom).toBeLessThanOrEqual(80)
+  }
+  const intersection = (a: NonNullable<typeof rects[0]>, b: NonNullable<typeof rects[0]>) =>
+    Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) *
+    Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y))
+  expect(intersection(rects[0]!, rects[1]!)).toBe(0)
+  expect(intersection(rects[1]!, rects[2]!)).toBe(0)
+})
+
+test('zero-result search shows a real empty state and no fake recipe panel', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/catalog')
+  await page.getByRole('textbox', { name: 'Search catalog' }).fill('definitely-not-a-real-masterwork-item-xyz')
+  await expect(page.getByRole('heading', { name: 'No craftables match' })).toBeVisible()
+  await expect(page.locator('.catalog .detail').filter({ visible: true })).toHaveCount(0)
+})
