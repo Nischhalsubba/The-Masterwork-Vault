@@ -203,3 +203,43 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+
+
+/* Priority-safe canonical typography after multiple historical style layers. */
+#root .mw-core-page-header h1,
+#root .mw-explore-hero h1,
+#root .mw-graph-hero h1,
+#root .mw-readiness-hero h1,
+#root .mw-health-hero h1,
+#root .mw-journey-hero h1,
+#root .workbench-header h1,
+#root .journey-hero h1 {
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-size:clamp(26px,2vw,32px)!important;
+  font-weight:400!important;
+  line-height:1.12!important;
+  letter-spacing:-.025em!important;
+  color:#f0e7d5!important;
+}
+#root .mw-core-page-header,
+#root .workbench-header,
+#root .mw-explore-hero,
+#root .mw-graph-hero {
+  background:linear-gradient(105deg,#251b22,#171a21 68%)!important;
+  border:1px solid #55443d!important;
+  border-left:3px solid #b38c5a!important;
+}
+#root .panel,
+#root .mw-summary-card,
+#root .mw-explore-card,
+#root .mw-graph-canvas,
+#root .workbench-grid > .panel {
+  background:#171a21!important;
+  color:#f0e7d5!important;
+  border-color:#39373b!important;
+}
+#root .primary {
+  color:#161416!important;
+  background:linear-gradient(#efd6a6,#cfaa73)!important;
+  border-color:#d9b77a!important;
+}
