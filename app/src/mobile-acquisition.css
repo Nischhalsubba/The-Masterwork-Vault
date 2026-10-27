@@ -1,0 +1,411 @@
+/*
+ * ACQUISITION-FIRST RESPONSIVE REPAIR
+ * This layer exists to correct clipping and task order on the source-backed
+ * Forge V4 interface. No new colors, item assets or game mechanics.
+ */
+:root { --forge-focus:#efd4a7;--forge-panel:#171a21;--forge-border:#4a4249;--forge-secondary:#c2b6aa }
+#root .app :where(.catalog,.workspace,.forge-selected-pane,.detail,.recipe-list,.recipe-row,.recipe-row-copy,.recipe-row-actions,
+.forge-work-order,.forge-order-body,.forge-order-heading,.forge-order-actions){min-width:0;box-sizing:border-box}
+#root :where(.app main,.mw-graph-main,.mw-explore-main,.mw-readiness-main,.mw-health-main,.journey-page-main){
+ min-width:0;max-width:100%;box-sizing:border-box
+}
+#root :where(.app img,.mw-graph-main img,.mw-explore-main img,.journey-page-main img){
+ max-width:100%;
+}
+#root .app .catalog .forge-source-location{
+ display:block;min-width:0;max-width:100%;
+ color:#d6ba83;font-size:11px;line-height:1.45;
+ overflow-wrap:anywhere;white-space:normal
+}
+#root .app .catalog .recipe-row-copy{display:grid;align-content:center;gap:3px}
+#root .app .catalog .recipe-row-copy strong{overflow-wrap:anywhere}
+#root .app .catalog .forge-recipe-advanced{margin:18px 0 0;border:1px solid #494049;border-radius:4px;background:#17191f;min-width:0}
+#root .app .catalog .forge-recipe-advanced>summary{
+ padding:14px 16px;min-height:48px;display:list-item;
+ cursor:pointer;font-size:13px;line-height:1.5;font-weight:600;
+ color:#e4c895;outline-offset:-3px;
+}
+#root .app .catalog .forge-recipe-advanced[open]>summary{border-bottom:1px solid #494049}
+#root .app .catalog .forge-recipe-advanced> :not(summary){margin-inline:12px!important;max-width:calc(100% - 24px)}
+#root .app .catalog .forge-recipe-advanced .forge-production-route ol{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))!important}
+#root .app .catalog .forge-recipe-advanced .forge-production-simple{border:0;background:transparent}
+#root .app .catalog .forge-recipe-advanced .batches{max-width:calc(100% - 24px)}
+#root .app .catalog .forge-list-more{display:flex;padding:16px;justify-content:center}
+#root .app .catalog .forge-list-more button{
+ border:1px solid #6a5347;background:#231f26;color:#efd4a7;
+ font-size:12px;border-radius:3px;min-height:44px;padding:10px 16px;
+ cursor:pointer
+}
+#root .app .catalog .forge-list-more button:focus-visible{outline:2px solid var(--forge-focus);outline-offset:2px}
+#root .app .catalog :is(.forge-quantity-control button,.craftable-indicator,.stats-trigger,.acquisition-button){
+ flex-shrink:0;touch-action:manipulation
+}
+/* Universal fallback while lazily loading route chunks. */
+#root .mw-page-loading{
+ display:block!important;padding:clamp(20px,3vw,44px)!important;
+ min-height:calc(100dvh - 80px);width:100%;max-width:none;
+ background:#0b0d12!important;color:#f0e7d5!important;
+}
+#root .mw-skeleton{
+ display:block;position:relative;overflow:hidden;
+ background:linear-gradient(100deg,#20232b 10%,#2c2b33 45%,#20232b 80%);
+ background-size:220% 100%;animation:forge-skeleton-pulse 1.55s ease-in-out infinite;
+ border-radius:4px;
+}
+#root .mw-skeleton-heading{height:32px;width:min(380px,65%);margin-bottom:12px}
+#root .mw-skeleton-subheading{height:14px;width:min(500px,82%);margin-bottom:30px}
+#root .mw-skeleton-workspace{display:grid;grid-template-columns:minmax(240px,.86fr) minmax(330px,1.5fr) minmax(250px,.9fr);gap:1px;background:#4a4249;border:1px solid #4a4249;max-width:100%}
+#root .mw-skeleton-column{background:#14161d;min-width:0;display:flex;flex-direction:column;gap:12px;padding:18px;min-height:420px}
+#root .mw-skeleton-search{height:44px}
+#root .mw-skeleton-row{height:58px}
+#root .mw-skeleton-item{height:110px}
+@keyframes forge-skeleton-pulse{0%{background-position:110% 0}100%{background-position:-110% 0}}
+@media(max-width:1180px){
+ #root .mw-skeleton-workspace{grid-template-columns:minmax(200px,.9fr) minmax(0,1.1fr)}
+ #root .mw-skeleton-aside{display:none}
+}
+@media(max-width:680px){
+ #root .mw-page-loading{padding:18px!important;min-height:80dvh}
+ #root .mw-skeleton-workspace{display:block}
+ #root .mw-skeleton-column{min-height:0;padding:14px}
+ #root .mw-skeleton-center,#root .mw-skeleton-aside{display:none}
+ #root .mw-skeleton-heading{height:27px}
+ #root .mw-skeleton-row{height:64px}
+ #root .app .catalog .forge-selected-pane{width:100vw!important;max-width:100vw!important;box-sizing:border-box}
+ #root .app .catalog .forge-selected-pane>.detail{
+  box-sizing:border-box!important;width:100%!important;max-width:100%!important;
+  padding:14px 14px 26px!important;min-width:0!important;overflow:visible!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-head{
+  display:grid!important;grid-template-columns:64px minmax(0,1fr)!important;
+  gap:12px!important;align-items:start!important;
+  padding:14px!important;margin-bottom:12px!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-head>.sprite{
+  width:64px!important;height:64px!important;max-width:64px!important;border-radius:6px!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-head .grow{
+  min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-head h2{
+  font-size:clamp(21px,5.7vw,27px)!important;line-height:1.16!important;
+  text-wrap:wrap!important;overflow-wrap:anywhere!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-head .pills{
+  display:flex!important;flex-wrap:wrap!important;gap:5px!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-head .pills>span{
+  max-width:100%!important;overflow-wrap:anywhere!important;font-size:10px!important
+ }
+ /* Existing positional styles made Details overlap the quality controls. */
+ #root .app .catalog .forge-selected-pane .detail-controls{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  position:static!important;inset:auto!important;width:100%!important;
+  height:auto!important;min-height:0!important;margin:8px 0 14px!important;
+  padding:0!important;gap:10px!important;background:transparent!important;border:0!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-controls>.seg{
+  position:static!important;display:flex!important;flex-wrap:wrap!important;
+  width:100%!important;max-width:100%!important;height:auto!important;gap:6px!important;
+  margin:0!important;min-width:0!important;overflow:visible!important;
+  padding:0!important;background:transparent!important;border:0!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-controls>.seg>button{
+  flex:1 1 135px!important;min-width:0!important;min-height:44px!important;
+  padding:10px!important;border:1px solid #675749!important;border-radius:4px!important;
+  font-size:13px!important;line-height:1.3!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;background:#24222b!important;color:#e9d9bd!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-controls>.seg>button.active{
+  background:#49303a!important;border-color:#c7a16e!important;color:#fff0cd!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-controls>.stats-trigger{
+  position:static!important;inset:auto!important;transform:none!important;float:none!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:9px!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;min-height:44px!important;height:auto!important;
+  margin:0!important;padding:10px 14px!important;
+  background:#24232b!important;color:#e5c99e!important;border:1px solid #655347!important;
+  border-radius:4px!important;box-shadow:none!important;font-size:13px!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-controls>.stats-trigger>span{
+  margin-left:auto!important;flex-shrink:0!important
+ }
+ /* Each resource is two rows: icon and name, then a full visible source action.
+    No absolutely positioned icon, count or button may escape the panel. */
+ #root .app .catalog .forge-selected-pane .recipe-list{
+  display:block!important;overflow:visible!important;width:100%!important;max-width:100%!important
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row{
+  display:grid!important;grid-template-columns:46px minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;column-gap:12px!important;row-gap:10px!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  padding:14px!important;align-items:center!important;
+  background:#171a21!important;border:0!important;border-bottom:1px solid #45404a!important;
+  box-sizing:border-box!important;overflow:visible!important
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row>.sprite{
+  grid-column:1!important;grid-row:1!important;width:46px!important;height:46px!important;
+  margin:0!important;position:static!important;transform:none!important
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row>.recipe-row-copy{
+  grid-column:2!important;grid-row:1!important;min-width:0!important;
+  width:100%!important;overflow:visible!important;display:grid!important;gap:3px!important
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row>.recipe-row-copy>strong{font-size:14px!important;line-height:1.35!important}
+ #root .app .catalog .forge-selected-pane .recipe-row>.recipe-row-copy>small{font-size:12px!important;line-height:1.35!important}
+ #root .app .catalog .forge-selected-pane .recipe-row>.recipe-row-actions{
+  grid-column:1/-1!important;grid-row:2!important;position:static!important;
+  display:flex!important;flex-wrap:wrap!important;justify-content:space-between!important;
+  align-items:center!important;gap:8px!important;
+  min-height:42px!important;min-width:0!important;width:100%!important;
+  margin:0!important;padding:0!important;overflow:visible!important
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row-actions>b{
+  position:static!important;inset:auto!important;transform:none!important;
+  margin:0!important;padding:0!important;color:#edd09b!important;font-size:14px!important;
+  flex:0 0 auto!important
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row-actions>.acquisition-button,
+ #root .app .catalog .forge-selected-pane .recipe-row-actions>.craftable-indicator{
+  position:static!important;inset:auto!important;transform:none!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  gap:8px!important;min-height:42px!important;max-width:100%!important;
+  width:auto!important;min-width:132px!important;margin:0!important;
+  padding:9px 12px!important;white-space:normal!important;
+  font-size:12px!important;line-height:1.4!important;overflow:visible!important;
+  border:1px solid #776251!important;border-radius:4px!important;
+  color:#e6d0aa!important;background:#28252c!important
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row-actions>.craftable-indicator span{
+  position:static!important;width:auto!important;height:auto!important;overflow:visible!important;
+  clip:auto!important;clip-path:none!important;margin:0!important;white-space:normal!important
+ }
+ #root .app .catalog .forge-selected-pane .section-head{
+  display:flex!important;flex-wrap:wrap!important;gap:10px!important;align-items:start!important;
+  margin:16px 0 12px!important
+ }
+ #root .app .catalog .forge-selected-pane .section-head h3{font-size:23px!important;line-height:1.2!important}
+ #root .app .catalog .forge-selected-pane .section-head .seg{
+  display:flex!important;width:100%!important;min-width:0!important;
+  gap:8px!important;position:static!important;overflow:visible!important
+ }
+ #root .app .catalog .forge-selected-pane .section-head .seg button{
+  flex:1 1 0!important;min-width:0!important;min-height:44px!important;
+  white-space:normal!important;font-size:13px!important;
+  padding:9px 10px!important;line-height:1.3!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-recipe-advanced{
+  margin-top:12px!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-work-order{
+  max-width:100%!important;width:100%!important;overflow:visible!important;
+  margin:0!important;border:0!important;border-top:1px solid #6b4b4b!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-order-heading{
+  padding:16px!important;min-height:0!important;max-height:none!important;
+  background:#331b29!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-order-heading h2{
+  font-size:clamp(22px,6vw,26px)!important;line-height:1.16!important;
+  margin:7px 0!important;letter-spacing:-.018em!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-order-heading p{
+  font-size:12px!important;line-height:1.45!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-order-body{
+  display:block!important;width:100%!important;max-width:100%!important;
+  padding:14px 16px!important;min-width:0!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-order-body>*{
+  margin-bottom:12px!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-order-quantity{
+  display:flex!important;align-items:center!important;flex-wrap:wrap!important;
+  gap:12px!important;justify-content:space-between!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-quantity-control{
+  flex:0 0 auto!important;max-width:100%!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-quantity-control button{
+  min-height:42px!important;min-width:42px!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-inventory-row{
+  display:grid!important;grid-template-columns:32px minmax(0,1fr) 70px!important;
+  gap:9px!important;min-height:58px!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-order-actions{
+  display:grid!important;gap:10px!important;padding:16px!important;
+  position:static!important;width:100%!important;box-sizing:border-box!important;
+ }
+ #root .app .catalog .forge-selected-pane .forge-order-actions button{
+  min-height:44px!important;max-width:100%!important
+ }
+ #root .app .catalog .forge-selected-pane .drilldown-summary{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important
+ }
+ #root .app .catalog .forge-selected-pane .drilldown-summary>div{
+  padding:11px!important;min-height:72px!important
+ }
+ #root .app .catalog .forge-selected-pane .drilldown-summary :is(strong,b){font-size:17px!important}
+}
+/* Compact phone-specific overflow fixes extend to the deep tools and planner. */
+@media(max-width:680px){
+ #root :is(.mw-graph-page,.mw-explore-page,.mw-health-page,.mw-readiness-page,
+ .journey-page,.workbench-page,.page,.reference){width:100%!important;min-width:0!important;max-width:100%!important}
+ #root :is(.mw-graph-main,.mw-explore-main,.mw-readiness-main,.mw-health-main,
+ .journey-page-main,.app>main){width:100%!important;min-width:0!important;max-width:100%!important;
+ padding-inline:12px!important;box-sizing:border-box!important}
+ #root :is(.mw-graph-card,.mw-explore-card,.plan-row,.availability-row,
+ .inventory-row,.mw-summary-card,.journey-chapter,.material-intelligence){max-width:100%!important;min-width:0!important;
+ overflow-wrap:anywhere!important;box-sizing:border-box!important}
+ #root .mw-graph-card{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+ #root .mw-graph-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important;max-width:100%!important}
+ #root .mw-graph-actions .acquisition-button{min-height:42px!important;white-space:normal!important}
+ #root :is(.mw-explore-search,.mw-graph-picker,.workbench-tabs,.reference-tabs,.filters){max-width:100%!important;min-width:0!important}
+ #root :is(.acquisition-guide,.acquisition-route,.acquisition-route-content){min-width:0!important;max-width:100%!important}
+ #root .acquisition-route-content{display:block!important}
+ #root .acquisition-requirements{border:0!important;padding:0!important;margin-bottom:14px!important}
+ #root .acquisition-dialog{width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px)!important}
+ #root .acquisition-dialog-head{padding:12px!important}
+ #root .acquisition-dialog-body{padding:14px!important}
+ #root .acquisition-guide{padding:14px!important}
+}
+@media(max-width:355px){
+ #root .app .catalog .forge-selected-pane .detail-head{
+  grid-template-columns:52px minmax(0,1fr)!important;padding:10px!important
+ }
+ #root .app .catalog .forge-selected-pane .detail-head>.sprite{width:52px!important;height:52px!important}
+ #root .app .catalog .forge-selected-pane .recipe-row{padding:10px!important}
+ #root .app .catalog .forge-selected-pane .recipe-row-actions>.acquisition-button{min-width:120px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #root .mw-skeleton{animation:none;background:#242630}
+ #root .app .catalog :is(.forge-recipe-advanced,.stats-trigger,.craftable-indicator){transition:none!important}
+}
+
+/* Compact the mobile catalog landing header so players reach results immediately. */
+@media(max-width:680px){
+ #root .app>main{padding-top:10px!important}
+ #root .app .mw-core-page-header{
+  display:flex!important;flex-direction:column!important;min-height:0!important;
+  gap:8px!important;margin:0 0 10px!important;padding:12px 14px!important;
+  background:#13151c!important;border:1px solid #4d4040!important;border-radius:4px!important
+ }
+ #root .app .mw-core-page-header>div:first-child{max-width:100%!important}
+ #root .app .mw-core-page-header small{
+  display:block!important;color:#c6a879!important;font-size:10px!important;line-height:1.4!important
+ }
+ #root .app .mw-core-page-header h1{
+  margin:6px 0 4px!important;font-size:27px!important;line-height:1.12!important;
+  letter-spacing:-.02em!important
+ }
+ #root .app .mw-core-page-header p{
+  font-size:12px!important;line-height:1.45!important;
+  margin:0!important;max-width:100%!important
+ }
+ #root .app .mw-core-page-header .mw-core-page-actions{
+  width:100%!important;max-width:100%!important;display:flex!important;
+  align-items:center!important;justify-content:flex-end!important;
+  padding:0!important;margin:3px 0 0!important;min-height:0!important;gap:8px!important
+ }
+ #root .app .mw-core-page-header .mw-core-page-actions button{
+  width:auto!important;min-width:0!important;min-height:38px!important;
+  padding:8px 12px!important;font-size:11px!important;line-height:1.2!important;
+  border-radius:3px!important
+ }
+ #root .app .catalog .forge-formula-browser>.collection-switcher{padding:12px!important}
+ #root .app .catalog .forge-formula-browser>.collection-switcher strong{
+  font-size:18px!important;line-height:1.25!important
+ }
+ #root .app .catalog .forge-formula-browser>.collection-switcher span{font-size:11px!important}
+ #root .app .catalog .forge-formula-browser>.collection-switcher .collection-seg button{
+  min-height:40px!important
+ }
+}
+
+#root .app .catalog .forge-source-location small{display:block;font-size:10px;line-height:1.45;color:#b2a69f;margin-top:2px}
+
+#root .app .catalog .forge-item-effects{margin:8px 0 14px;min-width:0;border:1px solid #554741;border-radius:4px;background:#1c1c24}
+#root .app .catalog .forge-item-effects>summary{
+ min-height:44px;padding:12px 14px;display:list-item;
+ font-size:12px;font-weight:600;color:#d9bd8e;cursor:pointer
+}
+#root .app .catalog .forge-item-effects[open]>summary{border-bottom:1px solid #554741}
+#root .app .catalog .forge-item-effects .callout{
+ margin:10px!important;padding:12px!important;width:calc(100% - 20px)!important;
+ max-width:calc(100% - 20px)!important;box-sizing:border-box!important;
+ font-size:12px!important;line-height:1.55!important
+}
+@media(max-width:680px){
+ #root .app .catalog .forge-selected-pane .recipe-row-actions{
+  max-width:100%!important;box-sizing:border-box!important;
+  justify-self:stretch!important;align-self:stretch!important;
+ }
+ #root .app .catalog .forge-selected-pane .recipe-row-actions :is(.acquisition-button,.craftable-indicator){
+  box-sizing:border-box!important;max-width:min(100%,190px)!important;
+ }
+}
+
+/* Cross-route theme QA: the data-health release summary should never turn
+   into an unbranded white card within the Neverwinter dark workspace. */
+#root .mw-health-blockers,
+#root .mw-health-blockers :is(div,section,article),
+#root .mw-health-metrics :is(section,article){
+ background:#191c24!important;border-color:#514449!important;color:#f0e7d5!important;
+ box-shadow:none!important;
+}
+#root .mw-health-blockers :is(h2,h3,strong){color:#e8d0a7!important}
+#root .mw-health-blockers :is(p,li,span,small){color:#c8b9b0!important}
+#root .mw-health-blockers :is(a,button){color:#f0cd93!important}
+/* Search and density affordances on the phone header use the same metal.
+   Bright legacy hover/background tokens were visually conspicuous in the
+   route screenshots; fix the actual controls, not only their icons. */
+@media(max-width:680px){
+ #root .mw-command-launcher,
+ #root .ux-density-menu>summary{
+  background:#25232b!important;border:1px solid #65504c!important;
+  color:#e6cfac!important;box-shadow:none!important;
+  border-radius:9px!important
+ }
+ #root .mw-command-launcher:hover,
+ #root .ux-density-menu>summary:hover{background:#382a32!important}
+}
+
+/* Narrow desktop middle-pane: don't let ingredient actions establish a
+   column min-content width larger than the three-column workbench. */
+@media(min-width:1181px) and (max-width:1550px){
+ #root .app .catalog .split{min-width:0!important;grid-template-columns:minmax(230px,.92fr) minmax(0,1.55fr) minmax(255px,.96fr)!important}
+ #root .app .catalog .forge-selected-pane>.detail{min-width:0!important;max-width:100%!important;overflow-x:hidden!important}
+ #root .app .catalog .recipe-row{
+  display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;
+  gap:8px 11px!important;min-width:0!important;max-width:100%!important
+ }
+ #root .app .catalog .recipe-row>.sprite{grid-column:1!important;grid-row:1!important}
+ #root .app .catalog .recipe-row>.recipe-row-copy{grid-column:2!important;grid-row:1!important;min-width:0!important}
+ #root .app .catalog .recipe-row>.recipe-row-actions{
+  grid-column:1/-1!important;grid-row:2!important;
+  width:100%!important;min-width:0!important;
+  display:flex!important;justify-content:space-between!important;
+  flex-wrap:wrap!important;gap:6px!important;margin:0!important
+ }
+ #root .app .catalog .recipe-row-actions>button{
+  flex:0 1 auto!important;min-width:0!important;
+  max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important
+ }
+ #root .app .catalog .recipe-row-copy :is(strong,small,span){overflow-wrap:anywhere!important}
+}
+@media(min-width:1181px){
+ #root .forge-desktop-brand small{font-size:10px!important;letter-spacing:.11em!important}
+ #root .app .catalog .item-main strong{font-size:14px!important;line-height:1.35!important}
+ #root .app .catalog .item-main small{font-size:12px!important}
+}
+/* Readable supporting copy, preserving the approved Georgia display scale. */
+@media(max-width:680px){
+ #root .mobile-v4-brand small{font-size:12px!important;line-height:1.25!important}
+ #root .mw-readiness-hero p,#root .mw-explore-hero p{
+  font-size:16px!important;line-height:1.55!important
+ }
+ #root .app .catalog .forge-selected-pane .forge-source-location{font-size:12px!important}
+}

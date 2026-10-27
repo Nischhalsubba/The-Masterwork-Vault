@@ -5,7 +5,7 @@ test('Journey desktop layout lives inside the unified workspace shell', async ({
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.goto('/journey')
 
-  const rail = page.locator('.tablet-v4-sidebar')
+  const rail = page.locator('.forge-desktop-topbar')
   const main = page.locator('.journey-page-main')
   await expect(rail).toBeVisible()
   await expect(main).toBeVisible()
@@ -16,7 +16,7 @@ test('Journey desktop layout lives inside the unified workspace shell', async ({
   const mainBox = await main.boundingBox()
   expect(railBox).not.toBeNull()
   expect(mainBox).not.toBeNull()
-  expect(mainBox!.x).toBeGreaterThanOrEqual(railBox!.x + railBox!.width)
+  expect(mainBox!.y).toBeGreaterThanOrEqual(railBox!.y + railBox!.height - 2)
   expect(mainBox!.x + mainBox!.width).toBeLessThanOrEqual(1441)
 
   const eyebrow = await page.locator('.journey-page-hero .journey-eyebrow').boundingBox()

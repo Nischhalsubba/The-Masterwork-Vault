@@ -7,7 +7,7 @@ test('secondary routes use the same workspace shell and visual surface hierarchy
 
   for (const path of secondaryRoutes) {
     await page.goto(path)
-    await expect(page.locator('.mw-workspace-sidebar')).toBeVisible()
+    await expect(page.locator('.forge-desktop-topbar')).toBeVisible()
 
     const main = path === '/reference'
       ? page.locator('.app > main')

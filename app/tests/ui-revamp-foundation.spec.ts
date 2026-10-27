@@ -1,18 +1,20 @@
 import { expect, test } from '@playwright/test'
 
-test('desktop routes share one authoritative vault workspace rail', async ({ page }) => {
+test('desktop routes share approved horizontal Forge V4 navigation', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-
   for (const path of ['/catalog', '/plan', '/materials', '/journey']) {
     await page.goto(path)
-    const rail = page.locator('.mw-workspace-sidebar')
-    await expect(rail).toBeVisible()
-    const box = await rail.boundingBox()
-    expect(box?.width || 0).toBeGreaterThanOrEqual(210)
-
+    const bar = page.locator('.forge-desktop-topbar')
+    await expect(bar).toBeVisible()
+    await expect(bar.locator('.forge-desktop-nav')).toBeVisible()
+    const box = await bar.boundingBox()
     const main = path === '/journey' ? page.locator('.journey-page-main') : page.locator('.app > main')
     const mainBox = await main.boundingBox()
-    expect(mainBox?.x || 0).toBeGreaterThanOrEqual((box?.width || 0) - 2)
+    expect(box).not.toBeNull()
+    expect(mainBox).not.toBeNull()
+    expect(box!.width).toBeLessThanOrEqual(1441)
+    expect(mainBox!.x).toBeGreaterThanOrEqual(-1)
+    expect(mainBox!.x + mainBox!.width).toBeLessThanOrEqual(1441)
   }
 })
 

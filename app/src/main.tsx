@@ -36,6 +36,7 @@ import './forge-structure.css'
 import './forge-route-consistency.css'
 import './forge-phase-a.css'
 import './forge-phase-bc.css'
+import './mobile-acquisition.css'
 import { ForgeMotion } from './components/ForgeMotion'
 
 const App = lazy(() => import('./App'))
@@ -50,7 +51,25 @@ const ExplorePage = lazy(() => import('./components/ExplorePage').then((module) 
 const RecipeGraphPage = lazy(() => import('./components/RecipeGraphPage').then((module) => ({ default: module.RecipeGraphPage })))
 
 function PageLoading() {
-  return <div className="mw-page-loading" role="status" aria-label="Loading Masterwork Vault"><div><span /><span /><span /><span /></div></div>
+  return <main className="mw-page-loading" role="status" aria-busy="true" aria-label="Loading Masterwork Vault">
+    <span className="mw-skeleton mw-skeleton-heading" />
+    <span className="mw-skeleton mw-skeleton-subheading" />
+    <div className="mw-skeleton-workspace">
+      <section aria-hidden="true" className="mw-skeleton-column">
+        <span className="mw-skeleton mw-skeleton-search" />
+        {Array.from({ length: 5 }, (_, index) => <span key={index} className="mw-skeleton mw-skeleton-row" />)}
+      </section>
+      <section aria-hidden="true" className="mw-skeleton-column mw-skeleton-center">
+        <span className="mw-skeleton mw-skeleton-item" />
+        {Array.from({ length: 3 }, (_, index) => <span key={index} className="mw-skeleton mw-skeleton-row" />)}
+      </section>
+      <section aria-hidden="true" className="mw-skeleton-column mw-skeleton-aside">
+        <span className="mw-skeleton mw-skeleton-item" />
+        <span className="mw-skeleton mw-skeleton-search" />
+        <span className="mw-skeleton mw-skeleton-item" />
+      </section>
+    </div>
+  </main>
 }
 
 function Guarded({ name, children }: { name: string; children: ReactNode }) {

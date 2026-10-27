@@ -1,4 +1,6 @@
 import { MaterialSourceButton } from './components/MaterialSources'
+import { getMaterialSourceGuide } from './data/materialSources'
+import { gsap } from 'gsap'
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { requestAppRoute } from './lib/navigation'
 import {
@@ -155,12 +157,15 @@ function Recipe({ rows, onOpenCraftable }: { rows: { name: string; required: num
         const material = byMaterial.get(norm(r.name))
         const hasRecipe = Boolean(material && recipeByName.has(norm(material.name)))
         const canDrill = Boolean(onOpenCraftable && material?.craftable && hasRecipe)
+        const acquisition = material?.craftable ? null : getMaterialSourceGuide(r.name)
+        const route = acquisition?.routes[0]
         return (
           <div className={`recipe-row ${canDrill ? 'has-drilldown' : ''}`} key={r.name}>
             <Icon src={material?.icon} alt={r.name} size={42} />
             <div className="recipe-row-copy">
               <strong>{r.name}</strong>
               <small>{material?.craftable ? (isRecipePlannable(recipeByName.get(norm(material.name))) ? `${material.profession || 'Crafted'} · yields ${recipeByName.get(norm(material.name))?.outputQuantity}` : `${material.profession || 'Crafted'} · yield unresolved`) : 'Raw / acquired material'}</small>
+              <span className="forge-source-location" title={route ? `Source reviewed ${acquisition?.reviewedAt}; current game availability is not confirmed` : undefined}>{material?.craftable ? `Craft in ${material.profession || 'workshop'}` : route ? <>{route.method} · {route.location}<small>{acquisition?.status === 'historical' ? 'Historical guide · check in-game' : 'Published guide · check in-game'}</small></> : 'Source not verified'}</span>
             </div>
             <div className="recipe-row-actions">
               <b>×{r.required}</b>{!material?.craftable && <MaterialSourceButton name={r.name} />}
@@ -262,6 +267,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
   const [mode, setMode] = useState<'direct' | 'scratch'>('direct')
   const [materialTrail, setMaterialTrail] = useState<MaterialTarget[]>([])
   const [statsOpen, setStatsOpen] = useState(false)
+  const detailRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const current = materialTrail[materialTrail.length - 1]
@@ -295,6 +301,16 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
     }
   }, [statsOpen])
 
+  useEffect(() => {
+    const panel = detailRef.current
+    if (!panel || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const parts = Array.from(panel.querySelectorAll<HTMLElement>('.detail-head, .recipe-row')).slice(0, 10)
+    // Navigation feedback remains visible if JS or motion fails; avoid opacity choreography.
+    const tween = gsap.fromTo(parts, { y: 6 }, { y: 0, duration: .22,
+      stagger: .018, ease: 'power2.out', overwrite: 'auto', clearProps: 'transform' })
+    return () => { tween.kill(); gsap.set(parts, { clearProps: 'transform' }) }
+  }, [item.id, mode])
+
   const hasRecipe = item.recipeKnown !== false && item.materials.length > 0
   const calc = useMemo(() => hasRecipe ? calculateCraftingPlan([{ item, quantity }], catalog.recipes) : { direct: [], raw: [], unresolved: [], batches: [] }, [item, hasRecipe, quantity])
   const v = item.variants[variant]
@@ -312,7 +328,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
     const target = materialTrail[materialTrail.length - 1]
     const previous = materialTrail.length > 1 ? materialTrail[materialTrail.length - 2].name : item.name
     return (
-      <section className="detail panel enter">
+      <section ref={detailRef} className="detail panel enter">
         <MaterialDrilldown
           target={target}
           backLabel={previous}
@@ -326,7 +342,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
   const classLabel = item.classes.includes('All') ? 'All classes' : item.classes.length ? item.classes.join(' · ') : 'Class restriction not captured'
 
   return (
-    <section className="detail panel enter">
+    <section ref={detailRef} className="detail panel enter">
       <div className="detail-head">
         <Icon src={item.icon} alt={item.name} size={88} />
         <div className="grow">
@@ -347,8 +363,12 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
         <button className="stats-trigger" aria-expanded={statsOpen} aria-controls="item-stats-drawer" onClick={() => setStatsOpen(true)}><BarChart3 size={16} aria-hidden="true" />Details{hasStats && <span>{statCount}</span>}<ChevronRight size={14} aria-hidden="true" /></button>
       </div>
 
+      {(setData || item.equipPower?.text) && <details className="forge-item-effects" open={false}>
+        <summary>Item effects and set bonuses</summary>
       {setData && <div className="callout"><Sparkles size={18} /><div><strong>{setData.name || 'Set bonus'}</strong><p>{Array.isArray(setData.twoPiece) ? setData.twoPiece.join(' · ') : setData.note}</p></div></div>}
       {item.equipPower?.text && <div className="callout"><Shield size={18} /><div><strong>{item.equipPower.name || 'Equip power'}</strong><p>{item.equipPower.text}</p></div></div>}
+
+      </details>}
 
       {!hasRecipe ? (
         <div className="missing-recipe-state">
@@ -357,6 +377,9 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
         </div>
       ) : (
         <>
+          <div className="section-head"><div><small>RECIPE MATERIALS</small><h3>{mode === 'direct' ? 'Materials you need' : 'Raw materials you need'}</h3></div>{calc.batches.length > 0 && <div className="seg" role="group" aria-label="Ingredient expansion"><button aria-pressed={mode === 'direct'} className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button><button aria-pressed={mode === 'scratch'} className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button></div>}</div>
+          <Recipe rows={mode === 'direct' ? calc.direct : calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined} />
+          <details className="forge-recipe-advanced"><summary>Crafting steps and technical breakdown</summary>
           {calc.batches.length > 0 ? (
             <section className="forge-production-route forge-production-multi" aria-label="Production route">
               <div className="forge-order-section-title"><span>Crafting sequence</span><small>{calc.batches.length} intermediate component{calc.batches.length === 1 ? "" : "s"}</small></div>
@@ -368,10 +391,9 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
           ) : (
             <div className="forge-production-simple" role="status"><Hammer size={16} aria-hidden="true" /><div><strong>Single-stage recipe</strong><span>Gather the ingredients below to craft {quantity === 1 ? "this item" : `×${quantity}`}.</span></div></div>
           )}
-          <div className="section-head"><div><small>RECIPE MATERIALS</small><h3>{mode === 'direct' ? 'Ingredients' : 'Raw materials from scratch'}</h3></div>{calc.batches.length > 0 && <div className="seg" role="group" aria-label="Ingredient expansion"><button aria-pressed={mode === 'direct'} className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button><button aria-pressed={mode === 'scratch'} className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button></div>}</div>
-          <Recipe rows={mode === 'direct' ? calc.direct : calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined} />
           {mode === 'scratch' && calc.unresolved.length > 0 && <div className="callout data-caveat"><CircleHelp size={18} /><div><strong>From-scratch total is incomplete</strong><p>The following intermediate yields are unresolved, so the Vault stops rather than assuming one output per craft: {calc.unresolved.map((row) => `${row.name} ×${row.required}`).join(' · ')}.</p></div></div>}
           {mode === 'scratch' && calc.batches.length > 0 && <><h3 className="subhead">Craft batches & leftovers</h3><div className="batches">{calc.batches.map((b) => <div key={b.name}><strong>{b.name}</strong><span>{b.crafts} craft{b.crafts === 1 ? '' : 's'}</span><small>need {b.needed} · produce {b.produced}{b.leftover ? ` · ${b.leftover} leftover` : ''}</small></div>)}</div></>}
+          </details>
         </>
       )}
 
@@ -514,7 +536,10 @@ export default function App() {
     if (kind !== 'All' && !availableKinds.includes(kind)) setKind('All')
   }, [availableClasses, availableKinds, cls, kind])
 
+  const [visibleCount, setVisibleCount] = useState(24)
+  const catalogLoadMore = useRef<HTMLDivElement>(null)
   const deferredQ = useDeferredValue(q)
+  useEffect(() => { setVisibleCount(24) }, [campaign, cls, kind, deferredQ])
   const filtered = useMemo(() => {
     const query = norm(deferredQ)
     return collectionItems
@@ -534,6 +559,20 @@ export default function App() {
   }, [collectionItems, cls, kind, deferredQ])
 
   const item = filtered.find((candidate) => candidate.id === id) || filtered[0]
+  const selectedIndex = filtered.findIndex((candidate) => candidate.id === item?.id)
+  const displayCount = Math.min(filtered.length, Math.max(visibleCount, selectedIndex + 1))
+  useEffect(() => {
+    const sentinel = catalogLoadMore.current
+    if (!sentinel || displayCount >= filtered.length || view !== 'catalog' || !('IntersectionObserver' in window)) return
+    const mobile = window.matchMedia('(max-width: 680px)').matches
+    const list = root.current?.querySelector<HTMLElement>('.catalog .items') ?? null
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setVisibleCount((count) => Math.min(filtered.length, count + 24))
+    }, { root: mobile ? null : list, rootMargin: '180px' })
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [displayCount, filtered.length, view])
+
   useEffect(() => setPreviewQuantity(item ? (plan.get(item.id) || 1) : 1), [item?.id])
 
   useEffect(() => {
@@ -624,7 +663,7 @@ export default function App() {
               <div>
                 <small>MASTERWORK / THE FORGE</small>
                 <h1>The forge <em>workbench.</em></h1>
-                <p>From raw materials to finished work. Discover recorded recipes, trace components and build a practical crafting plan.</p>
+                <p>Find what you need to craft and where to get every material.</p>
               </div>
               <div className="mw-core-page-actions">
                 <button type="button" aria-label="Compare items" onClick={() => document.dispatchEvent(new CustomEvent('masterwork:open-compare'))}><BarChart3 size={15} aria-hidden="true" />Compare items</button>
@@ -656,7 +695,7 @@ export default function App() {
                 <section className="items">
                   <div className="result-meta"><b>{filtered.length} results</b><small>{resultContext}</small></div>
                   {filtered.length === 0 && <div className="catalog-empty-state" role="status"><Search size={28} aria-hidden="true" /><h3>No craftables match</h3><p>Try a broader search or clear the active filters.</p><button className="ghost" onClick={resetCatalogFilters}>Clear search and filters</button></div>}
-                  {filtered.map((entry) => {
+                  {filtered.slice(0, displayCount).map((entry) => {
                     const canPlan = entry.recipeKnown !== false && entry.materials.length > 0
                     return <article className={entry.id === item?.id ? 'selected' : ''} key={entry.id}>
                       <button className="item-main" data-item-id={entry.id} data-item-campaign={entry.campaign || ''} onClick={() => requestAppRoute({ view: 'catalog', itemId: entry.id })}>
@@ -666,6 +705,9 @@ export default function App() {
                       <div className="item-foot"><div className="item-source-line"><span title={entry.sourceStatus}>{entry.campaign || 'Unknown collection'}</span></div>{canPlan ? <button aria-label={plan.has(entry.id) ? `Remove ${entry.name} from plan` : `Add ${entry.name} to plan`} onClick={() => toggle(entry)}>{plan.has(entry.id) ? 'In plan' : '+ Plan'}</button> : <span className="recipe-needed">Recipe needed</span>}</div>
                     </article>
                   })}
+                  {displayCount < filtered.length && <div className="forge-list-more" ref={catalogLoadMore}>
+                    <button type="button" onClick={() => setVisibleCount(count => Math.min(filtered.length, count + 24))}>Show more recipes ({filtered.length - displayCount} remaining)</button>
+                  </div>}
                 </section>
                 </div>
                 <div className="forge-selected-pane">

@@ -178,7 +178,7 @@ a:focus-visible {
 }
 
 .app nav::-webkit-scrollbar,
-.catalog aside::-webkit-scrollbar,
+.catalog > aside::-webkit-scrollbar,
 .filters::-webkit-scrollbar {
   display: none;
 }
@@ -227,7 +227,7 @@ a:focus-visible {
 .primary:active,
 .ghost:active,
 .qty button:active,
-.catalog aside button:active,
+.catalog > aside button:active,
 .material-list button:active,
 .item-main:active {
   transform: scale(.985);
@@ -322,7 +322,7 @@ a:focus-visible {
   align-items: start;
 }
 
-.catalog aside {
+.catalog > aside {
   position: sticky;
   top: 68px;
   align-self: start;
@@ -333,7 +333,7 @@ a:focus-visible {
   background: var(--elevated);
 }
 
-.catalog aside > small {
+.catalog > aside > small {
   display: block;
   padding: 0 12px 10px;
   color: var(--label-secondary);
@@ -343,7 +343,7 @@ a:focus-visible {
   letter-spacing: .055em;
 }
 
-.catalog aside button {
+.catalog > aside button {
   display: flex;
   align-items: center;
   width: 100%;
@@ -368,12 +368,12 @@ a:focus-visible {
     transform var(--duration-fast) var(--ease);
 }
 
-.catalog aside button:hover {
+.catalog > aside button:hover {
   background: var(--fill);
   color: var(--label);
 }
 
-.catalog aside button.active {
+.catalog > aside button.active {
   background: var(--selected);
   color: var(--label);
   font-weight: 650;
@@ -1142,7 +1142,7 @@ footer img {
     display: block;
   }
 
-  .catalog aside {
+  .catalog > aside {
     position: relative;
     top: auto;
     z-index: 5;
@@ -1158,12 +1158,12 @@ footer img {
     scrollbar-width: none;
   }
 
-  .catalog aside > small {
+  .catalog > aside > small {
     flex: 0 0 auto;
     padding: 0 8px 0 0;
   }
 
-  .catalog aside button {
+  .catalog > aside button {
     width: auto;
     min-height: 44px;
     flex: 0 0 auto;
@@ -1351,7 +1351,7 @@ footer img {
     gap: 6px 14px;
   }
 
-  .catalog aside {
+  .catalog > aside {
     padding: 10px 12px;
   }
 
