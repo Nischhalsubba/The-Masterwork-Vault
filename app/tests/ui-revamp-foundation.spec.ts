@@ -1,3 +1,5 @@
+import { expect, test } from '@playwright/test'
+
 test('desktop routes share approved horizontal Forge V4 navigation', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   for (const path of ['/catalog', '/plan', '/materials', '/journey']) {
