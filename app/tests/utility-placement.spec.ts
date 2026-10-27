@@ -14,11 +14,16 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       expect(box!.width).toBeGreaterThanOrEqual(44)
       expect(box!.height).toBeGreaterThanOrEqual(44)
       if (width <= 680) expect(box!.y + box!.height).toBeLessThanOrEqual(72)
-      else {
+      else if (width >= 1181) {
         const bar = await page.locator('.forge-desktop-topbar').boundingBox()
         expect(bar).not.toBeNull()
         expect(box!.y).toBeGreaterThanOrEqual(bar!.y)
         expect(box!.y + box!.height).toBeLessThanOrEqual(bar!.y + bar!.height + 2)
+      } else {
+        const sidebar = await page.locator('.tablet-v4-sidebar').boundingBox()
+        expect(sidebar).not.toBeNull()
+        expect(box!.x).toBeGreaterThanOrEqual(sidebar!.x)
+        expect(box!.x + box!.width).toBeLessThanOrEqual(sidebar!.x + sidebar!.width + 2)
       }
     }
     const targets = page.locator('.mobile-v4-topbar a, .workspace-tools-menu > summary, .ux-density-menu > summary, .mw-command-launcher, .journey-page-topbar a').filter({ visible: true })
