@@ -1,4 +1,6 @@
 import { MaterialSourceButton } from './components/MaterialSources'
+import { getMaterialSourceGuide } from './data/materialSources'
+import { gsap } from 'gsap'
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { requestAppRoute } from './lib/navigation'
 import {
@@ -155,12 +157,15 @@ function Recipe({ rows, onOpenCraftable }: { rows: { name: string; required: num
         const material = byMaterial.get(norm(r.name))
         const hasRecipe = Boolean(material && recipeByName.has(norm(material.name)))
         const canDrill = Boolean(onOpenCraftable && material?.craftable && hasRecipe)
+        const acquisition = material?.craftable ? null : getMaterialSourceGuide(r.name)
+        const route = acquisition?.routes[0]
         return (
           <div className={`recipe-row ${canDrill ? 'has-drilldown' : ''}`} key={r.name}>
             <Icon src={material?.icon} alt={r.name} size={42} />
             <div className="recipe-row-copy">
               <strong>{r.name}</strong>
               <small>{material?.craftable ? (isRecipePlannable(recipeByName.get(norm(material.name))) ? `${material.profession || 'Crafted'} · yields ${recipeByName.get(norm(material.name))?.outputQuantity}` : `${material.profession || 'Crafted'} · yield unresolved`) : 'Raw / acquired material'}</small>
+              <span className="forge-source-location" title={route ? `Source reviewed ${acquisition?.reviewedAt}; current game availability is not confirmed` : undefined}>{material?.craftable ? `Craft in ${material.profession || 'workshop'}` : route ? `${route.method} · ${route.location}` : 'Source not verified'}</span>
             </div>
             <div className="recipe-row-actions">
               <b>×{r.required}</b>{!material?.craftable && <MaterialSourceButton name={r.name} />}
@@ -357,6 +362,9 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
         </div>
       ) : (
         <>
+          <div className="section-head"><div><small>RECIPE MATERIALS</small><h3>{mode === 'direct' ? 'Materials you need' : 'Raw materials you need'}</h3></div>{calc.batches.length > 0 && <div className="seg" role="group" aria-label="Ingredient expansion"><button aria-pressed={mode === 'direct'} className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button><button aria-pressed={mode === 'scratch'} className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button></div>}</div>
+          <Recipe rows={mode === 'direct' ? calc.direct : calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined} />
+          <details className="forge-recipe-advanced"><summary>Crafting steps and technical breakdown</summary>
           {calc.batches.length > 0 ? (
             <section className="forge-production-route forge-production-multi" aria-label="Production route">
               <div className="forge-order-section-title"><span>Crafting sequence</span><small>{calc.batches.length} intermediate component{calc.batches.length === 1 ? "" : "s"}</small></div>
@@ -368,10 +376,9 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
           ) : (
             <div className="forge-production-simple" role="status"><Hammer size={16} aria-hidden="true" /><div><strong>Single-stage recipe</strong><span>Gather the ingredients below to craft {quantity === 1 ? "this item" : `×${quantity}`}.</span></div></div>
           )}
-          <div className="section-head"><div><small>RECIPE MATERIALS</small><h3>{mode === 'direct' ? 'Ingredients' : 'Raw materials from scratch'}</h3></div>{calc.batches.length > 0 && <div className="seg" role="group" aria-label="Ingredient expansion"><button aria-pressed={mode === 'direct'} className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button><button aria-pressed={mode === 'scratch'} className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button></div>}</div>
-          <Recipe rows={mode === 'direct' ? calc.direct : calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined} />
           {mode === 'scratch' && calc.unresolved.length > 0 && <div className="callout data-caveat"><CircleHelp size={18} /><div><strong>From-scratch total is incomplete</strong><p>The following intermediate yields are unresolved, so the Vault stops rather than assuming one output per craft: {calc.unresolved.map((row) => `${row.name} ×${row.required}`).join(' · ')}.</p></div></div>}
           {mode === 'scratch' && calc.batches.length > 0 && <><h3 className="subhead">Craft batches & leftovers</h3><div className="batches">{calc.batches.map((b) => <div key={b.name}><strong>{b.name}</strong><span>{b.crafts} craft{b.crafts === 1 ? '' : 's'}</span><small>need {b.needed} · produce {b.produced}{b.leftover ? ` · ${b.leftover} leftover` : ''}</small></div>)}</div></>}
+          </details>
         </>
       )}
 
