@@ -347,3 +347,28 @@
   box-sizing:border-box!important;max-width:min(100%,190px)!important;
  }
 }
+
+/* Cross-route theme QA: the data-health release summary should never turn
+   into an unbranded white card within the Neverwinter dark workspace. */
+#root .mw-health-blockers,
+#root .mw-health-blockers :is(div,section,article),
+#root .mw-health-metrics :is(section,article){
+ background:#191c24!important;border-color:#514449!important;color:#f0e7d5!important;
+ box-shadow:none!important;
+}
+#root .mw-health-blockers :is(h2,h3,strong){color:#e8d0a7!important}
+#root .mw-health-blockers :is(p,li,span,small){color:#c8b9b0!important}
+#root .mw-health-blockers :is(a,button){color:#f0cd93!important}
+/* Search and density affordances on the phone header use the same metal.
+   Bright legacy hover/background tokens were visually conspicuous in the
+   route screenshots; fix the actual controls, not only their icons. */
+@media(max-width:680px){
+ #root .mw-command-launcher,
+ #root .ux-density-menu>summary{
+  background:#25232b!important;border:1px solid #65504c!important;
+  color:#e6cfac!important;box-shadow:none!important;
+  border-radius:9px!important
+ }
+ #root .mw-command-launcher:hover,
+ #root .ux-density-menu>summary:hover{background:#382a32!important}
+}
