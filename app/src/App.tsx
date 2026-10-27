@@ -532,7 +532,10 @@ export default function App() {
     if (kind !== 'All' && !availableKinds.includes(kind)) setKind('All')
   }, [availableClasses, availableKinds, cls, kind])
 
+  const [visibleCount, setVisibleCount] = useState(24)
+  const catalogLoadMore = useRef<HTMLDivElement>(null)
   const deferredQ = useDeferredValue(q)
+  useEffect(() => { setVisibleCount(24) }, [campaign, cls, kind, deferredQ])
   const filtered = useMemo(() => {
     const query = norm(deferredQ)
     return collectionItems
@@ -552,6 +555,20 @@ export default function App() {
   }, [collectionItems, cls, kind, deferredQ])
 
   const item = filtered.find((candidate) => candidate.id === id) || filtered[0]
+  const selectedIndex = filtered.findIndex((candidate) => candidate.id === item?.id)
+  const displayCount = Math.min(filtered.length, Math.max(visibleCount, selectedIndex + 1))
+  useEffect(() => {
+    const sentinel = catalogLoadMore.current
+    if (!sentinel || displayCount >= filtered.length || view !== 'catalog' || !('IntersectionObserver' in window)) return
+    const mobile = window.matchMedia('(max-width: 680px)').matches
+    const list = root.current?.querySelector<HTMLElement>('.catalog .items') ?? null
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setVisibleCount((count) => Math.min(filtered.length, count + 24))
+    }, { root: mobile ? null : list, rootMargin: '180px' })
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [displayCount, filtered.length, view])
+
   useEffect(() => setPreviewQuantity(item ? (plan.get(item.id) || 1) : 1), [item?.id])
 
   useEffect(() => {
@@ -674,7 +691,7 @@ export default function App() {
                 <section className="items">
                   <div className="result-meta"><b>{filtered.length} results</b><small>{resultContext}</small></div>
                   {filtered.length === 0 && <div className="catalog-empty-state" role="status"><Search size={28} aria-hidden="true" /><h3>No craftables match</h3><p>Try a broader search or clear the active filters.</p><button className="ghost" onClick={resetCatalogFilters}>Clear search and filters</button></div>}
-                  {filtered.map((entry) => {
+                  {filtered.slice(0, displayCount).map((entry) => {
                     const canPlan = entry.recipeKnown !== false && entry.materials.length > 0
                     return <article className={entry.id === item?.id ? 'selected' : ''} key={entry.id}>
                       <button className="item-main" data-item-id={entry.id} data-item-campaign={entry.campaign || ''} onClick={() => requestAppRoute({ view: 'catalog', itemId: entry.id })}>
@@ -684,6 +701,9 @@ export default function App() {
                       <div className="item-foot"><div className="item-source-line"><span title={entry.sourceStatus}>{entry.campaign || 'Unknown collection'}</span></div>{canPlan ? <button aria-label={plan.has(entry.id) ? `Remove ${entry.name} from plan` : `Add ${entry.name} to plan`} onClick={() => toggle(entry)}>{plan.has(entry.id) ? 'In plan' : '+ Plan'}</button> : <span className="recipe-needed">Recipe needed</span>}</div>
                     </article>
                   })}
+                  {displayCount < filtered.length && <div className="forge-list-more" ref={catalogLoadMore}>
+                    <button type="button" onClick={() => setVisibleCount(count => Math.min(filtered.length, count + 24))}>Show more recipes ({filtered.length - displayCount} remaining)</button>
+                  </div>}
                 </section>
                 </div>
                 <div className="forge-selected-pane">
