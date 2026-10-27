@@ -222,3 +222,12 @@
 @media(prefers-reduced-motion:reduce){
  .forge-readiness-track span{transition:none}
 }
+
+/* Keep the original mobile header inside its measured 56px slot at 320px. */
+@media(max-width:680px){
+ .mobile-v4-topbar{align-items:center!important}
+ .mobile-v4-brand{align-self:center!important;min-height:var(--m-topbar)!important;gap:8px!important}
+ .mobile-v4-brand span{min-width:0!important;overflow:hidden}
+ .mobile-v4-brand strong{font-size:16px!important;line-height:1.18!important}
+ .mobile-v4-brand small{font-size:10px!important;line-height:1.2!important}
+}
