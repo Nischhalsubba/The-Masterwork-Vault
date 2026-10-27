@@ -1,0 +1,224 @@
+/* Forge V4 structural repair — intentionally scoped to the approved catalog workbench.
+   Does not alter source records, icon atlas, formula calculations or planner storage. */
+:root{
+ --forge-bg:#0b0d12;
+ --forge-raised:#171a21;
+ --forge-deep:#11141b;
+ --forge-divider:#39373e;
+ --forge-text:#f0e7d5;
+ --forge-muted:#ada6aa;
+ --forge-ember:#d9b77a;
+ --forge-wine:#39212a;
+ --forge-wine-border:#734753;
+}
+.forge-desktop-topbar{display:none}
+@media(min-width:1181px){
+ .tablet-v4-sidebar.mw-workspace-sidebar{display:none!important}
+ .forge-desktop-topbar{
+  position:sticky;top:0;z-index:310;display:flex;align-items:center;gap:clamp(12px,2.4vw,36px);
+  min-height:78px;width:100%;padding:8px clamp(20px,3vw,48px);
+  background:#101117;border-top:2px solid #73313a;border-bottom:1px solid #564444;
+  color:var(--forge-text)
+ }
+ .forge-desktop-brand{display:flex;flex:0 0 auto;align-items:center;gap:13px;text-decoration:none;color:#e9c588}
+ .forge-desktop-brand img{width:38px;height:38px}
+ .forge-desktop-brand span{display:flex;flex-direction:column;gap:3px}
+ .forge-desktop-brand strong{font-family:Georgia,serif;font-size:20px;letter-spacing:.09em}
+ .forge-desktop-brand small{font-size:9px;letter-spacing:.18em;color:#b8b0b3;white-space:nowrap}
+ .forge-desktop-nav{display:flex;align-items:center;min-width:0;gap:3px;flex:1}
+ .forge-desktop-nav :is(button,a){
+  display:flex;align-items:center;gap:8px;min-height:43px;padding:9px 13px;
+  border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;
+  color:#c1b9b9;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;
+  cursor:pointer
+ }
+ .forge-desktop-nav :is(button,a) svg{width:15px;height:15px;color:#af9675}
+ .forge-desktop-nav :is(button,a):hover{background:#28232b;color:#f5e3c3}
+ .forge-desktop-nav :is(button,a).active,.forge-desktop-nav [aria-current=page]{
+  background:#272128;color:#e9c588;border-bottom-color:#d9b77a
+ }
+ .forge-desktop-nav .badge{font-size:9px;background:#6f4142!important;color:#fff6e2!important}
+ .forge-desktop-tools{position:relative;flex:0 0 auto}
+ .forge-desktop-tools summary{display:flex;align-items:center;gap:7px;border:1px solid #64514b;padding:9px 12px;min-height:42px;cursor:pointer;color:#ead6b0;font-size:12px;list-style:none}
+ .forge-desktop-tools summary::-webkit-details-marker{display:none}
+ .forge-desktop-tools[open] summary{border-color:#d9b77a}
+ .forge-desktop-tools-panel{position:absolute;right:0;top:calc(100% + 10px);min-width:240px;max-width:min(320px,80vw);display:grid;padding:8px;background:#171a21;border:1px solid #655347;box-shadow:0 20px 40px #0009;z-index:320}
+ .forge-desktop-tools-panel a{display:flex;align-items:center;gap:12px;padding:12px 10px;color:#eee2ce;text-decoration:none}
+ .forge-desktop-tools-panel a:hover{background:#39252b}
+ .forge-desktop-tools-panel a span{display:grid;gap:3px}
+ .forge-desktop-tools-panel a small{font-size:10px;color:#bbb2ad}
+ .forge-desktop-tools-panel a strong{font-size:12px}
+ .app>main,.journey-page-main,.mw-readiness-main,.mw-health-main,.mw-explore-main,.mw-graph-main{
+  margin-left:0!important;width:100%!important;max-width:none!important;min-height:calc(100dvh - 78px)!important;
+  padding:clamp(20px,2.2vw,38px) clamp(20px,2.8vw,46px) 40px!important
+ }
+ .mw-command-launcher{left:auto!important;right:20px!important;bottom:80px!important}
+ .ux-density-menu{left:auto!important;right:76px!important;bottom:80px!important}
+}
+@media(min-width:1181px) and (max-width:1420px){
+ .forge-desktop-topbar{gap:10px;padding-inline:22px}
+ .forge-desktop-brand strong{font-size:17px}
+ .forge-desktop-brand small{font-size:8px}
+ .forge-desktop-nav :is(button,a){gap:5px;padding-inline:9px;font-size:11px}
+}
+@media(min-width:1181px){
+ .app .mw-core-page-header{
+  border:0!important;background:transparent!important;border-left:0!important;
+  margin:0 0 22px!important;padding:0!important;box-shadow:none!important;
+  min-height:110px!important
+ }
+ .app .mw-core-page-header>div:first-child{max-width:760px}
+ .app .mw-core-page-header small{display:none}
+ .app .mw-core-page-header h1{font-family:Georgia,serif!important;font-size:clamp(34px,3.5vw,54px)!important;line-height:1.1!important;font-weight:400!important;letter-spacing:-.03em!important;margin:5px 0 12px!important}
+ .app .mw-core-page-header h1 em{font-style:italic;color:#b79b85}
+ .app .mw-core-page-header p{font-size:14px!important;line-height:1.6!important;max-width:640px}
+ .app .mw-core-page-actions{align-self:flex-end;padding-bottom:8px}
+ .app .catalog{
+  width:100%!important;max-width:none!important;display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"collection" "classes" "workspace"!important;
+  gap:0!important
+ }
+ .app .catalog>.collection-switcher{grid-area:collection!important;margin:0!important;border-bottom:0!important;padding:12px 18px!important;background:#191a20!important}
+ .app .catalog>.mw-class-filter{grid-area:classes!important;margin:0!important;border-radius:0!important;border-top:0!important;max-width:100%;overflow-x:auto!important;white-space:nowrap}
+ .app .catalog>.workspace{grid-area:workspace!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+ .app .catalog .toolbar{margin:0!important;border-radius:0!important;padding:11px 13px!important;background:#15171e!important;border-top:0!important;border-bottom:1px solid #594941!important}
+ .app .catalog .split{
+  display:grid!important;
+  grid-template-columns:minmax(260px,.87fr) minmax(440px,1.55fr) minmax(295px,.93fr)!important;
+  gap:0!important;width:100%!important;align-items:stretch!important;
+  border:1px solid #54443f;border-top:0;background:#13151b
+ }
+ .app .catalog .items{
+  min-width:0!important;max-height:calc(100dvh - 320px)!important;min-height:540px;
+  overflow-x:hidden!important;overflow-y:auto!important;border:0!important;border-right:1px solid #51433e!important;
+  border-radius:0!important;background:#11141b!important
+ }
+ .app .catalog .detail{
+  position:static!important;top:auto!important;max-height:none!important;min-height:540px!important;
+  overflow:visible!important;border:0!important;border-radius:0!important;margin:0!important;
+  padding:25px clamp(16px,2vw,30px) 34px!important;background:#171a21!important
+ }
+}
+@media(min-width:1181px) and (max-width:1320px){
+ .app .catalog .split{grid-template-columns:minmax(225px,.87fr) minmax(355px,1.45fr) minmax(270px,.95fr)!important}
+}
+/* Overrides legacy nearly-white strips and blue selected states */
+.app .catalog .result-meta{
+ position:sticky!important;top:0!important;z-index:2!important;min-height:52px!important;
+ padding:12px 16px!important;background:#20212a!important;color:#cdb085!important;
+ border-bottom:1px solid #56453d!important;backdrop-filter:none!important
+}
+.app .catalog .result-meta b{color:#e9c995!important}
+.app .catalog .result-meta small{color:#b0a4a2!important}
+.app .catalog .item-foot{
+ background:#171920!important;border-color:#373741!important;color:#bfb6b4!important;
+ padding:5px 12px!important;min-height:34px!important
+}
+.app .catalog .item-source-line{gap:5px}
+.app .catalog .items article{background:#171920!important;border-color:#34343d!important}
+.app .catalog .items article:nth-child(2n){background:#1b1d24!important}
+.app .catalog .items article:hover{background:#29232b!important}
+.app .catalog .items article.selected{
+ background:#33252c!important;border-color:#8f6852!important;box-shadow:inset 2px 0 0 #d9b77a!important
+}
+.app .catalog .items article.selected .item-main strong{color:#f2dfbc!important}
+.app .catalog .mw-craft-level.verified{background:#263c32!important;color:#b8e1c7!important;border:1px solid #496f5b!important}
+.app .catalog .mw-craft-level{background:#292832!important;color:#e0cfb4!important;border:1px solid #4d474c!important}
+.app .catalog .item-foot>button{color:#dfbf87!important;border:1px solid transparent!important}
+.app .catalog .item-foot>button:hover{border-color:#75614d!important;background:#32272b!important}
+.app .catalog .item-main{min-height:66px!important;padding:11px!important}
+.app .catalog .item-main strong{font-size:13px!important;line-height:1.42!important;color:#eee2d1!important}
+.app .catalog .item-main small,.app .catalog .item-main span{color:#bdb0ad!important}
+.app .catalog .source,.app .catalog .campaign-badge{background:#26232a!important;border-color:#4f4243!important;color:#ccb999!important;max-width:100%;font-size:10px}
+.app .catalog .detail-head{
+ display:grid!important;grid-template-columns:88px minmax(0,1fr)!important;gap:17px!important;align-items:start!important
+}
+.app .catalog .detail-head>.sprite{width:88px!important;height:88px!important}
+.app .catalog .detail-head>.primary{grid-column:1/-1!important;justify-self:start!important}
+.app .catalog .detail-head h2{font-size:clamp(29px,2.3vw,40px)!important;color:#f0e7d5!important;font-family:Georgia,serif!important}
+.app .catalog .recipe-list{display:grid!important;grid-template-columns:1fr!important;gap:0!important;border:1px solid #383943!important}
+.app .catalog .recipe-row{display:flex!important;align-items:center!important;gap:12px!important;min-height:64px!important;border:0!important;border-bottom:1px solid #393940!important;border-radius:0!important;background:#181b22!important;padding:10px 12px!important}
+.app .catalog .recipe-row:last-child{border-bottom:0!important}
+.app .catalog .recipe-row-actions{margin-left:auto!important}
+.app .catalog .recipe-row-copy{min-width:0;flex:1}
+.app .catalog .section-head{margin-top:20px!important}
+.app .catalog .section-head h3{font-family:Georgia,serif!important;font-weight:400!important;font-size:22px!important}
+/* Production route uses actual calculated batch steps. */
+.forge-production-route{margin:26px 0 24px;padding:16px 18px;background:#201e25;border:1px solid #654d49;border-left:2px solid #b46b65}
+.forge-production-route ol{list-style:none;display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 0;padding:0}
+.forge-production-route li{flex:1 1 160px;display:grid;gap:4px;min-width:0;padding:11px 12px;background:#15171e;border:1px solid #45404a;position:relative}
+.forge-production-route li strong{font-size:12px;color:#e9dac3}
+.forge-production-route li small{font-size:10px;color:#c1b6aa}
+.forge-production-route p{font-size:11px;color:#b8aaa0}
+/* Persistent selected-recipe work order */
+.forge-work-order{
+ min-width:0;align-self:start;background:#12151b;color:var(--forge-text);
+ border-left:1px solid #51413d;display:flex;flex-direction:column;
+}
+@media(min-width:1181px){
+ .forge-work-order{position:sticky;top:82px;max-height:calc(100dvh - 92px);overflow-y:auto}
+}
+.forge-order-heading{background:linear-gradient(115deg,#4a2734,#271b26);border-bottom:1px solid #805251;padding-top:22px;padding-bottom:19px;padding-inline:20px}
+.forge-overline,.forge-order-section-title>span{font:600 10px/1.5 ui-monospace,Consolas,monospace;letter-spacing:.09em;color:#ddb87d}
+.forge-order-heading h2{font:400 clamp(24px,2vw,32px)/1.12 Georgia,serif;color:#fff0d4;margin:10px 0 9px;overflow-wrap:anywhere}
+.forge-order-heading p{font-size:11px;line-height:1.45;color:#dac8c3;margin:0}
+.forge-order-body{padding:20px 20px 12px;display:grid;gap:13px}
+.forge-order-quantity{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:13px;border-bottom:1px solid #383941}
+.forge-order-quantity>div:first-child{display:grid;gap:3px}
+.forge-order-quantity strong{font-size:12px;color:#e4d4be}
+.forge-order-quantity small{color:#aea5a5;font-size:10px;line-height:1.4}
+.forge-quantity-control{display:flex;align-items:center;flex:0 0 auto;height:36px;border:1px solid #716055}
+.forge-quantity-control button{width:32px;height:34px;border:0;background:#28242b;color:#e4c18a;display:grid;place-items:center;cursor:pointer}
+.forge-quantity-control button:disabled{opacity:.35;cursor:not-allowed}
+.forge-quantity-control output{min-width:38px;padding:0 7px;text-align:center;font-variant-numeric:tabular-nums}
+.forge-order-stat{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;padding:1px 0;color:#bcb2b0}
+.forge-order-stat strong{color:#f0e7d5;font-variant-numeric:tabular-nums;font-size:16px}
+.forge-order-stat-emphasis{padding:11px 0;border-top:1px solid #363940;border-bottom:1px solid #363940}
+.forge-order-stat-emphasis strong{font:400 26px/1 Georgia,serif;color:#e9c58e}
+.forge-readiness{padding:10px 0 17px;border-bottom:1px solid #3a3a43}
+.forge-readiness>div:first-child{display:flex;justify-content:space-between;gap:8px;font:600 10px ui-monospace,Consolas,monospace;color:#ddba82}
+.forge-readiness-track{height:5px;margin-top:12px;background:#363339;overflow:hidden}
+.forge-readiness-track span{display:block;height:100%;background:#e5c38d;transition:width .24s ease-out}
+.forge-order-section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.forge-order-section-title small{font-size:10px;color:#a79b9c;white-space:nowrap}
+.forge-acquire-row{display:flex;align-items:start;justify-content:space-between;gap:12px;border-bottom:1px solid #36363f;padding:8px 0;font-size:12px}
+.forge-acquire-row strong{font-variant-numeric:tabular-nums;color:#ebc58c}
+.forge-acquire-row span{color:#e0d2c2}
+.forge-order-inventory{margin-top:4px;border-top:1px solid #373840;padding-top:15px}
+.forge-inventory-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #30323a;font-size:12px}
+.forge-inventory-row span{display:grid;gap:4px;min-width:0;color:#ded1c1}
+.forge-inventory-row small{color:#9f9493;font-size:10px}
+.forge-inventory-row input{width:72px;height:36px;text-align:right;border:1px solid #66605f;background:#20242b;color:#f0e7d5;border-radius:2px;padding:5px 7px;font-variant-numeric:tabular-nums}
+.forge-unresolved{padding:11px 12px;border:1px solid #907255;background:#312822;color:#f1d3a7;font-size:11px;line-height:1.5}
+.forge-order-hint,.forge-order-ready{color:#b2a7a5;font-size:12px;line-height:1.45}
+.forge-order-ready{display:flex;align-items:center;gap:7px;color:#b0dfba}
+.forge-order-empty{margin:10px 0 18px;padding:14px;background:#27232b;display:grid;gap:8px}
+.forge-order-empty p{font-size:12px;color:#bdb3b0}
+.forge-order-actions{display:grid;gap:9px;padding:18px 20px 22px;border-top:1px solid #443c3d;margin-top:auto}
+.forge-order-actions button{display:flex;justify-content:center;align-items:center;gap:10px;min-height:44px;padding:11px 12px;cursor:pointer;font-size:12px;font-weight:650}
+.forge-order-primary{background:linear-gradient(#ecd4a2,#cfa56d);border:1px solid #d9b77a;color:#201820}
+.forge-order-primary:hover{background:#f0dcae}
+.forge-order-secondary{background:transparent;border:1px solid #66564e;color:#e5d6c3}
+.forge-order-secondary:hover{background:#29252d}
+.forge-order-actions button:disabled{opacity:.45;cursor:not-allowed}
+.forge-order-actions>p{margin:5px 0 0;color:#a79c9b;font-size:10px;line-height:1.6}
+/* Responsive order: inspector below recipe on tablets; stacked on phone. */
+@media(min-width:681px) and (max-width:1180px){
+ .app .catalog .split{display:grid!important;grid-template-columns:minmax(250px,.88fr) minmax(0,1.12fr)!important;gap:0!important;border:1px solid #554741}
+ .app .catalog .split>.forge-work-order{grid-column:1/-1;border-left:0;border-top:1px solid #66504a;position:static}
+ .forge-order-body{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px}
+ .forge-order-actions{max-width:none}
+}
+@media(max-width:680px){
+ .app .catalog .result-meta{background:#20212a!important}
+ .app .catalog .item-foot{background:#171920!important}
+ .app .catalog .split>.forge-work-order{position:static;max-height:none;margin:12px 0 0;border:1px solid #55413e}
+ .forge-order-heading{padding:18px}
+ .forge-order-body{padding:16px}
+ .forge-order-actions{padding:16px}
+ .forge-production-route ol{flex-direction:column}
+ .forge-order-heading h2{font-size:28px}
+}
+@media(prefers-reduced-motion:reduce){
+ .forge-readiness-track span{transition:none}
+}
