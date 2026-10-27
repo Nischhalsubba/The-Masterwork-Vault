@@ -654,8 +654,10 @@ export default function App() {
                     </article>
                   })}
                 </section>
-                {item ? <Detail item={item} quantity={previewQuantity} inPlan={plan.has(item.id)} togglePlan={() => toggle(item)} /> : <section className="detail panel catalog-empty-detail" aria-hidden="true" />}
-                {item ? <ForgeWorkOrder item={item} quantity={previewQuantity} onQuantityChange={setPreviewQuantity} inPlan={plan.has(item.id)} onAddToPlan={addPreviewToPlan} onOpenPlan={() => requestAppRoute({ view: 'plan' })} /> : <aside className="forge-work-order forge-work-order-empty" aria-hidden="true" />}
+                <div className="forge-selected-pane">
+                  {item ? <Detail item={item} quantity={previewQuantity} inPlan={plan.has(item.id)} togglePlan={() => toggle(item)} /> : <section className="detail panel catalog-empty-detail" aria-hidden="true" />}
+                  {item ? <ForgeWorkOrder item={item} quantity={previewQuantity} onQuantityChange={setPreviewQuantity} inPlan={plan.has(item.id)} onAddToPlan={addPreviewToPlan} onOpenPlan={() => requestAppRoute({ view: 'plan' })} /> : <aside className="forge-work-order forge-work-order-empty" aria-hidden="true" />}
+                </div>
               </div>
             </div>
           </div>
