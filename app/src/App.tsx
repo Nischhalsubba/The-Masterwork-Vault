@@ -1,7 +1,6 @@
 import { MaterialSourceButton } from './components/MaterialSources'
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { requestAppRoute } from './lib/navigation'
-import { gsap } from 'gsap'
 import {
   BarChart3,
   BadgeCheck,
@@ -571,14 +570,6 @@ export default function App() {
     setOrDelete('q', q.trim(), '')
     window.history.replaceState(window.history.state, '', url)
   }, [view, campaign, cls, kind, q])
-
-  useEffect(() => {
-    if (!root.current) return
-    const mm = window.matchMedia('(prefers-reduced-motion: reduce)')
-    if (mm.matches) return
-    const ctx = gsap.context(() => gsap.fromTo('.enter', { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .36, ease: 'power3.out', clearProps: 'transform,opacity,visibility' }), root)
-    return () => ctx.revert()
-  }, [view, id, campaign])
 
   const toggle = (target: ItemEntry) => {
     if (target.recipeKnown === false || !target.materials.length) return
