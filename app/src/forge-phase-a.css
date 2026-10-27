@@ -1,0 +1,52 @@
+/* Forge V4 refinement: the selected craft leads, the formula index supports it.
+   Scope intentionally confined to catalog + work-order surfaces. */
+:root{--forge-craft-accent:#d9b77a;--forge-craft-quiet:#bdb2ab;--forge-craft-line:#3c3941}
+#root .app .catalog .detail-head{grid-template-columns:102px minmax(0,1fr)!important;gap:20px!important}
+#root .app .catalog .detail-head>.sprite{height:102px!important;width:102px!important}
+#root .app .catalog .detail-head h2{font-size:clamp(29px,2.8vw,43px)!important;line-height:1.08!important;text-wrap:balance}
+#root .app .catalog .detail-head p{color:#cfc3b5!important;font-size:13px!important;line-height:1.55}
+#root .app .catalog .detail-head .pills{gap:6px!important}
+#root .app .catalog .item-main .grow strong{font-size:13px!important;line-height:1.35!important}
+#root .app .catalog .item-main .mw-item-meta-line{gap:8px!important}
+#root .app .catalog .item-foot{background:#15171e!important;min-height:28px!important;gap:8px!important}
+#root .app .catalog .item-foot .item-source-line{font-size:10px!important;letter-spacing:.015em!important;color:#aea49c!important}
+#root .app .catalog .item-foot button{font-size:11px!important;min-height:28px!important;color:#eac991!important}
+#root .app .catalog .item-foot button:hover{color:#fff1c9!important}
+#root .app .catalog .forge-search-clear{display:grid!important;place-items:center!important;flex:0 0 30px!important;width:30px!important;height:30px!important;min-height:30px!important;background:#252630!important;border:1px solid #655449!important;color:#eed4a8!important;border-radius:3px!important;cursor:pointer!important}
+#root .app .catalog .forge-search-clear:hover{background:#392c30!important}
+#root .app .catalog .forge-search-clear:focus-visible{outline:2px solid #f0cd93!important;outline-offset:2px!important}
+#root .app .catalog .forge-production-simple{display:flex;align-items:center;gap:12px;padding:13px 16px;margin:20px 0 18px;border-top:1px solid #54413d;border-bottom:1px solid #54413d;background:#211d24;color:#d2beac}
+#root .app .catalog .forge-production-simple svg{flex:0 0 auto;color:#d9b77a}
+#root .app .catalog .forge-production-simple>div{display:grid;gap:5px}
+#root .app .catalog .forge-production-simple strong{font-size:13px;color:#f0e7d5}
+#root .app .catalog .forge-production-simple span{font-size:12px;color:#c6b8af;line-height:1.45}
+#root .app .catalog .forge-production-multi{background:#1b1b24!important;margin:24px 0!important;padding:18px!important}
+#root .app .catalog .forge-production-multi ol{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+#root .app .catalog .forge-production-multi li{flex:1 1 180px!important;min-width:min(100%,160px)!important;padding:14px!important}
+#root .app .catalog .forge-production-final{background:#352630!important;border-color:#967458!important}
+#root .app .catalog .forge-production-final strong{color:#f2d1a1!important}
+#root .app .catalog .section-head{margin-top:20px!important}
+#root .app .catalog .section-head h3{font:400 25px/1.2 Georgia,serif!important;color:#f1e3cc!important}
+#root .app .catalog .recipe-row strong{font-size:13px!important}
+#root .app .catalog .recipe-row small{font-size:11px!important;color:#beb2a9!important}
+#root .app .catalog .recipe-row-actions b{font:600 13px/1.25 ui-monospace,Consolas,monospace!important;color:#f0d2a0!important}
+#root .app .catalog .forge-order-primary{background:linear-gradient(180deg,#f2dcae,#d8b37a)!important;border:1px solid #f1d19c!important;color:#1d1618!important;font-size:13px!important;min-height:46px!important}
+#root .app .catalog .forge-order-primary:not(:disabled):hover{background:#f7e7c5!important}
+#root .app .catalog .forge-order-secondary{background:#211f26!important;border:1px solid #6d5a50!important;color:#e7d4bb!important;min-height:40px!important}
+#root .app .catalog .forge-order-secondary:hover{background:#32272c!important}
+#root .app .catalog .forge-order-stat-emphasis strong{font-size:30px!important}
+#root .app .catalog .forge-order-stat-emphasis{padding-block:14px!important}
+#root .app .catalog .forge-order-actions button:focus-visible,
+#root .app .catalog .forge-quantity-control button:focus-visible{outline:2px solid #f0cd93!important;outline-offset:2px!important}
+@media(max-width:1180px){#root .app .catalog .forge-production-multi li{flex:1 1 150px!important}}
+@media(max-width:680px){
+ #root .app .catalog .detail-head{grid-template-columns:72px minmax(0,1fr)!important;gap:14px!important}
+ #root .app .catalog .detail-head>.sprite{width:72px!important;height:72px!important}
+ #root .app .catalog .detail-head h2{font-size:28px!important}
+ #root .app .catalog .forge-production-multi ol{display:grid!important;grid-template-columns:1fr!important}
+ #root .app .catalog .forge-production-multi li{min-width:0!important}
+ #root .app .catalog .item-foot button{min-height:40px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #root .app .catalog :is(.forge-order-primary,.forge-order-secondary,.forge-search-clear){transition:none!important}
+}
