@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from 'gsap'
+import { MaterialArtwork } from './MaterialArtwork'
+import { ForgeEconomics } from './ForgeEconomics'
 import { Check, ClipboardList, Download, Minus, Plus, ShieldCheck } from 'lucide-react'
 import catalogData from '../data/catalog'
 import type { CatalogData, ItemEntry } from '../types'
@@ -122,12 +124,13 @@ export function ForgeWorkOrder({ item, quantity, onQuantityChange, onAddToPlan, 
           <div className="forge-order-section-title"><span>ACQUIRE NEXT</span><small>{pending.length} material types</small></div>
           {ready && <p className="forge-order-ready"><Check size={15} aria-hidden="true"/>All materials accounted for</p>}
           {!pending.length && !ready && <p className="forge-order-hint">No raw materials marked missing.</p>}
-          {pending.map((row) => <div className="forge-acquire-row" key={row.name}><span>{row.name}</span><strong>×{row.missing}</strong></div>)}
+          {pending.map((row) => <div className="forge-acquire-row" key={row.name}><MaterialArtwork name={row.name} /><span>{row.name}</span><strong>×{row.missing}</strong></div>)}
         </div>
         <div className="forge-order-inventory">
           <div className="forge-order-section-title"><span>INVENTORY ON HAND</span><small>Edit quantities</small></div>
-          {rows.map((row) => <label className="forge-inventory-row" key={row.name}><span>{row.name}<small>Need {row.required}</small></span><input type="number" inputMode="numeric" step="1" min="0" max="999999" value={inventory[row.name] || 0} aria-label={'Owned ' + row.name} onChange={(event) => updateOwned(row.name, Number(event.target.value))}/></label>)}
+          {rows.map((row) => <label className="forge-inventory-row" key={row.name}><MaterialArtwork name={row.name} /><span>{row.name}<small>Need {row.required}</small></span><input type="number" inputMode="numeric" step="1" min="0" max="999999" value={inventory[row.name] || 0} aria-label={'Owned ' + row.name} onChange={(event) => updateOwned(row.name, Number(event.target.value))}/></label>)}
         </div>
+        <ForgeEconomics itemName={item.name} quantity={quantity} missing={plan?.missingRaw ?? []} unresolved={unresolved} />
       </>}
     </div>
     <div className="forge-order-actions">
