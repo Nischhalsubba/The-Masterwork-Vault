@@ -620,6 +620,9 @@ export default function App() {
               </div>
             </section>
             <div className="catalog">
+            <div className="workspace">
+              <div className="split">
+                <div className="forge-formula-browser">
             <section className="collection-switcher panel" aria-label="Masterwork collection">
               <div><small>COLLECTION</small><strong>{campaign === 'All' ? 'All Masterwork' : `${campaign} Masterwork`}</strong><span>{collectionItems.length} craftables · {activeMaterials} materials · {activeRecipes} recipes</span></div>
               <div className="collection-seg" role="group" aria-label="Choose source collection">
@@ -633,13 +636,11 @@ export default function App() {
               {availableClasses.map((className) => <button type="button" className={cls === className ? 'active' : ''} aria-pressed={cls === className} aria-label={`Filter by ${className}`} onClick={() => selectClass(className)} key={className}><ClassIcon className={className} /><span>{className}</span></button>)}
             </section>
 
-            <div className="workspace">
               <div className="toolbar panel">
                 <label className="search"><Search size={17} /><input aria-label="Search catalog" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search item, material, profession…" /></label>
                 <div className="filters">{availableKinds.map((value) => <button className={kind === value ? 'active' : ''} onClick={() => setKind(value)} key={value}>{value}</button>)}</div>
               </div>
 
-              <div className="split">
                 <section className="items">
                   <div className="result-meta"><b>{filtered.length} results</b><small>{resultContext}</small></div>
                   {filtered.length === 0 && <div className="catalog-empty-state" role="status"><Search size={28} aria-hidden="true" /><h3>No craftables match</h3><p>Try a broader search or clear the active filters.</p><button className="ghost" onClick={resetCatalogFilters}>Clear search and filters</button></div>}
@@ -654,6 +655,7 @@ export default function App() {
                     </article>
                   })}
                 </section>
+                </div>
                 <div className="forge-selected-pane">
                   {item ? <Detail item={item} quantity={previewQuantity} inPlan={plan.has(item.id)} togglePlan={() => toggle(item)} /> : <section className="detail panel catalog-empty-detail" aria-hidden="true" />}
                   {item ? <ForgeWorkOrder item={item} quantity={previewQuantity} onQuantityChange={setPreviewQuantity} inPlan={plan.has(item.id)} onAddToPlan={addPreviewToPlan} onOpenPlan={() => requestAppRoute({ view: 'plan' })} /> : <aside className="forge-work-order forge-work-order-empty" aria-hidden="true" />}
