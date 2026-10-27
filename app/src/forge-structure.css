@@ -267,7 +267,7 @@
     Its layout/visibility is owned by the common parent above. */
  .app .catalog .forge-selected-pane button:focus-visible,
  .app .catalog .forge-selected-pane input:focus-visible{outline:2px solid #f0cd93!important;outline-offset:2px!important}
- .mobile-v4-brand{transform:translateY(1px)!important}
+ .mobile-v4-brand{transform:translateY(.5px)!important}
 }
 @media(prefers-reduced-motion:reduce){
  .app .catalog .forge-selected-pane{transition:none!important}
