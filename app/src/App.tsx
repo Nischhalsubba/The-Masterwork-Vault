@@ -649,7 +649,7 @@ export default function App() {
             </section>
 
               <div className="toolbar panel">
-                <label className="search"><Search size={17} /><input aria-label="Search catalog" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search item, material, profession…" />{q && <button type="button" className="forge-search-clear" aria-label="Clear catalog search" onClick={() => setQ('')}><X size={15} aria-hidden="true" /></button>}</label>
+                <div className="search"><Search size={17} /><input aria-label="Search catalog" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search item, material, profession…" />{q && <button type="button" className="forge-search-clear" aria-label="Clear catalog search" onClick={() => setQ('')}><X size={15} aria-hidden="true" /></button>}</div>
                 <div className="filters">{availableKinds.map((value) => <button className={kind === value ? 'active' : ''} onClick={() => setKind(value)} key={value}>{value}</button>)}</div>
               </div>
 
