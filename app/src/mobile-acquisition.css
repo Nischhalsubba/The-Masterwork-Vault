@@ -284,3 +284,43 @@
  #root .mw-skeleton{animation:none;background:#242630}
  #root .app .catalog :is(.forge-recipe-advanced,.stats-trigger,.craftable-indicator){transition:none!important}
 }
+
+/* Compact the mobile catalog landing header so players reach results immediately. */
+@media(max-width:680px){
+ #root .app>main{padding-top:10px!important}
+ #root .app .mw-core-page-header{
+  display:flex!important;flex-direction:column!important;min-height:0!important;
+  gap:8px!important;margin:0 0 10px!important;padding:12px 14px!important;
+  background:#13151c!important;border:1px solid #4d4040!important;border-radius:4px!important
+ }
+ #root .app .mw-core-page-header>div:first-child{max-width:100%!important}
+ #root .app .mw-core-page-header small{
+  display:block!important;color:#c6a879!important;font-size:10px!important;line-height:1.4!important
+ }
+ #root .app .mw-core-page-header h1{
+  margin:6px 0 4px!important;font-size:27px!important;line-height:1.12!important;
+  letter-spacing:-.02em!important
+ }
+ #root .app .mw-core-page-header p{
+  font-size:12px!important;line-height:1.45!important;
+  margin:0!important;max-width:100%!important
+ }
+ #root .app .mw-core-page-header .mw-core-page-actions{
+  width:100%!important;max-width:100%!important;display:flex!important;
+  align-items:center!important;justify-content:flex-end!important;
+  padding:0!important;margin:3px 0 0!important;min-height:0!important;gap:8px!important
+ }
+ #root .app .mw-core-page-header .mw-core-page-actions button{
+  width:auto!important;min-width:0!important;min-height:38px!important;
+  padding:8px 12px!important;font-size:11px!important;line-height:1.2!important;
+  border-radius:3px!important
+ }
+ #root .app .catalog .forge-formula-browser>.collection-switcher{padding:12px!important}
+ #root .app .catalog .forge-formula-browser>.collection-switcher strong{
+  font-size:18px!important;line-height:1.25!important
+ }
+ #root .app .catalog .forge-formula-browser>.collection-switcher span{font-size:11px!important}
+ #root .app .catalog .forge-formula-browser>.collection-switcher .collection-seg button{
+  min-height:40px!important
+ }
+}
