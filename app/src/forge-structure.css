@@ -272,3 +272,75 @@
 @media(prefers-reduced-motion:reduce){
  .app .catalog .forge-selected-pane{transition:none!important}
 }
+
+/* Composition pass: the archive owns its filters, matching the approved V4
+   formula-index / selected recipe / work-order hierarchy. */
+.app .catalog{display:block!important;grid-template-areas:none!important;grid-template-columns:none!important}
+.app .catalog>.workspace{width:100%!important;max-width:none!important;margin:0!important}
+.app .catalog .split{min-width:0!important}
+.app .catalog .forge-formula-browser{
+ display:flex!important;flex-direction:column!important;min-width:0!important;
+ background:#11141b!important;border-right:1px solid #554741!important;
+}
+.app .catalog .forge-formula-browser>.collection-switcher{
+ display:grid!important;gap:8px!important;grid-template-columns:minmax(0,1fr)!important;
+ min-height:0!important;margin:0!important;padding:15px!important;
+ border:0!important;border-bottom:1px solid #453d41!important;
+ background:#191b23!important
+}
+.app .catalog .forge-formula-browser>.collection-switcher strong{font-family:Georgia,serif;font-weight:400!important;font-size:18px!important}
+.app .catalog .forge-formula-browser>.collection-switcher span{color:#bcb0a7!important;font-size:11px}
+.app .catalog .forge-formula-browser>.collection-switcher .collection-seg{
+ display:flex!important;width:100%!important;min-width:0!important;gap:4px!important
+}
+.app .catalog .forge-formula-browser>.collection-switcher .collection-seg button{
+ flex:1 1 0!important;min-width:0!important;font-size:11px!important;padding:8px 5px!important
+}
+.app .catalog .forge-formula-browser>.mw-class-filter{
+ display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;
+ align-items:center!important;width:100%!important;min-height:50px!important;
+ margin:0!important;padding:8px!important;gap:6px!important;
+ border:0!important;border-bottom:1px solid #3f393d!important;
+ background:#171920!important
+}
+.app .catalog .forge-formula-browser>.mw-class-filter button{flex:0 0 auto;min-height:34px!important;padding:3px 9px!important}
+.app .catalog .forge-formula-browser>.mw-class-filter-label{display:none!important}
+.app .catalog .forge-formula-browser>.toolbar{
+ display:flex!important;flex-direction:column!important;gap:8px!important;
+ padding:12px!important;margin:0!important;min-height:0!important;
+ border:0!important;border-bottom:1px solid #4a4240!important
+}
+.app .catalog .forge-formula-browser>.toolbar .search{width:100%!important;min-width:0!important}
+.app .catalog .forge-formula-browser>.toolbar .filters{
+ display:flex!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important;
+ gap:5px!important;padding-bottom:3px!important
+}
+.app .catalog .forge-formula-browser>.toolbar .filters button{flex:0 0 auto!important;font-size:11px!important;padding:6px 10px!important}
+.app .catalog .forge-formula-browser>.items{
+ flex:1 1 auto!important;min-height:0!important;min-width:0!important;
+ width:100%!important;border:0!important;border-radius:0!important;
+ overflow-y:auto!important;overscroll-behavior:contain
+}
+@media(min-width:1181px){
+ .app .catalog .forge-formula-browser{max-height:calc(100dvh - 240px)!important;min-height:540px!important}
+ .app .catalog .forge-formula-browser>.items{max-height:none!important}
+ .app .catalog .split{
+  grid-template-columns:minmax(270px,.93fr) minmax(420px,1.55fr) minmax(285px,.9fr)!important
+ }
+}
+@media(min-width:1181px) and (max-width:1380px){
+ .app .catalog .split{grid-template-columns:minmax(250px,.94fr) minmax(365px,1.52fr) minmax(260px,.9fr)!important}
+ .app .catalog .forge-formula-browser>.collection-switcher{padding:12px!important}
+}
+@media(min-width:681px) and (max-width:1180px){
+ .app .catalog .forge-formula-browser{min-height:560px!important;max-height:calc(100dvh - 160px)!important}
+ .app .catalog .split{grid-template-columns:minmax(240px,.9fr) minmax(0,1.1fr)!important}
+}
+@media(max-width:680px){
+ .app .catalog .forge-formula-browser{max-height:none!important;min-height:0!important;border:0!important}
+ .app .catalog .forge-formula-browser>.mw-class-filter{max-width:100%!important;overflow-x:auto!important}
+ .app .catalog .forge-formula-browser>.toolbar{padding:10px!important}
+ .app .catalog .forge-formula-browser>.items{overflow-y:visible!important;max-height:none!important}
+}
+/* One action authority per selected recipe: the work-order inspector owns saving. */
+.app .catalog .detail-head>.primary{display:none!important}
