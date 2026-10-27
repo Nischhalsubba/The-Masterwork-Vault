@@ -6,7 +6,7 @@ test('Forge V4 catalog exposes the real three-pane workbench and dark surfaces',
   await expect(page.getByRole('heading', { name: /The forge workbench/i })).toBeVisible()
   await expect(page.locator('.forge-desktop-topbar')).toBeVisible()
   await expect(page.locator('.forge-work-order')).toBeVisible()
-  await expect(page.locator('.forge-production-simple')).toBeVisible()
+  await expect(page.locator('.forge-production-simple, .forge-production-multi')).toBeVisible()
   await expect(page.locator('.items article').first()).toBeVisible()
   await expect(page.locator('.catalog .result-meta')).toHaveCSS('background-color', 'rgb(32, 33, 42)')
   await expect(page.locator('.catalog .item-foot').first()).toHaveCSS('background-color', 'rgb(21, 23, 30)')
