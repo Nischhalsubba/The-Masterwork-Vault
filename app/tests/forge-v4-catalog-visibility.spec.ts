@@ -84,8 +84,8 @@ test('desktop utility buttons occupy the navigation region without covering the 
   const rects = await Promise.all([search, density, more].map(locator => locator.boundingBox()))
   for (const rect of rects) {
     expect(rect).not.toBeNull()
-    expect(rect!.top).toBeLessThan(80)
-    expect(rect!.bottom).toBeLessThanOrEqual(80)
+    expect(rect!.y).toBeLessThan(80)
+    expect((rect!.y + rect!.height)).toBeLessThanOrEqual(80)
   }
   const intersection = (a: NonNullable<typeof rects[0]>, b: NonNullable<typeof rects[0]>) =>
     Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)) *
