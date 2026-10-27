@@ -401,7 +401,17 @@ catalog.meta = {
 
 const finalItemIconCount = (catalog.items ?? []).filter((item: any) => Boolean(item.icon) || item.iconIndex != null).length
 const materialIconCount = (catalog.materials ?? []).filter((material: any) => Boolean(material.icon) || material.iconIndex != null).length
-console.info(`Displayable icon audit: ${finalItemIconCount}/${catalog.items?.length ?? 0} items; ${materialIconCount}/${catalog.materials?.length ?? 0} materials have authentic or explicitly reference-derived visuals`)
+const iconProvenanceStats = {
+  exactOrOriginal: 0, representative: 0, unresolved: 0,
+}
+for (const entity of [...catalog.items, ...catalog.materials]) {
+  const provenance = entity.artwork?.provenance
+  if (provenance === 'reference-derived' || provenance === 'placeholder') iconProvenanceStats.representative += 1
+  else if (!entity.icon && entity.iconIndex == null) iconProvenanceStats.unresolved += 1
+  else iconProvenanceStats.exactOrOriginal += 1
+}
+console.info(`Displayable artwork: ${finalItemIconCount}/${catalog.items.length} craftables and ${materialIconCount}/${catalog.materials.length} materials have an image or fallback; this is NOT exact-artwork coverage.`)
+console.info(`Artwork provenance audit: ${iconProvenanceStats.exactOrOriginal} existing or original images, ${iconProvenanceStats.representative} category-derived reference illustrations, ${iconProvenanceStats.unresolved} missing visuals. Inspect source records before treating original images as verified game assets.`)
 console.info(`Masterwork campaign audit: ${catalog.items.filter((item: any) => item.campaign === 'Sharandar').length} Sharandar craftables, ${catalog.items.filter((item: any) => item.campaign === 'Underdark').length} Underdark craftables`)
 
 export default catalog
