@@ -333,6 +333,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
           <div className="pills"><Source value={item.sourceStatus} /><CampaignBadge value={item.campaign} /><span>{item.profession || item.kind}</span></div>
           <h2>{item.name}</h2>
           <p>{classLabel} · {item.slot || item.kind}</p>
+          {(item.artwork?.provenance === "reference-derived" || item.artwork?.provenance === "placeholder") && <span className="forge-artwork-note" title="Category illustration. Exact Neverwinter artwork has not been verified.">Representative item artwork</span>}
           <div className="mw-detail-requirement">
             <span className={craftRequirement.professionLevel == null ? '' : 'verified'}><Hammer size={13} aria-hidden="true" />{craftLevelLabel}</span>
             <span>{item.profession ? `${item.profession} crafting` : 'Profession not captured'}</span>
