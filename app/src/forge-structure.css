@@ -506,3 +506,22 @@
 #root .catalog .forge-work-order-empty{
  display:none!important
 }
+
+/* Search is a fixed-height field. Legacy flex-basis:420px must not become
+   the vertical flex-basis inside the formula archive's column layout. */
+#root .app .catalog .forge-formula-browser>.toolbar>.search{
+ display:flex!important;
+ flex:0 0 46px!important;
+ height:46px!important;
+ min-height:46px!important;
+ max-height:46px!important;
+ box-sizing:border-box!important;
+ align-items:center!important;
+}
+#root .app .catalog .forge-formula-browser>.toolbar>.search input{
+ flex:1 1 auto!important;
+ min-width:0!important;
+ height:38px!important;
+ min-height:38px!important;
+ max-height:38px!important;
+}
