@@ -5,19 +5,19 @@ test.describe('purposeful app-wide redesign', () => {
     await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto('/catalog')
 
-    const sidebar = page.locator('.tablet-v4-sidebar')
+    const sidebar = page.locator('.forge-desktop-topbar')
     await expect(sidebar).toBeVisible()
     for (const label of ['Catalog', 'Plan & Craft', 'Materials', 'Progression', 'Reference']) {
       await expect(sidebar.getByRole('link', { name: label }).or(sidebar.getByRole('button', { name: label }))).toBeVisible()
     }
 
-    await expect(page.locator('.app > header')).toBeHidden()
+    await expect(page.locator('.forge-desktop-topbar')).toBeVisible()
     await expect(page.locator('.hero')).toBeHidden()
 
     await sidebar.getByRole('link', { name: 'Progression' }).click()
     await expect(page).toHaveURL(/\/journey$/)
-    await expect(page.locator('.tablet-v4-sidebar')).toBeVisible()
-    await expect(page.locator('.mw-page-topbar')).toBeHidden()
+    await expect(page.locator('.forge-desktop-topbar')).toBeVisible()
+    await expect(page.locator('.forge-desktop-topbar')).toBeVisible()
   })
 
   test('craft tree stays inside the same app shell instead of opening a separate mini-app', async ({ page }) => {
@@ -28,7 +28,7 @@ test.describe('purposeful app-wide redesign', () => {
     await expect(card).toBeVisible()
     await card.locator('.item-foot > button').click()
 
-    const nav = page.locator('.tablet-v4-sidebar')
+    const nav = page.locator('.forge-desktop-topbar')
     await nav.getByRole('button', { name: 'Plan & Craft' }).click()
     await page.getByRole('tab', { name: 'Craft tree' }).click()
 
@@ -43,8 +43,8 @@ test.describe('purposeful app-wide redesign', () => {
     test(`${route} uses the same desktop workspace shell`, async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 })
       await page.goto(`/${route}`)
-      await expect(page.locator('.tablet-v4-sidebar')).toBeVisible()
-      await expect(page.locator('.mw-page-topbar')).toBeHidden()
+      await expect(page.locator('.forge-desktop-topbar')).toBeVisible()
+      await expect(page.locator('.forge-desktop-topbar')).toBeVisible()
     })
   }
 
