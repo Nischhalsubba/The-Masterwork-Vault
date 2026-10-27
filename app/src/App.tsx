@@ -534,6 +534,18 @@ export default function App() {
   useEffect(() => {
     if (filtered.length && !filtered.some((candidate) => candidate.id === id)) setId(filtered[0].id)
   }, [filtered, id])
+  useEffect(() => {
+    if (view !== 'catalog' || !item) return
+    const list = root.current?.querySelector<HTMLElement>('.items')
+    const current = list?.querySelector<HTMLElement>('article.selected')
+    if (!list || !current) return
+    const listBounds = list.getBoundingClientRect()
+    const rowBounds = current.getBoundingClientRect()
+    if (rowBounds.top < listBounds.top + 52 || rowBounds.bottom > listBounds.bottom) {
+      list.scrollTop += rowBounds.top - listBounds.top - 60
+    }
+  }, [view, item?.id])
+
 
   const selectCampaign = (next: CampaignFilter) => {
     setCampaign(next)
