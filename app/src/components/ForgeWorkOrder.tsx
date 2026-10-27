@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { gsap } from 'gsap'
 import { Check, ClipboardList, Download, Minus, Plus, ShieldCheck } from 'lucide-react'
 import catalogData from '../data/catalog'
 import type { CatalogData, ItemEntry } from '../types'
@@ -48,6 +49,8 @@ interface Props {
 
 export function ForgeWorkOrder({ item, quantity, onQuantityChange, onAddToPlan, onOpenPlan, inPlan }: Props) {
   const [inventory, setInventory] = useState<InventoryRecord>(readInventory)
+  const itemHeadlineRef = useRef<HTMLHeadingElement>(null)
+  const progressRef = useRef<HTMLSpanElement>(null)
   const hasRecipe = item.recipeKnown !== false && item.materials.length > 0
   useEffect(() => {
     const onStorage = (event: StorageEvent) => { if (event.key === INVENTORY_KEY || event.key === null) setInventory(readInventory()) }
@@ -66,6 +69,22 @@ export function ForgeWorkOrder({ item, quantity, onQuantityChange, onAddToPlan, 
   const percent = required === 0 ? 0 : Math.round(owned / required * 100)
   const pending = rows.filter((row) => row.missing > 0)
 
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !itemHeadlineRef.current) return
+    const tween = gsap.fromTo(itemHeadlineRef.current,
+      { autoAlpha: .55, y: 8 },
+      { autoAlpha: 1, y: 0, duration: .24, ease: 'power2.out', clearProps: 'all' })
+    return () => { tween.kill(); gsap.set(itemHeadlineRef.current, { clearProps: 'all' }) }
+  }, [item.id])
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !progressRef.current) return
+    const tween = gsap.fromTo(progressRef.current,
+      { scaleX: .85, transformOrigin: 'left center' },
+      { scaleX: 1, duration: .3, ease: 'power2.out', clearProps: 'transform' })
+    return () => { tween.kill(); gsap.set(progressRef.current, { clearProps: 'transform' }) }
+  }, [percent])
+
   const updateOwned = (name: string, amount: number) => {
     const value = Math.max(0, Math.min(999999, Math.floor(amount) || 0))
     const next = { ...inventory }
@@ -79,7 +98,7 @@ export function ForgeWorkOrder({ item, quantity, onQuantityChange, onAddToPlan, 
   return <aside className="forge-work-order" aria-label="Selected recipe work order">
     <div className="forge-order-heading">
       <span className="forge-overline">WORK ORDER / MATERIAL PLAN</span>
-      <h2>{item.name}</h2>
+      <h2 ref={itemHeadlineRef}>{item.name}</h2>
       <p>{item.campaign || 'Collection unknown'} · {item.profession || 'Profession unrecorded'}</p>
     </div>
     <div className="forge-order-body">
@@ -95,7 +114,7 @@ export function ForgeWorkOrder({ item, quantity, onQuantityChange, onAddToPlan, 
         <div className="forge-order-stat"><span>Raw units required</span><strong>{required.toLocaleString()}</strong></div>
         <div className="forge-order-stat"><span>Available in inventory</span><strong>{owned.toLocaleString()}</strong></div>
         <div className="forge-order-stat forge-order-stat-emphasis"><span>Still to acquire</span><strong>{missing.toLocaleString()}</strong></div>
-        <div className="forge-readiness" aria-label="Inventory readiness"><div><span>INVENTORY READINESS</span><strong>{percent}%</strong></div><div className="forge-readiness-track" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Materials available"><span style={{ width: percent + '%' }}/></div></div>
+        <div className="forge-readiness" aria-label="Inventory readiness"><div><span>INVENTORY READINESS</span><strong>{percent}%</strong></div><div className="forge-readiness-track" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Materials available"><span ref={progressRef} style={{ width: percent + '%' }}/></div></div>
         {unresolved.length > 0 && <p className="forge-unresolved" role="status">Incomplete total: {unresolved.map((row) => row.name + ' ×' + row.required).join(' · ')} has an unverified output yield.</p>}
         <div className="forge-order-acquire">
           <div className="forge-order-section-title"><span>ACQUIRE NEXT</span><small>{pending.length} material types</small></div>
