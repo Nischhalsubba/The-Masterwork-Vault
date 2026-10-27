@@ -478,3 +478,31 @@
   min-height:40px!important
  }
 }
+
+/* Utilities belong to navigation chrome, not on top of work-order inputs. */
+@media(min-width:1181px){
+ #root .forge-desktop-topbar{padding-right:200px!important}
+ #root .mw-command-launcher{
+  position:fixed!important;top:15px!important;right:42px!important;bottom:auto!important;left:auto!important;
+  width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;
+  padding:0!important;z-index:340!important
+ }
+ #root .mw-command-launcher :is(span,kbd){display:none!important}
+ #root .ux-density-menu{
+  position:fixed!important;top:15px!important;right:98px!important;bottom:auto!important;left:auto!important;
+  z-index:340!important
+ }
+ #root .ux-density-menu>summary{
+  width:44px!important;height:44px!important;min-width:44px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  padding:0!important;font-size:0!important
+ }
+ #root .ux-density-menu .ux-density-popover{
+  top:calc(100% + 8px)!important;bottom:auto!important
+ }
+}
+/* Empty results should not leave an apparently active blank recipe panel. */
+#root .catalog .catalog-empty-detail,
+#root .catalog .forge-work-order-empty{
+ display:none!important
+}
