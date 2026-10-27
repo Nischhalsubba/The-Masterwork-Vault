@@ -46,3 +46,21 @@ test('Forge V4 mobile retains original navigation and dark list surfaces', async
   expect(overflow).toBeLessThanOrEqual(1)
   await page.screenshot({ path: testInfo.outputPath('forge-workbench-mobile.png'), fullPage: true })
 })
+
+test('Phone recipe navigation keeps the inspector in the same scrollable detail view', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/catalog')
+  await page.locator('.items article .item-main').first().click()
+  await expect(page.locator('body')).toHaveClass(/mobile-v4-detail-open/)
+  await expect(page.locator('.forge-selected-pane')).toBeVisible()
+  await expect(page.locator('.forge-selected-pane .detail')).toBeVisible()
+  await expect(page.locator('.forge-selected-pane .forge-work-order')).toBeVisible()
+  const metrics = await page.locator('.forge-selected-pane').evaluate((node) => ({
+    viewportWidth: document.documentElement.clientWidth,
+    width: node.getBoundingClientRect().width,
+    scroll: getComputedStyle(node).overflowY,
+  }))
+  expect(metrics.width).toBeLessThanOrEqual(metrics.viewportWidth + 1)
+  expect(metrics.scroll).toBe('auto')
+  await page.screenshot({ path: testInfo.outputPath('forge-workbench-phone-detail.png'), fullPage: false })
+})
