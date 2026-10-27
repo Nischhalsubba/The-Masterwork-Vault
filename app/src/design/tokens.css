@@ -130,3 +130,51 @@
     --mw-ds-layout-gap: 8px;
   }
 }
+
+
+/* Forge V4 semantic palette. Overrides legacy light tokens without changing data. */
+:root {
+  --mw-ds-white:#f0e7d5;
+  --mw-ds-slate-25:#1c2027;
+  --mw-ds-slate-50:#0b0d12;
+  --mw-ds-slate-100:#20242c;
+  --mw-ds-slate-200:#39373b;
+  --mw-ds-slate-300:#665347;
+  --mw-ds-slate-500:#a69e9d;
+  --mw-ds-slate-600:#b8b1ab;
+  --mw-ds-slate-700:#ded3c4;
+  --mw-ds-slate-900:#f0e7d5;
+  --mw-ds-blue-50:#302628;
+  --mw-ds-blue-100:#745544;
+  --mw-ds-blue-600:#d9b77a;
+  --mw-ds-blue-700:#f0cd93;
+  --mw-ds-green-600:#a9cfb5;
+  --mw-ds-amber-700:#dfb67e;
+  --mw-ds-red-700:#e29da1;
+  --mw-ds-bg:#0b0d12;
+  --mw-ds-surface:#171a21;
+  --mw-ds-surface-subtle:#1d2129;
+  --mw-ds-surface-muted:#242630;
+  --mw-ds-border:#39373b;
+  --mw-ds-border-strong:#665347;
+  --mw-ds-text:#f0e7d5;
+  --mw-ds-text-secondary:#b8b1ab;
+  --mw-ds-text-muted:#a69e9d;
+  --mw-ds-accent:#d9b77a;
+  --mw-ds-accent-strong:#f0cd93;
+  --mw-ds-accent-soft:#302628;
+  --mw-ds-rail-bg:#111318;
+  --mw-ds-rail-surface:#201c23;
+  --mw-ds-rail-border:#4b3b39;
+  --mw-ds-rail-text:#f0e7d5;
+  --mw-ds-rail-muted:#b8b1ab;
+  --mw-ds-rail-active:#462630;
+  --mw-ds-radius-xs:2px;
+  --mw-ds-radius-sm:3px;
+  --mw-ds-radius-md:4px;
+  --mw-ds-radius-lg:5px;
+  --mw-ds-shadow-focus:0 0 0 3px #d9b77a33;
+  --mw-ds-shadow-float:0 20px 50px #0008;
+  --mw-ds-rail:244px;
+  --mw-ds-list-width:clamp(310px,31vw,460px);
+}
