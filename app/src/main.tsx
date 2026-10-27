@@ -35,6 +35,7 @@ import './forge-v4.css'
 import './forge-structure.css'
 import './forge-route-consistency.css'
 import './forge-phase-a.css'
+import './forge-phase-bc.css'
 import { ForgeMotion } from './components/ForgeMotion'
 
 const App = lazy(() => import('./App'))
