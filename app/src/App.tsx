@@ -522,7 +522,7 @@ export default function App() {
   }, [collectionItems, cls, kind, deferredQ])
 
   const item = filtered.find((candidate) => candidate.id === id) || filtered[0]
-  useEffect(() => setPreviewQuantity(1), [item?.id])
+  useEffect(() => setPreviewQuantity(item ? (plan.get(item.id) || 1) : 1), [item?.id])
 
   useEffect(() => {
     const routeHasItem = window.location.pathname.split('/').filter(Boolean).length >= 3
