@@ -10,8 +10,9 @@ test('mobile recipes prioritize required materials and show inline acquisition l
   const rows = page.locator('.recipe-row')
   expect(await rows.count()).toBeGreaterThan(0)
   for (const row of await rows.all()) {
-    const bounds = await row.locator('.recipe-row-actions').boundingBox()
     const rowBounds = await row.boundingBox()
+    const action = row.locator('.recipe-row-actions button').first()
+    const bounds = await action.boundingBox()
     expect(bounds).not.toBeNull()
     expect(rowBounds).not.toBeNull()
     expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(391)
@@ -25,7 +26,9 @@ test('mobile recipes prioritize required materials and show inline acquisition l
 test('mobile detail variant and details controls cannot overlap ingredient actions', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 })
   await page.goto('/catalog')
+  await page.getByRole('button', { name: 'Underdark', exact: true }).click()
   await page.getByRole('textbox', { name: 'Search catalog' }).fill('Duergar Mercenary')
+  await expect(page.locator('.items article .item-main').first()).toBeVisible()
   await page.locator('.items article .item-main').first().click()
   await expect(page.locator('.forge-selected-pane .detail')).toBeVisible()
   const controls = page.locator('.forge-selected-pane .detail-controls')
