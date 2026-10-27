@@ -165,7 +165,7 @@ function Recipe({ rows, onOpenCraftable }: { rows: { name: string; required: num
             <div className="recipe-row-copy">
               <strong>{r.name}</strong>
               <small>{material?.craftable ? (isRecipePlannable(recipeByName.get(norm(material.name))) ? `${material.profession || 'Crafted'} · yields ${recipeByName.get(norm(material.name))?.outputQuantity}` : `${material.profession || 'Crafted'} · yield unresolved`) : 'Raw / acquired material'}</small>
-              <span className="forge-source-location" title={route ? `Source reviewed ${acquisition?.reviewedAt}; current game availability is not confirmed` : undefined}>{material?.craftable ? `Craft in ${material.profession || 'workshop'}` : route ? `${route.method} · ${route.location}` : 'Source not verified'}</span>
+              <span className="forge-source-location" title={route ? `Source reviewed ${acquisition?.reviewedAt}; current game availability is not confirmed` : undefined}>{material?.craftable ? `Craft in ${material.profession || 'workshop'}` : route ? <>{route.method} · {route.location}<small>{acquisition?.status === 'historical' ? 'Historical guide · check in-game' : 'Published guide · check in-game'}</small></> : 'Source not verified'}</span>
             </div>
             <div className="recipe-row-actions">
               <b>×{r.required}</b>{!material?.craftable && <MaterialSourceButton name={r.name} />}
