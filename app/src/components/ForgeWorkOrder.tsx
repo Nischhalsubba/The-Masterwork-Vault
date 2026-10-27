@@ -70,19 +70,21 @@ export function ForgeWorkOrder({ item, quantity, onQuantityChange, onAddToPlan, 
   const pending = rows.filter((row) => row.missing > 0)
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !itemHeadlineRef.current) return
-    const tween = gsap.fromTo(itemHeadlineRef.current,
+    const headline = itemHeadlineRef.current
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !headline) return
+    const tween = gsap.fromTo(headline,
       { autoAlpha: .55, y: 8 },
       { autoAlpha: 1, y: 0, duration: .24, ease: 'power2.out', clearProps: 'all' })
-    return () => { tween.kill(); gsap.set(itemHeadlineRef.current, { clearProps: 'all' }) }
+    return () => { tween.kill(); gsap.set(headline, { clearProps: 'all' }) }
   }, [item.id])
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !progressRef.current) return
-    const tween = gsap.fromTo(progressRef.current,
+    const progress = progressRef.current
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !progress) return
+    const tween = gsap.fromTo(progress,
       { scaleX: .85, transformOrigin: 'left center' },
       { scaleX: 1, duration: .3, ease: 'power2.out', clearProps: 'transform' })
-    return () => { tween.kill(); gsap.set(progressRef.current, { clearProps: 'transform' }) }
+    return () => { tween.kill(); gsap.set(progress, { clearProps: 'transform' }) }
   }, [percent])
 
   const updateOwned = (name: string, amount: number) => {
