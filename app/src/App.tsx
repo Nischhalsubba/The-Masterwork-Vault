@@ -659,7 +659,7 @@ export default function App() {
               <div>
                 <small>MASTERWORK / THE FORGE</small>
                 <h1>The forge <em>workbench.</em></h1>
-                <p>From raw materials to finished work. Discover recorded recipes, trace components and build a practical crafting plan.</p>
+                <p>Find what you need to craft and where to get every material.</p>
               </div>
               <div className="mw-core-page-actions">
                 <button type="button" aria-label="Compare items" onClick={() => document.dispatchEvent(new CustomEvent('masterwork:open-compare'))}><BarChart3 size={15} aria-hidden="true" />Compare items</button>
