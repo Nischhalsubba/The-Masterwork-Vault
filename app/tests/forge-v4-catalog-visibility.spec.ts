@@ -30,6 +30,8 @@ test('catalog formula archive preserves readable list rows and separated control
   expect(metrics.classTop).toBeGreaterThanOrEqual(metrics.collectionBottom - 1)
   expect(metrics.toolbarTop).toBeGreaterThanOrEqual(metrics.classBottom - 1)
   expect(metrics.listTop).toBeGreaterThanOrEqual(metrics.toolbarBottom - 1)
+  expect(metrics.toolbarBottom - metrics.toolbarTop).toBeLessThanOrEqual(150)
+  expect(metrics.listTop).toBeLessThan(770)
   expect(metrics.selectedHeight).toBeGreaterThanOrEqual(80)
   expect(metrics.mainHeight).toBeGreaterThanOrEqual(55)
   expect(metrics.titleHeight).toBeGreaterThanOrEqual(12)
