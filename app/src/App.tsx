@@ -363,8 +363,12 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
         <button className="stats-trigger" aria-expanded={statsOpen} aria-controls="item-stats-drawer" onClick={() => setStatsOpen(true)}><BarChart3 size={16} aria-hidden="true" />Details{hasStats && <span>{statCount}</span>}<ChevronRight size={14} aria-hidden="true" /></button>
       </div>
 
+      {(setData || item.equipPower?.text) && <details className="forge-item-effects" open={false}>
+        <summary>Item effects and set bonuses</summary>
       {setData && <div className="callout"><Sparkles size={18} /><div><strong>{setData.name || 'Set bonus'}</strong><p>{Array.isArray(setData.twoPiece) ? setData.twoPiece.join(' · ') : setData.note}</p></div></div>}
       {item.equipPower?.text && <div className="callout"><Shield size={18} /><div><strong>{item.equipPower.name || 'Equip power'}</strong><p>{item.equipPower.text}</p></div></div>}
+
+      </details>}
 
       {!hasRecipe ? (
         <div className="missing-recipe-state">
