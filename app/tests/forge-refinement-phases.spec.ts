@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test'
 
-test('single-stage recipe uses compact guidance instead of a fake dependency diagram', async ({ page }, testInfo) => {
+test('recipe shows source-dependent stage guidance rather than a decorative diagram', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1600, height: 900 })
   await page.goto('/catalog')
-  await expect(page.locator('.forge-production-simple')).toBeVisible()
-  await expect(page.locator('.forge-production-route')).toHaveCount(0)
+  await expect(page.locator('.forge-production-simple, .forge-production-multi')).toBeVisible()
+  const complex = await page.locator('.forge-production-multi').count()
+  if (complex > 0) await expect(page.locator('.forge-production-final')).toBeVisible()
+  else await expect(page.locator('.forge-production-route')).toHaveCount(0)
   await expect(page.getByText('Ingredients', { exact: true })).toBeVisible()
   await expect(page.locator('.forge-work-order .forge-order-primary')).toBeVisible()
   await page.screenshot({ path: testInfo.outputPath('forge-phase-a-single-stage.png'), fullPage: false })
@@ -56,7 +58,7 @@ test('mobile craft detail preserves compact guidance and no document overflow', 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/catalog')
   await page.locator('.items article .item-main').first().click()
-  await expect(page.locator('.forge-selected-pane .forge-production-simple')).toBeVisible()
+  await expect(page.locator('.forge-selected-pane .forge-production-simple, .forge-selected-pane .forge-production-multi')).toBeVisible()
   const horizontal = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(horizontal).toBeLessThanOrEqual(1)
   await page.screenshot({ path: testInfo.outputPath('forge-phase-a-mobile.png'), fullPage: false })
