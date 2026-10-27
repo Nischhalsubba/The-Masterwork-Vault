@@ -92,6 +92,8 @@ export function WorkspaceShell() {
   const [detailTitle, setDetailTitle] = useState(itemTitleFromPath)
   const [nested, setNested] = useState(false)
   const menu = useRef<HTMLDetailsElement>(null)
+  const detailBackButton = useRef<HTMLButtonElement>(null)
+  const wasDetailOpen = useRef(false)
 
   useEffect(() => {
     const phone = window.matchMedia(PHONE_QUERY)
@@ -141,6 +143,20 @@ export function WorkspaceShell() {
       document.body.classList.remove('mobile-v4-detail-open')
     }
   }, [])
+
+  useEffect(() => {
+    if (!window.matchMedia(PHONE_QUERY).matches) return
+    const previouslyOpen = wasDetailOpen.current
+    wasDetailOpen.current = detailOpen
+    if (detailOpen && !previouslyOpen) {
+      const handle = window.requestAnimationFrame(() => detailBackButton.current?.focus())
+      return () => window.cancelAnimationFrame(handle)
+    }
+    if (!detailOpen && previouslyOpen) {
+      const handle = window.requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.catalog .items article.selected .item-main')?.focus())
+      return () => window.cancelAnimationFrame(handle)
+    }
+  }, [detailOpen])
 
   const navigate = (view: CoreView) => {
     if (!coreViews.has(viewFromPath() as CoreView)) {
@@ -205,6 +221,7 @@ export function WorkspaceShell() {
             <button
               type="button"
               className="mobile-v4-back"
+              ref={detailBackButton}
               onClick={goBack}
               aria-label={nested ? 'Back to previous recipe' : 'Back to catalog'}
             >
