@@ -89,7 +89,7 @@
   border:1px solid #54443f;border-top:0;background:#13151b
  }
  .app .catalog .items{
-  min-width:0!important;max-height:calc(100dvh - 320px)!important;min-height:540px;
+  min-width:0!important;max-height:calc(100dvh - 320px)!important;min-height:0!important;
   overflow-x:hidden!important;overflow-y:auto!important;border:0!important;border-right:1px solid #51433e!important;
   border-radius:0!important;background:#11141b!important
  }
@@ -283,7 +283,7 @@
  background:#11141b!important;border-right:1px solid #554741!important;
 }
 .app .catalog .forge-formula-browser>.collection-switcher{
- display:grid!important;gap:8px!important;grid-template-columns:minmax(0,1fr)!important;
+ flex:0 0 auto!important;height:auto!important;display:grid!important;gap:8px!important;grid-template-columns:minmax(0,1fr)!important;
  min-height:0!important;margin:0!important;padding:15px!important;
  border:0!important;border-bottom:1px solid #453d41!important;
  background:#191b23!important
@@ -297,7 +297,7 @@
  flex:1 1 0!important;min-width:0!important;font-size:11px!important;padding:8px 5px!important
 }
 .app .catalog .forge-formula-browser>.mw-class-filter{
- display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;
+ flex:0 0 auto!important;height:auto!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;
  align-items:center!important;width:100%!important;min-height:50px!important;
  margin:0!important;padding:8px!important;gap:6px!important;
  border:0!important;border-bottom:1px solid #3f393d!important;
@@ -306,7 +306,7 @@
 .app .catalog .forge-formula-browser>.mw-class-filter button{flex:0 0 auto;min-height:34px!important;padding:3px 9px!important}
 .app .catalog .forge-formula-browser>.mw-class-filter-label{display:none!important}
 .app .catalog .forge-formula-browser>.toolbar{
- display:flex!important;flex-direction:column!important;gap:8px!important;
+ flex:0 0 auto!important;height:auto!important;display:flex!important;flex-direction:column!important;gap:8px!important;
  padding:12px!important;margin:0!important;min-height:0!important;
  border:0!important;border-bottom:1px solid #4a4240!important
 }
@@ -317,12 +317,12 @@
 }
 .app .catalog .forge-formula-browser>.toolbar .filters button{flex:0 0 auto!important;font-size:11px!important;padding:6px 10px!important}
 .app .catalog .forge-formula-browser>.items{
- flex:1 1 auto!important;min-height:0!important;min-width:0!important;
+ display:block!important;flex:1 1 auto!important;min-height:0!important;min-width:0!important;
  width:100%!important;border:0!important;border-radius:0!important;
  overflow-y:auto!important;overscroll-behavior:contain
 }
 @media(min-width:1181px){
- .app .catalog .forge-formula-browser{max-height:calc(100dvh - 240px)!important;min-height:540px!important}
+ .app .catalog .forge-formula-browser{height:calc(100dvh - 240px)!important;max-height:none!important;min-height:520px!important}
  .app .catalog .forge-formula-browser>.items{max-height:none!important}
  .app .catalog .split{
   grid-template-columns:minmax(270px,.93fr) minmax(420px,1.55fr) minmax(285px,.9fr)!important
@@ -333,11 +333,11 @@
  .app .catalog .forge-formula-browser>.collection-switcher{padding:12px!important}
 }
 @media(min-width:681px) and (max-width:1180px){
- .app .catalog .forge-formula-browser{min-height:560px!important;max-height:calc(100dvh - 160px)!important}
+ .app .catalog .forge-formula-browser{height:calc(100dvh - 160px)!important;min-height:480px!important;max-height:none!important}
  .app .catalog .split{grid-template-columns:minmax(240px,.9fr) minmax(0,1.1fr)!important}
 }
 @media(max-width:680px){
- .app .catalog .forge-formula-browser{max-height:none!important;min-height:0!important;border:0!important}
+ .app .catalog .forge-formula-browser{height:auto!important;max-height:none!important;min-height:0!important;border:0!important}
  .app .catalog .forge-formula-browser>.mw-class-filter{max-width:100%!important;overflow-x:auto!important}
  .app .catalog .forge-formula-browser>.toolbar{padding:10px!important}
  .app .catalog .forge-formula-browser>.items{overflow-y:visible!important;max-height:none!important}
@@ -404,5 +404,77 @@
  #root .app .mw-core-page-header h1{
   font-size:29px!important;
   line-height:1.13!important;
+ }
+}
+
+/* Repair confirmed at 1728x900: a forced 540px minimum grid list was
+   shrinking all 49 recipe rows and overlapping filter controls. */
+#root .app .catalog .forge-formula-browser>.items{
+ display:block!important;min-height:0!important;height:auto!important;
+ overflow-y:auto!important;overflow-x:hidden!important;align-content:normal!important
+}
+#root .app .catalog .forge-formula-browser>.items>.result-meta{
+ position:sticky!important;top:0;z-index:3;min-height:44px!important
+}
+#root .app .catalog .forge-formula-browser>.items>article{
+ display:block!important;height:auto!important;min-height:90px!important;
+ overflow:visible!important;opacity:1!important;visibility:visible!important;transform:none!important
+}
+#root .app .catalog .forge-formula-browser>.items>article>.item-main{
+ display:flex!important;min-height:60px!important;height:auto!important;
+ padding:10px 12px!important;align-items:center!important
+}
+#root .app .catalog .forge-formula-browser>.items>article>.item-foot{
+ display:flex!important;min-height:30px!important;padding:4px 12px!important
+}
+#root .app .catalog .forge-formula-browser>.toolbar .filters{
+ min-height:36px!important;align-items:center!important
+}
+#root .app .catalog .forge-formula-browser>.toolbar .filters button{
+ min-height:32px!important;line-height:1.25!important;white-space:nowrap!important
+}
+#root .app .catalog .forge-formula-browser>.collection-switcher{
+ flex-shrink:0!important;padding-block:13px!important
+}
+#root .app .catalog .forge-formula-browser>.mw-class-filter{
+ flex-shrink:0!important;min-height:52px!important
+}
+#root .app .catalog .forge-formula-browser>.toolbar{flex-shrink:0!important}
+#root .app .catalog .forge-production-route ol{
+ display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,165px),1fr))!important;
+ align-items:stretch!important;gap:9px!important
+}
+#root .app .catalog .forge-production-route li{
+ flex:none!important;width:auto!important;min-width:0!important;min-height:70px!important;
+ padding:12px!important
+}
+@media(min-width:1181px){
+ #root .app .catalog .forge-work-order{
+  position:sticky!important;top:82px!important;height:calc(100dvh - 96px)!important;
+  max-height:none!important;overflow:hidden!important
+ }
+ #root .app .catalog .forge-work-order>.forge-order-heading{flex:0 0 auto!important}
+ #root .app .catalog .forge-work-order>.forge-order-body{
+  flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;
+  scrollbar-width:thin!important;overscroll-behavior:contain
+ }
+ #root .app .catalog .forge-work-order>.forge-order-actions{
+  flex:0 0 auto!important;margin:0!important;padding:12px 18px!important;
+  background:#16171e!important
+ }
+ #root .app .catalog .forge-work-order>.forge-order-actions button{
+  min-height:40px!important
+ }
+}
+@media(max-width:1180px){
+ #root .app .catalog .forge-work-order{height:auto!important;max-height:none!important;overflow:visible!important}
+ #root .app .catalog .forge-work-order>.forge-order-body{overflow:visible!important}
+}
+@media(max-width:680px){
+ #root .app .catalog .forge-formula-browser>.items{
+  max-height:none!important;overflow-y:visible!important
+ }
+ #root .app .catalog .forge-formula-browser>.toolbar .filters button{
+  min-height:40px!important
  }
 }
