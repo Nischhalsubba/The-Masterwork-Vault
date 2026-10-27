@@ -450,7 +450,7 @@
 }
 @media(min-width:1181px){
  #root .app .catalog .forge-work-order{
-  position:sticky!important;top:82px!important;height:calc(100dvh - 96px)!important;
+  position:sticky!important;top:82px!important;height:calc(100dvh - 260px)!important;
   max-height:none!important;overflow:hidden!important
  }
  #root .app .catalog .forge-work-order>.forge-order-heading{flex:0 0 auto!important}
