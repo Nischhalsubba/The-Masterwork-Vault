@@ -29,6 +29,7 @@ import type { CatalogData, ItemEntry, MaterialEntry } from './types'
 import { calculateCraftingPlan, expandSingleMaterial, isRecipePlannable } from './lib/crafting'
 import { CraftingWorkbench, ItemRecipeEvidence, MaterialsWorkbench } from './components/CraftingWorkbench'
 import { ClassIcon } from './components/ClassIcon'
+import { ForgeWorkOrder } from './components/ForgeWorkOrder'
 import { craftRequirementLabel, getCraftRequirement } from './lib/craftRequirement'
 
 const catalog = catalogJson as CatalogData
@@ -257,7 +258,7 @@ function MaterialDrilldown({ target, backLabel, onBack, onOpenCraftable }: { tar
   )
 }
 
-function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean; togglePlan: () => void }) {
+function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quantity: number; inPlan: boolean; togglePlan: () => void }) {
   const [variant, setVariant] = useState(Math.max(0, item.variants.length - 1))
   const [mode, setMode] = useState<'direct' | 'scratch'>('direct')
   const [materialTrail, setMaterialTrail] = useState<MaterialTarget[]>([])
@@ -295,7 +296,7 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
   }, [statsOpen])
 
   const hasRecipe = item.recipeKnown !== false && item.materials.length > 0
-  const calc = useMemo(() => hasRecipe ? calculateCraftingPlan([{ item, quantity: 1 }], catalog.recipes) : { direct: [], raw: [], unresolved: [], batches: [] }, [item, hasRecipe])
+  const calc = useMemo(() => hasRecipe ? calculateCraftingPlan([{ item, quantity }], catalog.recipes) : { direct: [], raw: [], unresolved: [], batches: [] }, [item, hasRecipe, quantity])
   const v = item.variants[variant]
   const stats = v?.stats || item.stats || {}
   const itemLevel = v?.itemLevel || item.itemLevel
@@ -355,6 +356,7 @@ function Detail({ item, inPlan, togglePlan }: { item: ItemEntry; inPlan: boolean
         </div>
       ) : (
         <>
+          <section className="forge-production-route" aria-label="Production route"><div className="forge-order-section-title"><span>PRODUCTION ROUTE</span><small>Recorded recipe dependencies</small></div><ol><li><strong>{item.name}</strong><small>Output ×{quantity}</small></li>{calc.batches.slice(0, 6).map((batch) => <li key={batch.name}><strong>{batch.name}</strong><small>{batch.crafts} crafts · yield {batch.produced}</small></li>)}</ol>{calc.batches.length > 6 && <p>{calc.batches.length - 6} more components in the full plan</p>}</section>
           <div className="section-head"><div><small>RAW-MATERIAL COST</small><h3>{mode === 'direct' ? 'Direct recipe' : 'From-scratch requirements'}</h3></div><div className="seg"><button className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button><button className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button></div></div>
           <Recipe rows={mode === 'direct' ? calc.direct : calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined} />
           {mode === 'scratch' && calc.unresolved.length > 0 && <div className="callout data-caveat"><CircleHelp size={18} /><div><strong>From-scratch total is incomplete</strong><p>The following intermediate yields are unresolved, so the Vault stops rather than assuming one output per craft: {calc.unresolved.map((row) => `${row.name} ×${row.required}`).join(' · ')}.</p></div></div>}
@@ -439,6 +441,7 @@ export default function App() {
   const [q, setQ] = useState(initialCatalogParams.get('q') || '')
   const initial = catalog.items.find((i) => i.campaign === 'Sharandar' && i.recipeKnown !== false)?.id || catalog.items[0].id
   const [id, setId] = useState(initial)
+  const [previewQuantity, setPreviewQuantity] = useState(1)
   const [plan, setPlan] = useState<Map<string, number>>(new Map())
   const [materialFocus, setMaterialFocus] = useState<string | undefined>()
 
@@ -520,6 +523,7 @@ export default function App() {
   }, [collectionItems, cls, kind, deferredQ])
 
   const item = filtered.find((candidate) => candidate.id === id) || filtered[0]
+  useEffect(() => setPreviewQuantity(1), [item?.id])
 
   useEffect(() => {
     const routeHasItem = window.location.pathname.split('/').filter(Boolean).length >= 3
@@ -571,6 +575,13 @@ export default function App() {
     setPlan(next)
   }
 
+  const addPreviewToPlan = () => {
+    if (!item || item.recipeKnown === false || !item.materials.length) return
+    const next = new Map(plan)
+    next.set(item.id, previewQuantity)
+    setPlan(next)
+  }
+
   const openCatalogItem = (target: ItemEntry) => {
     setCampaign((target.campaign as CampaignFilter) || 'All')
     setCls('All')
@@ -596,9 +607,9 @@ export default function App() {
           <>
             <section className="mw-core-page-header">
               <div>
-                <small>CATALOG</small>
-                <h1>Find the craftable you actually need.</h1>
-                <p>Filter by collection, class and type, then inspect the recipe without losing your place.</p>
+                <small>MASTERWORK / THE FORGE</small>
+                <h1>The forge <em>workbench.</em></h1>
+                <p>From raw materials to finished work. Discover recorded recipes, trace components and build a practical crafting plan.</p>
               </div>
               <div className="mw-core-page-actions">
                 <button type="button" aria-label="Compare items" onClick={() => document.dispatchEvent(new CustomEvent('masterwork:open-compare'))}><BarChart3 size={15} aria-hidden="true" />Compare items</button>
@@ -640,7 +651,8 @@ export default function App() {
                     </article>
                   })}
                 </section>
-                {item ? <Detail item={item} inPlan={plan.has(item.id)} togglePlan={() => toggle(item)} /> : <section className="detail panel catalog-empty-detail" aria-hidden="true" />}
+                {item ? <Detail item={item} quantity={previewQuantity} inPlan={plan.has(item.id)} togglePlan={() => toggle(item)} /> : <section className="detail panel catalog-empty-detail" aria-hidden="true" />}
+                {item ? <ForgeWorkOrder item={item} quantity={previewQuantity} onQuantityChange={setPreviewQuantity} inPlan={plan.has(item.id)} onAddToPlan={addPreviewToPlan} onOpenPlan={() => requestAppRoute({ view: 'plan' })} /> : <aside className="forge-work-order forge-work-order-empty" aria-hidden="true" />}
               </div>
             </div>
           </div>
