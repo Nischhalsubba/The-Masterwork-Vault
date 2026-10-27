@@ -12,7 +12,7 @@ test('Forge V4 catalog exposes the real three-pane workbench and dark surfaces',
   await expect(page.locator('.catalog .item-foot').first()).toHaveCSS('background-color', 'rgb(23, 25, 32)')
   const panes = await page.locator('.catalog .split').evaluate((node) => {
     const style = getComputedStyle(node)
-    const children = [...node.children].map((child) => child.getBoundingClientRect())
+    const children = [node.querySelector('.items'), node.querySelector('.detail'), node.querySelector('.forge-work-order')].map((child) => child!.getBoundingClientRect())
     return { columns: style.gridTemplateColumns.split(' ').length, x: children.map((box) => box.x) }
   })
   expect(panes.columns).toBe(3)
@@ -26,9 +26,9 @@ test('Forge V4 work order recalculates quantity and keeps existing source catalo
   await page.goto('/catalog')
   const order = page.locator('.forge-work-order')
   await expect(order.getByRole('button', { name: 'Add to crafting plan' })).toBeEnabled()
-  await expect(order.getByLabel('Craft quantity')).toHaveText('1')
+  await expect(order.locator('output[aria-label="Craft quantity"]')).toHaveText('1')
   await order.getByRole('button', { name: 'Increase craft quantity' }).click()
-  await expect(order.getByLabel('Craft quantity')).toHaveText('2')
+  await expect(order.locator('output[aria-label="Craft quantity"]')).toHaveText('2')
   await order.getByRole('button', { name: 'Add to crafting plan' }).click()
   await expect(order.getByRole('button', { name: 'Update crafting plan' })).toBeVisible()
   await order.getByRole('button', { name: 'Open complete plan' }).click()
