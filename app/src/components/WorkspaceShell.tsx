@@ -178,6 +178,27 @@ export function WorkspaceShell() {
 
   return (
     <>
+      <header className="forge-desktop-topbar">
+        <a href="/catalog" className="forge-desktop-brand" aria-label="The Masterwork Vault home">
+          <img src="/assets/brand/masterwork-vault-mark.svg" alt="" />
+          <span><strong>MASTERWORK</strong><small>NEVERWINTER CRAFTING COMPANION</small></span>
+        </a>
+        <nav className="forge-desktop-nav" aria-label="Masterwork primary navigation">
+          {workspaceButtons.slice(0, 3)}
+          <a href="/journey" className={activeView === 'journey' ? 'active' : ''} aria-current={activeView === 'journey' ? 'page' : undefined}>Progression</a>
+          {workspaceButtons.slice(3)}
+        </nav>
+        <details className="forge-desktop-tools">
+          <summary>More tools <Menu size={14} aria-hidden="true"/></summary>
+          <div className="forge-desktop-tools-panel">
+            {tools.map(({ view, label, detail, Icon }) => (
+              <a href={'/' + view} key={view} aria-current={activeView === view ? 'page' : undefined}>
+                <Icon size={16} aria-hidden="true"/><span><strong>{label}</strong><small>{detail}</small></span>
+              </a>
+            ))}
+          </div>
+        </details>
+      </header>
       <header className={`mobile-v4-topbar ${detailOpen ? 'detail-mode' : ''}`}>
         {detailOpen ? (
           <>
