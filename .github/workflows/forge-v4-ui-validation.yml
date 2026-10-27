@@ -37,7 +37,7 @@ jobs:
       - name: Install Playwright Chromium
         run: npx --no-install playwright install --with-deps chromium
       - name: Validate V4 layout and phone navigation first
-        run: npx --no-install playwright test tests/forge-v4-structure.spec.ts tests/phone-header-brand.spec.ts --workers=2 --reporter=list
+        run: npx --no-install playwright test tests/forge-v4-structure.spec.ts tests/forge-v4-catalog-visibility.spec.ts tests/phone-header-brand.spec.ts --workers=2 --reporter=list
       - name: Validate all responsive flows and crafting regressions
         run: npx --no-install playwright test --workers=2 --global-timeout=480000 --reporter=list
       - name: Upload V4 browser evidence
@@ -47,6 +47,7 @@ jobs:
           name: forge-v4-layout-evidence
           path: |
             app/test-results/**/forge-workbench-*.png
+            app/test-results/**/forge-catalog-readable-*.png
             app/test-results/**/error-context.md
           retention-days: 2
           if-no-files-found: warn
