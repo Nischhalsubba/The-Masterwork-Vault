@@ -15,9 +15,10 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       expect(box!.height).toBeGreaterThanOrEqual(44)
       if (width <= 680) expect(box!.y + box!.height).toBeLessThanOrEqual(72)
       else {
-        const rail = await page.getByRole('complementary', { name: 'Workspace navigation' }).boundingBox()
-        expect(box!.x).toBeGreaterThanOrEqual(rail!.x)
-        expect(box!.x + box!.width).toBeLessThanOrEqual(rail!.x + rail!.width)
+        const bar = await page.locator('.forge-desktop-topbar').boundingBox()
+        expect(bar).not.toBeNull()
+        expect(box!.y).toBeGreaterThanOrEqual(bar!.y)
+        expect(box!.y + box!.height).toBeLessThanOrEqual(bar!.y + bar!.height + 2)
       }
     }
     const targets = page.locator('.mobile-v4-topbar a, .workspace-tools-menu > summary, .ux-density-menu > summary, .mw-command-launcher, .journey-page-topbar a').filter({ visible: true })
