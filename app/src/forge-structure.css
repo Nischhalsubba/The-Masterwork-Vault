@@ -536,3 +536,30 @@
 #root .mw-class-filter .mw-class-icon img{
  position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover
 }
+
+/* Inspector geometry: prevent nested grid/min-content from pushing
+   the action dock beyond the initial visible window. */
+@media(min-width:1181px){
+ #root .app .catalog .forge-work-order{
+  display:flex!important;flex-direction:column!important;
+  height:calc(100dvh - 340px)!important;
+  max-height:calc(100dvh - 340px)!important;
+  min-height:0!important;overflow:hidden!important;
+  align-self:start!important
+ }
+ #root .app .catalog .forge-work-order>.forge-order-body{
+  display:grid!important;
+  flex:1 1 0!important;
+  height:0!important;min-height:0!important;
+  overflow-x:hidden!important;overflow-y:auto!important
+ }
+ #root .app .catalog .forge-work-order>.forge-order-actions{
+  display:grid!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  z-index:2!important;
+  padding:10px 16px!important;
+  box-shadow:0 -8px 22px #0005!important
+ }
+ #root .app .catalog .forge-work-order>.forge-order-actions p{display:none!important}
+}
