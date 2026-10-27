@@ -278,6 +278,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
     setVariant(Math.max(0, item.variants.length - 1))
     setMaterialTrail([])
     setStatsOpen(false)
+    setMode('direct')
   }, [item.id])
 
   useEffect(() => {
@@ -355,8 +356,18 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
         </div>
       ) : (
         <>
-          <section className="forge-production-route" aria-label="Production route"><div className="forge-order-section-title"><span>PRODUCTION ROUTE</span><small>Recorded recipe dependencies</small></div><ol><li><strong>{item.name}</strong><small>Output ×{quantity}</small></li>{calc.batches.slice(0, 6).map((batch) => <li key={batch.name}><strong>{batch.name}</strong><small>{batch.crafts} crafts · yield {batch.produced}</small></li>)}</ol>{calc.batches.length > 6 && <p>{calc.batches.length - 6} more components in the full plan</p>}</section>
-          <div className="section-head"><div><small>RAW-MATERIAL COST</small><h3>{mode === 'direct' ? 'Direct recipe' : 'From-scratch requirements'}</h3></div><div className="seg"><button className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button><button className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button></div></div>
+          {calc.batches.length > 0 ? (
+            <section className="forge-production-route forge-production-multi" aria-label="Production route">
+              <div className="forge-order-section-title"><span>Crafting sequence</span><small>{calc.batches.length} intermediate component{calc.batches.length === 1 ? "" : "s"}</small></div>
+              <ol>
+                {calc.batches.map((batch) => <li key={batch.name}><strong>{batch.name}</strong><small>{batch.crafts} craft{batch.crafts === 1 ? "" : "s"} · {batch.produced} produced{batch.leftover > 0 ? ` · ${batch.leftover} surplus` : ""}</small></li>)}
+                <li className="forge-production-final"><strong>{item.name}</strong><small>Final output ×{quantity}</small></li>
+              </ol>
+            </section>
+          ) : (
+            <div className="forge-production-simple" role="status"><Hammer size={16} aria-hidden="true" /><div><strong>Single-stage recipe</strong><span>Gather the ingredients below to craft {quantity === 1 ? "this item" : `×${quantity}`}.</span></div></div>
+          )}
+          <div className="section-head"><div><small>RECIPE MATERIALS</small><h3>{mode === 'direct' ? 'Ingredients' : 'Raw materials from scratch'}</h3></div>{calc.batches.length > 0 && <div className="seg" role="group" aria-label="Ingredient expansion"><button aria-pressed={mode === 'direct'} className={mode === 'direct' ? 'active' : ''} onClick={() => setMode('direct')}>Direct</button><button aria-pressed={mode === 'scratch'} className={mode === 'scratch' ? 'active' : ''} onClick={() => setMode('scratch')}>From scratch</button></div>}</div>
           <Recipe rows={mode === 'direct' ? calc.direct : calc.raw} onOpenCraftable={mode === 'direct' ? openCraftable : undefined} />
           {mode === 'scratch' && calc.unresolved.length > 0 && <div className="callout data-caveat"><CircleHelp size={18} /><div><strong>From-scratch total is incomplete</strong><p>The following intermediate yields are unresolved, so the Vault stops rather than assuming one output per craft: {calc.unresolved.map((row) => `${row.name} ×${row.required}`).join(' · ')}.</p></div></div>}
           {mode === 'scratch' && calc.batches.length > 0 && <><h3 className="subhead">Craft batches & leftovers</h3><div className="batches">{calc.batches.map((b) => <div key={b.name}><strong>{b.name}</strong><span>{b.crafts} craft{b.crafts === 1 ? '' : 's'}</span><small>need {b.needed} · produce {b.produced}{b.leftover ? ` · ${b.leftover} leftover` : ''}</small></div>)}</div></>}
@@ -637,7 +648,7 @@ export default function App() {
             </section>
 
               <div className="toolbar panel">
-                <label className="search"><Search size={17} /><input aria-label="Search catalog" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search item, material, profession…" /></label>
+                <label className="search"><Search size={17} /><input aria-label="Search catalog" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search item, material, profession…" />{q && <button type="button" className="forge-search-clear" aria-label="Clear catalog search" onClick={() => setQ('')}><X size={15} aria-hidden="true" /></button>}</label>
                 <div className="filters">{availableKinds.map((value) => <button className={kind === value ? 'active' : ''} onClick={() => setKind(value)} key={value}>{value}</button>)}</div>
               </div>
 
@@ -651,7 +662,7 @@ export default function App() {
                         <Icon src={entry.icon} alt={entry.name} />
                         <div className="grow"><small><IconFor k={entry.kind} />{entry.slot || entry.kind}</small><strong>{entry.name}</strong><div className="mw-item-meta-line"><span>{entry.classes.includes('All') ? 'All classes' : entry.classes.length ? entry.classes.join(' · ') : 'Class not captured'}</span><span className={`mw-craft-level ${getCraftRequirement(entry).professionLevel == null ? '' : 'verified'}`}><Hammer size={11} aria-hidden="true" />{craftRequirementLabel(entry)}</span></div></div>
                       </button>
-                      <div className="item-foot"><div className="item-source-line"><Source value={entry.sourceStatus} /><CampaignBadge value={entry.campaign} /></div>{canPlan ? <button onClick={() => toggle(entry)}>{plan.has(entry.id) ? 'In plan' : '+ Plan'}</button> : <span className="recipe-needed">Recipe needed</span>}</div>
+                      <div className="item-foot"><div className="item-source-line"><span title={entry.sourceStatus}>{entry.campaign || 'Unknown collection'}</span></div>{canPlan ? <button aria-label={plan.has(entry.id) ? `Remove ${entry.name} from plan` : `Add ${entry.name} to plan`} onClick={() => toggle(entry)}>{plan.has(entry.id) ? 'In plan' : '+ Plan'}</button> : <span className="recipe-needed">Recipe needed</span>}</div>
                     </article>
                   })}
                 </section>
