@@ -31,6 +31,8 @@ import './utility-placement.css'
 import './workspace-shell.css'
 import './design/tokens.css'
 import './design-system.css'
+import './forge-v4.css'
+import { ForgeMotion } from './components/ForgeMotion'
 
 const App = lazy(() => import('./App'))
 const WorkspaceShell = lazy(() => import('./components/WorkspaceShell').then((module) => ({ default: module.WorkspaceShell })))
@@ -164,6 +166,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary name="The Masterwork Vault">
       <Suspense fallback={<PageLoading />}>
         <UXSystem />
+        <ForgeMotion />
         <WorkspaceShell />
         <RouteContent />
         <DeveloperAttribution />
