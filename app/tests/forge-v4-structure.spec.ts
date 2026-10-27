@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('Forge V4 catalog exposes the real three-pane workbench and dark surfaces', async ({ page }) => {
+test('Forge V4 catalog exposes the real three-pane workbench and dark surfaces', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1600, height: 940 })
   await page.goto('/catalog')
   await expect(page.getByRole('heading', { name: /The forge workbench/i })).toBeVisible()
@@ -18,6 +18,7 @@ test('Forge V4 catalog exposes the real three-pane workbench and dark surfaces',
   expect(panes.columns).toBe(3)
   expect(panes.x[0]).toBeLessThan(panes.x[1])
   expect(panes.x[1]).toBeLessThan(panes.x[2])
+  await page.screenshot({ path: testInfo.outputPath('forge-workbench-desktop.png'), fullPage: true })
 })
 
 test('Forge V4 work order recalculates quantity and keeps existing source catalog intact', async ({ page }) => {
@@ -34,7 +35,7 @@ test('Forge V4 work order recalculates quantity and keeps existing source catalo
   await expect(page.getByRole('main')).toContainText('Plan')
 })
 
-test('Forge V4 mobile retains original navigation and dark list surfaces', async ({ page }) => {
+test('Forge V4 mobile retains original navigation and dark list surfaces', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/catalog')
   await expect(page.locator('.forge-desktop-topbar')).toBeHidden()
@@ -43,4 +44,5 @@ test('Forge V4 mobile retains original navigation and dark list surfaces', async
   await expect(page.locator('.catalog .item-foot').first()).toHaveCSS('background-color', 'rgb(23, 25, 32)')
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(1)
+  await page.screenshot({ path: testInfo.outputPath('forge-workbench-mobile.png'), fullPage: true })
 })
