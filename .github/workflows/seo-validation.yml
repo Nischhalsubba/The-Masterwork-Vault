@@ -21,8 +21,8 @@ jobs:
         with:
           node-version-file: app/.node-version
       - run: npm ci --no-fund
-      - name: Verify field Core Web Vitals error handling without API requests
-        run: node --test scripts/tests/field-cwv.test.mjs
+      - name: Verify field Core Web Vitals and external reference classifications
+        run: node --test scripts/tests/field-cwv.test.mjs scripts/tests/reference-audit.test.mjs
       - name: Build content-backed HTML reference pages
         run: npm run build
       - name: Verify sitemap, canonicals and JSON-LD in generated HTML
@@ -33,3 +33,14 @@ jobs:
           test -f dist/guides/recipes/index.html
           test -f dist/guides/materials/index.html
           ! grep -q '<script src=' dist/guides/index.html
+      - name: Audit source link HTTP reachability without conflating bot blocks with broken links
+        continue-on-error: true
+        run: node scripts/audit-external-references.mjs
+      - name: Upload external source link reachability report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: masterwork-external-reference-audit
+          path: app/link-audit-results/external-references.json
+          retention-days: 7
+          if-no-files-found: warn
