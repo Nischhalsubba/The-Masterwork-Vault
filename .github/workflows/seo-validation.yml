@@ -21,6 +21,8 @@ jobs:
         with:
           node-version-file: app/.node-version
       - run: npm ci --no-fund
+      - name: Verify field CrUX and external reference classifications
+        run: node --test scripts/tests/field-cwv.test.mjs scripts/tests/reference-audit.test.mjs
       - name: Build content-backed HTML reference pages
         run: npm run build
       - name: Verify sitemap, canonicals and JSON-LD in generated HTML
@@ -31,3 +33,14 @@ jobs:
           test -f dist/guides/recipes/index.html
           test -f dist/guides/materials/index.html
           ! grep -q '<script src=' dist/guides/index.html
+      - name: Audit outbound references without conflating bot blocks with broken links
+        continue-on-error: true
+        run: node scripts/audit-external-references.mjs
+      - name: Upload page-mapped external source reachability report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: masterwork-external-reference-audit
+          path: app/link-audit-results/external-references.json
+          retention-days: 7
+          if-no-files-found: warn

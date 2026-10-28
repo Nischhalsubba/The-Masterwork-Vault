@@ -42,3 +42,23 @@ This project deliberately does not silently add Google Analytics tracking. If GA
 - https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics
 - https://developers.google.com/search/docs/appearance/structured-data/breadcrumb
 - https://developers.google.com/search/docs/monitor-debug/search-console-start
+
+## Verification work following PR #65 (October 28, 2026)
+
+### Mobile performance follow-up
+
+Issue [#66](https://github.com/Nischhalsubba/The-Masterwork-Vault/issues/66) tracks the mobile catalog bottleneck. The original main-commit Lighthouse result was Performance 75, LCP 4,115 ms, CLS 0.000 and TBT 252 ms. The catalog's mobile LCP element was the first explanatory paragraph. Tests for optional UI module loading and Lighthouse before/after measurements are release gates for this follow-up; do not assert a faster result until a fresh lab run exists.
+
+### Field Core Web Vitals data classification
+
+`node scripts/audit-field-cwv.mjs` queries public PageSpeed Insights for the catalog and guide index on mobile and desktop. The optional `PAGESPEED_API_KEY` must be provided only through a secure CI/hosting environment, never committed or printed. The request attempts bounded retries for HTTP 429 and transient server errors.
+
+The active PR #69 audit entry point distinguishes `available`, `rate-limited`, `insufficient-data`, `access-denied`, `http-error`, `timeout`, and `network-error`. The separate `scripts/lib/page-speed-field.mjs` helper retains its own `field-data` and `insufficient-public-field-data` status values for reusable queries; do not conflate their output schemas. It records whether available figures are URL-level or origin-level and, where present, the PageSpeed analysis timestamp. Raw PSI CLS percentile values are in score × 100 units and must be normalized before comparing with the 0.1 CLS threshold. The timestamps and observation period of field data must not be conflated with Lighthouse lab runs.
+
+### External source-reference reachability
+
+`node scripts/audit-external-references.mjs` scans the generated public guides and writes a deduplicated, page-mapped report to `link-audit-results/external-references.json`. The SEO CI workflow uploads that file as an artifact. HTTP 403/429/503, bot challenges and network failures remain inconclusive, not confirmed broken links. HTTP 200/redirect merely establishes reachability, **not** that the linked Neverwinter information still supports the specific acquisition claim. Inspect affected source pages manually before correcting source records.
+
+### Release and account-access gates
+
+Run the full Playwright regression and SEO/security workflows before merging performance changes; compare mobile and desktop Lighthouse runs under matching conditions. The deployed app must be rechecked after release. Search Console property verification, sitemap submission and indexing reports remain owner-access tasks unless an authorized connector is available. Do not claim that 188 crawlable guide URLs are 188 Google-indexed pages.

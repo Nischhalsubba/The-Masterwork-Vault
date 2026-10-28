@@ -1,7 +1,7 @@
 import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { CommandPalette } from './components/CommandPalette'
+
 import { UpdateBanner } from './components/UpdateBanner'
 import { UXSystem } from './components/UXSystem'
 import './styles.css'
@@ -39,6 +39,8 @@ import './forge-phase-bc.css'
 import './mobile-acquisition.css'
 import './seo-links.css'
 import { ForgeMotion } from './components/ForgeMotion'
+import { CommandPalette } from './components/CommandPalette'
+
 
 const App = lazy(() => import('./App'))
 const WorkspaceShell = lazy(() => import('./components/WorkspaceShell').then((module) => ({ default: module.WorkspaceShell })))
@@ -180,7 +182,7 @@ function RouteContent() {
   return <>
     <App />
     <RouteSync />
-    <CompareWorkbench />
+    <Suspense fallback={null}><CompareWorkbench /></Suspense>
   </>
 }
 
@@ -194,7 +196,7 @@ createRoot(document.getElementById('root')!).render(
         <WorkspaceShell />
         <RouteContent />
         <DeveloperAttribution />
-        <QualitySystem />
+        <Suspense fallback={null}><QualitySystem /></Suspense>
         <CommandPalette />
         <UpdateBanner />
       </Suspense>
