@@ -26,7 +26,11 @@ test('Reference uses the full content width instead of three outer columns', asy
   expect(heroBox!.height).toBeLessThan(260)
   expect(first!.y).toBeGreaterThanOrEqual(heroBox!.y + heroBox!.height - 2)
   expect(second!.x).toBeGreaterThan(first!.x + first!.width - 2)
-  expect(third!.x).toBeGreaterThan(second!.x + second!.width - 2)
+  // The provenance/collections card intentionally spans the second row;
+  // only the Workshop and Artisan cards share the first row.
+  expect(Math.abs(third!.x - first!.x)).toBeLessThan(3)
+  expect(third!.y).toBeGreaterThanOrEqual(Math.max(first!.y + first!.height, second!.y + second!.height) - 2)
+  expect(third!.width).toBeGreaterThan(first!.width + second!.width - 4)
   for (const card of [first, second, third]) expect(card!.width).toBeGreaterThan(250)
   await page.screenshot({ path: testInfo.outputPath('workspace-reference-desktop.png'), fullPage: false })
   await page.getByRole('tab', { name: 'Sources' }).click()
@@ -94,7 +98,7 @@ test('Workbench inspector retains legible data and usable quantity targets', asy
   expect(box!.height).toBeGreaterThanOrEqual(40)
   const size = await order.locator('.forge-order-stat').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize))
   expect(size).toBeGreaterThanOrEqual(13)
-  const quantity = order.getByLabel('Craft quantity')
+  const quantity = order.locator('.forge-quantity-control output')
   await expect(quantity).toHaveText('1')
   await button.click()
   await expect(quantity).toHaveText('2')
