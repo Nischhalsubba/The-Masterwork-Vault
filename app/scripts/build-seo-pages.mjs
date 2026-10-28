@@ -150,6 +150,10 @@ if(verification && /^[a-zA-Z0-9_-]{8,150}$/.test(verification)){
   await walk(out)
 }
 
+// A real 404 status is better than returning a 200 app shell for unknown URLs.
+// Netlify's last rewrite will serve this page for invalid guide or app routes.
+await writeFile(path.join(out,'404.html'),'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found | The Masterwork Vault</title><link rel="stylesheet" href="/guides/guide.css"></head><body><main id="main"><div class="eyebrow">THE MASTERWORK VAULT</div><h1>Page not found</h1><p>The requested guide or route does not exist.</p><p><a class="action" href="/guides/">Browse the crafting guides</a></p><p><a href="/catalog">Return to the workbench</a></p></main></body></html>')
+
 const unique=[...new Set(index)].sort()
 await writeFile(path.join(out,'sitemap.xml'),'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+unique.map(p=>'  <url><loc>'+esc(url(p))+'</loc></url>').join('\n')+'\n</urlset>\n')
 console.log('SEO output: '+itemLinks.length+' recipes, '+materialLinks.length+' materials, '+unique.length+' indexed URLs')
