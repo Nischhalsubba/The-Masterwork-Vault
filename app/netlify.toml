@@ -54,3 +54,20 @@
   [headers.values]
     Content-Type = "application/xml; charset=utf-8"
     Cache-Control = "public, max-age=3600"
+
+# Interactive deep links use the app; the indexable, substantive recipe reference
+# lives at /guides/recipes/... instead of duplicating the JS app shell.
+[[headers]]
+  for = "/catalog/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, follow"
+
+[[headers]]
+  for = "/guides/*"
+  [headers.values]
+    Cache-Control = "public, max-age=600, stale-while-revalidate=3600"
+
+[[headers]]
+  for = "/guides/guide.css"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
