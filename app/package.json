@@ -15,7 +15,7 @@
     "verify:recipes": "node scripts/verify-material-recipes.mjs",
     "verify:knowledge": "node scripts/verify-knowledge.mjs",
     "test:domain": "node --experimental-strip-types scripts/verify-domain-math.mjs",
-    "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain && npm run verify:journey && npm run verify:reference",
+    "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain && npm run verify:journey && npm run verify:reference && npm run test:field-vitals",
     "build": "npm run verify:release && tsc -b && vite build && node scripts/build-seo-pages.mjs",
     "preview": "vite preview",
     "test:e2e": "npm run build && playwright test",
@@ -24,7 +24,8 @@
     "verify:journey": "node --experimental-strip-types scripts/verify-journey.mjs",
     "verify:reference": "node --experimental-strip-types scripts/verify-profession-reference.mjs",
     "verify:seo": "node scripts/verify-seo-pages.mjs && npm run audit:seo-links",
-    "audit:seo-links": "node scripts/audit-seo-links.mjs"
+    "audit:seo-links": "node scripts/audit-seo-links.mjs",
+    "test:field-vitals": "node --test scripts/audit-field-cwv.test.mjs"
   },
   "dependencies": {
     "gsap": "3.15.0",
