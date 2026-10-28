@@ -53,7 +53,7 @@ Issue [#66](https://github.com/Nischhalsubba/The-Masterwork-Vault/issues/66) tra
 
 `node scripts/audit-field-cwv.mjs` queries public PageSpeed Insights for the catalog and guide index on mobile and desktop. The optional `PAGESPEED_API_KEY` must be provided only through a secure CI/hosting environment, never committed or printed. The request attempts bounded retries for HTTP 429 and transient server errors.
 
-The output distinguishes `field-data`, `rate-limited`, `insufficient-public-field-data`, `access-denied`, and `unavailable`. It records whether available figures are URL-level or origin-level and, where present, the PageSpeed analysis timestamp. Raw PSI CLS percentile values are in score × 100 units and must be normalized before comparing with the 0.1 CLS threshold. The timestamps and observation period of field data must not be conflated with Lighthouse lab runs.
+The active PR #69 audit entry point distinguishes `available`, `rate-limited`, `insufficient-data`, `access-denied`, `http-error`, `timeout`, and `network-error`. The separate `scripts/lib/page-speed-field.mjs` helper retains its own `field-data` and `insufficient-public-field-data` status values for reusable queries; do not conflate their output schemas. It records whether available figures are URL-level or origin-level and, where present, the PageSpeed analysis timestamp. Raw PSI CLS percentile values are in score × 100 units and must be normalized before comparing with the 0.1 CLS threshold. The timestamps and observation period of field data must not be conflated with Lighthouse lab runs.
 
 ### External source-reference reachability
 
