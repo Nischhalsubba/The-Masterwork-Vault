@@ -61,12 +61,16 @@
 }
 #root .app .workshop-reference > .reference-grid {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   align-items: start !important;
   gap: 16px !important;
   width: 100% !important;
   min-width: 0 !important;
   margin: 0 !important;
+}
+/* Keep the collections provenance card on its own full-width row. */
+#root .app .workshop-reference > .reference-grid > .source-pack-card {
+  grid-column: 1 / -1 !important;
 }
 #root .app .workshop-reference > .reference-grid:has(> .panel:nth-child(4)) {
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
