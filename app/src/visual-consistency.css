@@ -300,3 +300,32 @@
     padding: 18px !important;
   }
 }
+
+/* The Reference page's "Data health" link looked disabled in the desktop
+   capture even though it is actionable. Give it a real control affordance. */
+#root .app .page:has(> .workshop-reference) .mw-core-page-header > a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  align-self: center !important;
+  min-height: 42px !important;
+  padding: 9px 14px !important;
+  border: 1px solid #77604b !important;
+  border-radius: 4px !important;
+  background: #27232a !important;
+  color: #e8cb98 !important;
+  opacity: 1 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  text-decoration: none !important;
+}
+#root .app .page:has(> .workshop-reference) .mw-core-page-header > a:hover {
+  border-color: #d9b77a !important;
+  background: #352a2d !important;
+  color: #fff0d0 !important;
+}
+#root .app .page:has(> .workshop-reference) .mw-core-page-header > a:focus-visible {
+  outline: 2px solid #e8cb98 !important;
+  outline-offset: 3px;
+}
