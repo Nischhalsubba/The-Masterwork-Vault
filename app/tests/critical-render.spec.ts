@@ -14,7 +14,7 @@ test('catalog content renders while optional comparison module is still loading'
   try {
     await page.goto('/catalog/', { waitUntil: 'domcontentloaded' })
     await expect(page.getByText('Find what you need to craft and where to get every material.')).toBeVisible({ timeout: 5000 })
-    expect(held, 'the optional CompareWorkbench module should be requested').toBe(true)
+    await expect.poll(() => held, { message: 'optional comparison chunk should still load' }).toBe(true)
   } finally {
     release?.()
   }
