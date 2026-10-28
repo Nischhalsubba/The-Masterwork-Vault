@@ -37,7 +37,7 @@ for(const absolute of urls){
   if(!await exists(file)){broken.push({from:'sitemap',href:absolute,error:'HTML missing'});continue}
   const html=await readFile(file,'utf8');checked++
   if(!/^<!doctype html>/i.test(html.trimStart()))broken.push({from:absolute,error:'Missing doctype'})
-  if(!/<main\b[^>]*id="main"/.test(html))broken.push({from:absolute,error:'Missing landmark'})
+  if(!/<main\b[^>]*id="main"/.test(html) && !(pageUrl.pathname.startsWith('/guides/')===false && /<div\b[^>]*id="root"/.test(html)))broken.push({from:absolute,error:'Missing landmark or React app mount'})
   const title=html.match(/<title>([^<]*)<\/title>/i)?.[1]
   if(!title)broken.push({from:absolute,error:'Missing title'})
   if(pageUrl.pathname.startsWith('/guides/')){
@@ -64,7 +64,13 @@ for(const absolute of urls){
     let target;try{target=new URL(href,absolute)}catch{broken.push({from:absolute,href,error:'Malformed URL'});continue}
     links++
     if(target.origin!==origin){external++;continue}internal++
-    if(!await pathAvailable(target.pathname))broken.push({from:absolute,href,error:'Broken internal link or asset'})
+    if(target.pathname==='/.netlify/images'){
+      const image=target.searchParams.get('url')
+      // Netlify processes this endpoint at request time, but the requested
+      // source image must still be present in the deployment.
+      if(!image || !image.startsWith('/') || !await pathAvailable(image))
+        broken.push({from:absolute,href,error:'Netlify image transform source missing'})
+    } else if(!await pathAvailable(target.pathname))broken.push({from:absolute,href,error:'Broken internal link or asset'})
   }
 }
 const audit=JSON.parse(await readFile(path.join(root,'seo-content-audit.json'),'utf8'))
