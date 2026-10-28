@@ -7,6 +7,14 @@ test('Reference uses the full content width instead of three outer columns', asy
   const hero = reference.locator('.reference-hero')
   const cards = reference.locator('.reference-grid > .panel')
   await expect(hero.getByRole('heading', { name: 'Crafting context beyond the recipe tree' })).toBeVisible()
+  const dataHealth = page.getByRole('link', { name: 'Data health' })
+  await expect(dataHealth).toBeVisible()
+  const actionStyle = await dataHealth.evaluate(el => {
+    const s = getComputedStyle(el)
+    return { opacity: Number(s.opacity), minHeight: parseFloat(s.minHeight), color: s.color }
+  })
+  expect(actionStyle.opacity).toBe(1)
+  expect(actionStyle.minHeight).toBeGreaterThanOrEqual(40)
   await expect(cards).toHaveCount(3)
   const [referenceBox, heroBox, first, second, third] = await Promise.all([
     reference.boundingBox(), hero.boundingBox(),
