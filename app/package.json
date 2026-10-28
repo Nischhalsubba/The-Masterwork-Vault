@@ -23,7 +23,8 @@
     "test:quality": "npm run test:e2e",
     "verify:journey": "node --experimental-strip-types scripts/verify-journey.mjs",
     "verify:reference": "node --experimental-strip-types scripts/verify-profession-reference.mjs",
-    "verify:seo": "node scripts/verify-seo-pages.mjs"
+    "verify:seo": "node scripts/verify-seo-pages.mjs && npm run audit:seo-links",
+    "audit:seo-links": "node scripts/audit-seo-links.mjs"
   },
   "dependencies": {
     "gsap": "3.15.0",
