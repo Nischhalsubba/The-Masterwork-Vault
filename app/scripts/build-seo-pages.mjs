@@ -104,6 +104,52 @@ await directory('/guides/','Masterwork crafting guides','Explore recorded recipe
 ])
 await directory('/guides/recipes/','Neverwinter recipe index','Direct recipe ingredients from the Vault catalog. Open a recipe to view quantities and related materials.',itemLinks.sort((a,b)=>a.name.localeCompare(b.name)))
 await directory('/guides/materials/','Neverwinter material source index','Published and historical acquisition references, with uncertainty made explicit.',materialLinks.sort((a,b)=>a.name.localeCompare(b.name)))
+// Static initial metadata for each public SPA route. The main React UI and
+// its original interactions stay unchanged; crawlers get the correct first HTML.
+const appHtml=await readFile(path.join(out,'index.html'),'utf8')
+const shells=[
+  ['/catalog','Neverwinter Masterwork crafting catalog','Explore source-backed Neverwinter Sharandar and Underdark Masterwork recipes, items and crafting requirements.',true],
+  ['/materials','Neverwinter crafting materials and acquisition','Find Neverwinter Masterwork crafting materials and documented or historical acquisition references.',true],
+  ['/reference','Neverwinter Masterwork workshop reference','Explore crafting mechanics and evidence notes in the Masterwork Vault reference.',true],
+  ['/journey','Neverwinter Masterwork progression guide','Explore Masterwork professions, milestones and crafting progression.',true],
+  ['/plan','Personal crafting planner','Create and manage your private crafting plan in the Masterwork Vault.',false],
+  ['/readiness','Personal crafting readiness','Inspect your saved crafting inventory and readiness.',false],
+  ['/explore','Advanced crafting explorer','Explore the Masterwork database using advanced filters.',false],
+  ['/graph','Crafting dependency graph','Explore interactive recipe relationships and component dependencies.',false],
+  ['/data-health','Masterwork research evidence audit','Inspect source evidence coverage and limitations.',false],
+]
+for(const [route,title,desc,publicRoute] of shells){
+  let shell=appHtml
+  shell=shell.replace(/<title>[^<]*<\/title>/,'<title>'+esc(title)+' | The Masterwork Vault</title>')
+  shell=shell.replace(/<meta name="description" content="[^"]*"/,'<meta name="description" content="'+esc(desc)+'"')
+  shell=shell.replace(/<meta name="robots" content="[^"]*"/,'<meta name="robots" content="'+(publicRoute?'index,follow':'noindex,follow')+'"')
+  shell=shell.replace(/<link rel="canonical" href="[^"]*"/,'<link rel="canonical" href="'+url(route)+'"')
+  shell=shell.replace(/<meta property="og:title" content="[^"]*"/,'<meta property="og:title" content="'+esc(title)+'"')
+  shell=shell.replace(/<meta property="og:description" content="[^"]*"/,'<meta property="og:description" content="'+esc(desc)+'"')
+  shell=shell.replace(/<meta property="og:url" content="[^"]*"/,'<meta property="og:url" content="'+url(route)+'"')
+  const dir=path.join(out,route.slice(1))
+  await mkdir(dir,{recursive:true})
+  await writeFile(path.join(dir,'index.html'),shell)
+}
+// Domain-ownership verification is opt-in, supplied by the site owner in the
+// hosting environment; do not invent a Search Console verification token.
+const verification=process.env.GOOGLE_SITE_VERIFICATION
+if(verification && /^[a-zA-Z0-9_-]{8,150}$/.test(verification)){
+  const tag='<meta name="google-site-verification" content="'+esc(verification)+'">'
+  const {readdir}=await import('node:fs/promises')
+  const walk=async dir=>{
+    for(const entry of await readdir(dir,{withFileTypes:true})){
+      const full=path.join(dir,entry.name)
+      if(entry.isDirectory())await walk(full)
+      else if(entry.name==='index.html'){
+        const content=await readFile(full,'utf8')
+        await writeFile(full,content.replace('</head>',tag+'</head>'))
+      }
+    }
+  }
+  await walk(out)
+}
+
 const unique=[...new Set(index)].sort()
 await writeFile(path.join(out,'sitemap.xml'),'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+unique.map(p=>'  <url><loc>'+esc(url(p))+'</loc></url>').join('\n')+'\n</urlset>\n')
 console.log('SEO output: '+itemLinks.length+' recipes, '+materialLinks.length+' materials, '+unique.length+' indexed URLs')
