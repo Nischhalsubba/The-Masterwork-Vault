@@ -38,6 +38,7 @@ import './forge-phase-a.css'
 import './forge-phase-bc.css'
 import './mobile-acquisition.css'
 import './seo-links.css'
+import './visual-consistency.css'
 import { ForgeMotion } from './components/ForgeMotion'
 import { CommandPalette } from './components/CommandPalette'
 
