@@ -5,6 +5,7 @@
  */
 const base=new URL(process.env.SEO_LIVE_URL||'https://neverwintermastercraft.netlify.app')
 const origin=base.origin
+const canonicalOrigin='https://neverwintermastercraft.netlify.app'
 const timeout=15000
 const errors=[],observed=[]
 const fetchText=async (p,retries=2)=>{
@@ -29,7 +30,7 @@ const check=async (p,indexable=true)=>{
   if(indexable && !body.includes('<h1>') && p.startsWith('/guides/'))errors.push({path:p,error:'Missing heading'})
   if(p.startsWith('/guides/')){
    const canonical=body.match(/<link rel="canonical" href="([^"]+)"/)?.[1]
-   if(canonical!==origin+p)errors.push({path:p,error:'Canonical mismatch '+canonical})
+   if(canonical!==canonicalOrigin+p)errors.push({path:p,error:'Canonical mismatch '+canonical})
    if(!body.includes('application/ld+json'))errors.push({path:p,error:'Missing structured data'})
    if(/<meta name="robots" content="noindex/.test(body))errors.push({path:p,error:'Guide unexpectedly noindex'})
   }
