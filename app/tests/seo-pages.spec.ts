@@ -18,7 +18,7 @@ test('guide index and public recipe pages are readable without running app JavaS
     current: window.location.href,
   }))
   expect(data.title).toContain('Masterwork')
-  expect(data.canonical).toBe(data.current)
+  expect(data.canonical).toBe('https://neverwintermastercraft.netlify.app' + new URL(data.current).pathname)
   expect(JSON.parse(data.schema)['@graph'].some((x: { '@type': string }) => x['@type'] === 'BreadcrumbList')).toBeTruthy()
 })
 
