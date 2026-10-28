@@ -11,6 +11,10 @@ test('catalog uses a compact NW-Hub icon-backed class filter instead of a tall c
   for (const name of classNames) {
     const button = filter.getByRole('button', { name: new RegExp(name, 'i') })
     await expect(button).toBeVisible()
+    // Class artwork is intentionally demand-loaded near the viewport. Reveal each
+    // class before asserting its original NW Hub asset rather than forcing all
+    // offscreen emblems to download on initial catalog render.
+    await button.locator('.mw-class-icon').scrollIntoViewIfNeeded()
     const image = button.locator('img')
     await expect(image).toHaveCount(1)
     await expect(image).toHaveAttribute('src', new RegExp('^https://nw-hub\\.com/assets/classes/emblems/' + name.toLowerCase() + '\\.webp$'))
