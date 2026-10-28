@@ -15,7 +15,7 @@ const notice = 'Unofficial community reference. Published routes may be historic
 const crumb = parts => '<nav class="crumb" aria-label="Breadcrumb"><ol>' + parts.map((p,i)=>'<li>'+(i===parts.length-1?esc(p.name):'<a href="'+esc(p.url)+'">'+esc(p.name)+'</a>')+'</li>').join('')+'</ol></nav>'
 const graph = (title,desc,p,parts) => ({'@context':'https://schema.org','@graph':[
   {'@type':'WebPage',name:title,description:desc,url:url(p),isPartOf:{'@type':'WebSite',name:'The Masterwork Vault',url:ORIGIN}},
-  {'@type':'BreadcrumbList',itemListElement:parts.map((x,i)=>({'@type':'ListItem',position:i+1,name:x.name,item:url(x.url)}))}
+  ...(parts.length >= 2 ? [{'@type':'BreadcrumbList',itemListElement:parts.map((x,i)=>({'@type':'ListItem',position:i+1,name:x.name,item:url(x.url)}))}] : [])
 ]})
 const html = (p,title,desc,body,parts,index=true) => '<!doctype html><html lang="en"><head>'+
  '<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
