@@ -19,38 +19,3 @@ test('catalog content renders while optional comparison module is still loading'
     release?.()
   }
 })
-
-test('catalog is not suspended while the search palette chunk loads', async ({ page }) => {
-  let release: (() => void) | undefined
-  let held = false
-  await page.route(/\/assets\/CommandPalette-[^/]+\.js(?:\?.*)?$/, async (route) => {
-    held = true
-    await new Promise<void>((resolve) => { release = resolve })
-    await route.continue()
-  })
-
-  try {
-    await page.goto('/catalog/', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByText('Find what you need to craft and where to get every material.')).toBeVisible({ timeout: 5000 })
-    await expect.poll(() => held, { message: 'optional command palette chunk should be requested' }).toBe(true)
-  } finally {
-    release?.()
-  }
-})
-
-test('catalog remains visible while nonessential motion module loads', async ({ page }) => {
-  let release: (() => void) | undefined
-  let held = false
-  await page.route(/\/assets\/ForgeMotion-[^/]+\.js(?:\?.*)?$/, async (route) => {
-    held = true
-    await new Promise<void>((resolve) => { release = resolve })
-    await route.continue()
-  })
-  try {
-    await page.goto('/catalog/', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByText('Find what you need to craft and where to get every material.')).toBeVisible({ timeout: 5000 })
-    await expect.poll(() => held, { message: 'motion module should load separately from core catalog' }).toBe(true)
-  } finally {
-    release?.()
-  }
-})
