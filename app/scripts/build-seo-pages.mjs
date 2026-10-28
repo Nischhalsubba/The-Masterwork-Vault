@@ -49,11 +49,19 @@ const recipes=new Map(catalog.recipes.map(x=>[key(x.name),x]))
 const itemPath=i=>'/guides/recipes/'+slug(i.campaign||'masterwork')+'/'+String(i.id).replace(/[^a-zA-Z0-9_-]/g,'-')+'/'+slug(i.name)+'/'
 const materialPath=m=>'/guides/materials/'+slug(m.name)+'/'
 const haveMaterialPage=m=>Boolean(m && (sources.getMaterialSourceGuide(m.name).status!=='unresolved' || recipes.get(key(m.name))?.materials?.length))
+const publishRecipe = item => Boolean(item.id && item.name && item.materials?.length && item.recipeKnown !== false)
+const excludedRecipes = catalog.items.filter(i => !publishRecipe(i)).map(i => ({
+  id: i.id, name: i.name, reason: i.recipeKnown === false ? 'Recipe explicitly unverified' : !i.materials?.length ? 'Direct ingredient recipe unavailable' : 'Incomplete name or ID',
+}))
+const excludedMaterials = catalog.materials.filter(m=>!haveMaterialPage(m)).map(m=>({
+  name:m.name, reason:'No documented/historical acquisition source or recipe with ingredients',
+}))
+console.log('SEO exclusions (not published as authoritative guides): '+JSON.stringify({recipes:excludedRecipes,materials:excludedMaterials}))
 const index=['/catalog','/materials','/reference','/journey','/guides/']
 const itemLinks=[]
 const materialLinks=[]
 for(const item of catalog.items){
-  if(!item.id||!item.name||!item.materials?.length||item.recipeKnown===false)continue
+  if(!publishRecipe(item))continue
   const p=itemPath(item),parts=[{name:'Crafting guides',url:'/guides/'},{name:'Recipes',url:'/guides/recipes/'},{name:item.name,url:p}]
   const desc='Direct materials required to craft '+item.name+' in Neverwinter '+(item.campaign||'Masterwork')+', with documented acquisition references.'
   const needs=item.materials.map(n=>{
@@ -80,7 +88,7 @@ for(const m of catalog.materials){
   const routes=guide.routes.map(r=>'<article class="route"><h3>'+esc(r.method)+' — '+esc(r.location)+'</h3>'+
      '<h4>Before you go</h4>'+ul(r.requirements.map(esc))+'<h4>Steps</h4><ol>'+r.steps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+
      '<p class="muted">'+esc(r.caveats.join(' '))+'</p><p class="sources">'+r.evidence.map(e=>'<a rel="noopener noreferrer" href="'+esc(e.url)+'">'+esc(e.title)+'</a>').join(' · ')+'</p></article>').join('')
-  const usedBy=catalog.items.filter(i=>i.materials?.some(n=>key(n.name)===key(m.name))).slice(0,16).map(i=>'<a href="'+itemPath(i)+'">'+esc(i.name)+'</a>')
+  const usedBy=catalog.items.filter(i=>publishRecipe(i) && i.materials?.some(n=>key(n.name)===key(m.name))).slice(0,16).map(i=>'<a href="'+itemPath(i)+'">'+esc(i.name)+'</a>')
   const crafting=recipe?.materials?.length?'<section class="sheet"><h2>Crafted component recipe</h2><p>Recorded yield: '+(recipe.quantityExplicit?esc(recipe.outputQuantity):'Not confirmed')+'</p><ul class="ingredients">'+recipe.materials.map(n=>{
     const related=materials.get(key(n.name));return '<li><span>'+(related&&haveMaterialPage(related)?'<a href="'+materialPath(related)+'">'+esc(n.name)+'</a>':esc(n.name))+'</span><b>×'+esc(n.required)+'</b></li>'
   }).join('')+'</ul></section>':''
@@ -154,6 +162,11 @@ if(verification && /^[a-zA-Z0-9_-]{8,150}$/.test(verification)){
 // Netlify's last rewrite will serve this page for invalid guide or app routes.
 await writeFile(path.join(out,'404.html'),'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found | The Masterwork Vault</title><link rel="stylesheet" href="/guides/guide.css"></head><body><main id="main"><div class="eyebrow">THE MASTERWORK VAULT</div><h1>Page not found</h1><p>The requested guide or route does not exist.</p><p><a class="action" href="/guides/">Browse the crafting guides</a></p><p><a href="/catalog">Return to the workbench</a></p></main></body></html>')
 
+await writeFile(path.join(out,'seo-content-audit.json'),JSON.stringify({
+  generatedAt:new Date().toISOString(),sourceCounts:{recipes:catalog.items.length,materials:catalog.materials.length},
+  published:{recipes:itemLinks.length,materials:materialLinks.length},
+  excluded:{recipes:excludedRecipes,materials:excludedMaterials},
+},null,2)+'\n')
 const unique=[...new Set(index)].sort()
 await writeFile(path.join(out,'sitemap.xml'),'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+unique.map(p=>'  <url><loc>'+esc(url(p))+'</loc></url>').join('\n')+'\n</urlset>\n')
 console.log('SEO output: '+itemLinks.length+' recipes, '+materialLinks.length+' materials, '+unique.length+' indexed URLs')
