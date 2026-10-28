@@ -1,7 +1,7 @@
 import { lazy, StrictMode, Suspense, useLayoutEffect, useRef, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { CommandPalette } from './components/CommandPalette'
+
 import { UpdateBanner } from './components/UpdateBanner'
 import { UXSystem } from './components/UXSystem'
 import './styles.css'
@@ -41,6 +41,7 @@ import './seo-links.css'
 import { ForgeMotion } from './components/ForgeMotion'
 
 const App = lazy(() => import('./App'))
+const CommandPalette = lazy(() => import('./components/CommandPalette').then((module) => ({ default: module.CommandPalette })))
 const WorkspaceShell = lazy(() => import('./components/WorkspaceShell').then((module) => ({ default: module.WorkspaceShell })))
 const RouteSync = lazy(() => import('./components/RouteSync').then((module) => ({ default: module.RouteSync })))
 const QualitySystem = lazy(() => import('./components/QualitySystem').then((module) => ({ default: module.QualitySystem })))
@@ -195,7 +196,7 @@ createRoot(document.getElementById('root')!).render(
         <RouteContent />
         <DeveloperAttribution />
         <Suspense fallback={null}><QualitySystem /></Suspense>
-        <CommandPalette />
+        <Suspense fallback={null}><CommandPalette /></Suspense>
         <UpdateBanner />
       </Suspense>
     </ErrorBoundary>
