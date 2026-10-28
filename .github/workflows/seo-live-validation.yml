@@ -32,3 +32,14 @@ jobs:
           exit 1
       - name: Audit every live sitemap URL and robots responses
         run: node scripts/audit-live-seo.mjs
+      - name: Retrieve public CrUX field LCP, CLS and INP if available
+        if: always()
+        continue-on-error: true
+        run: node scripts/audit-field-cwv.mjs
+      - name: Upload field Core Web Vitals evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: masterwork-field-vitals
+          path: app/field-vitals-results/
+          if-no-files-found: warn
