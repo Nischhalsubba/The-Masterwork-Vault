@@ -1,30 +1,29 @@
 /**
- * Attempt public CrUX field CWV retrieval using the PageSpeed Insights API.
- * Report absence of field data explicitly; never substitute Lighthouse/TBT.
- * API can be rate limited without a key.
+ * Attempt real-user CrUX field metrics through PageSpeed Insights.
+ * Lab Lighthouse values are never used as substitutes for field LCP/INP/CLS.
+ * Optional PAGESPEED_API_KEY is read from the runner environment only.
  */
-import {mkdir,writeFile} from 'node:fs/promises'
+import {mkdir, writeFile} from 'node:fs/promises'
+import {queryPageSpeedField} from './lib/page-speed-field.mjs'
+
 const origin='https://neverwintermastercraft.netlify.app'
-const paths=['/catalog','/guides/']
 const results=[]
-const metrics=['LARGEST_CONTENTFUL_PAINT_MS','INTERACTION_TO_NEXT_PAINT','CUMULATIVE_LAYOUT_SHIFT_SCORE']
-for(const path of paths)for(const strategy of ['mobile','desktop']){
- const target=origin+path
- const params=new URLSearchParams({url:target,strategy,category:'performance'})
- let record={url:target,strategy,source:'CrUX/PageSpeed Insights',status:'unavailable',metrics:{}}
- try{
-  const response=await fetch('https://www.googleapis.com/pagespeedonline/v5/runPagespeed?'+params,{signal:AbortSignal.timeout(30000)})
-  if(!response.ok)throw Error('API HTTP '+response.status)
-  const json=await response.json()
-  const field=json.loadingExperience?.metrics || json.originLoadingExperience?.metrics || null
-  if(field){
-   record.status='field-data'
-   record.scope=json.loadingExperience?.metrics?'URL-level if available':'origin-level'
-   for(const name of metrics)record.metrics[name]=field[name]?.percentile??null
-  }else record.status='insufficient-public-field-data'
- }catch(e){record.status='unavailable';record.reason=e.message}
- results.push(record)
- console.log(JSON.stringify(record))
+for(const path of ['/catalog','/guides/']){
+  for(const strategy of ['mobile','desktop']){
+    const record=await queryPageSpeedField({
+      target: origin+path,
+      strategy,
+      apiKey: process.env.PAGESPEED_API_KEY,
+      maxRetries: 1,
+    })
+    results.push(record)
+    console.log(JSON.stringify(record))
+  }
 }
 await mkdir('field-vitals-results',{recursive:true})
-await writeFile('field-vitals-results/summary.json',JSON.stringify({note:'Real-user CrUX field data if available. If absent, no field metric is asserted.',results},null,2))
+await writeFile('field-vitals-results/summary.json',JSON.stringify({
+  collectedAt:new Date().toISOString(),
+  kind:'Public real-user CrUX percentiles when available; NOT Lighthouse lab measurements',
+  note:'Rate limiting, insufficient traffic, and access failures remain distinct. PSI CLS percentile units represent score × 100; do not treat the raw percentile as a normalized CLS score. Field INP cannot be inferred from TBT.',
+  results,
+},null,2)+'\n')
