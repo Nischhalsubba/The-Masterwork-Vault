@@ -261,9 +261,10 @@
   #root .app .workshop-reference > .reference-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
-  #root .journey-v3 .journey-learning-grid {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
+}
+/* Keep the tablet chapter rail beside the content until its natural 900px break. */
+@media (max-width: 900px) {
+  #root .journey-v3 .journey-learning-grid,
   #root .journey-v3 .journey-chapter {
     grid-template-columns: minmax(0, 1fr) !important;
   }
