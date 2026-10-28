@@ -180,7 +180,7 @@ function RouteContent() {
   return <>
     <App />
     <RouteSync />
-    <CompareWorkbench />
+    <Suspense fallback={null}><CompareWorkbench /></Suspense>
   </>
 }
 
@@ -194,7 +194,7 @@ createRoot(document.getElementById('root')!).render(
         <WorkspaceShell />
         <RouteContent />
         <DeveloperAttribution />
-        <QualitySystem />
+        <Suspense fallback={null}><QualitySystem /></Suspense>
         <CommandPalette />
         <UpdateBanner />
       </Suspense>
