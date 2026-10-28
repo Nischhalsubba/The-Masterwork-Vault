@@ -58,7 +58,12 @@
 # Interactive deep links use the app; the indexable, substantive recipe reference
 # lives at /guides/recipes/... instead of duplicating the JS app shell.
 [[headers]]
-  for = "/catalog/*"
+  for = "/catalog/sharandar/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, follow"
+
+[[headers]]
+  for = "/catalog/underdark/*"
   [headers.values]
     X-Robots-Tag = "noindex, follow"
 
