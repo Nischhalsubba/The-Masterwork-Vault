@@ -39,6 +39,8 @@ jobs:
         run: npx --no-install playwright install --with-deps chromium
       - name: Build production application
         run: npm run build
+      - name: Verify generated SEO reference pages and sitemap
+        run: npm run verify:seo
       - name: Verify repeat builds do not mutate authored source
         run: |
           sha256sum src/App.tsx src/components/CraftingWorkbench.tsx src/data/catalog.ts src/main.tsx > /tmp/masterwork-authored.sha256

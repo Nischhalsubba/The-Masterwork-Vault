@@ -1,0 +1,58 @@
+name: SEO Lighthouse mobile and desktop lab audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/scripts/build-seo-pages.mjs'
+      - 'app/public/guides/**'
+      - 'app/src/**'
+      - '.github/workflows/seo-lighthouse.yml'
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: app/.node-version
+      - run: npm ci --no-fund
+      - run: npm run build && npm run verify:seo
+      - name: Install Chromium for reproducible Lighthouse lab metrics
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Measure representative guide and catalog pages on mobile and desktop
+        run: |
+          export CHROME_PATH="$(node -p "require('@playwright/test').chromium.executablePath()")"
+          mkdir -p lighthouse-results
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/masterwork-preview.log 2>&1 &
+          for n in $(seq 1 25); do curl -fsS http://127.0.0.1:4173/guides/ >/dev/null && break || sleep 1; done
+          for route in guides guides-materials catalog; do
+            case "$route" in
+              guides) path="/guides/" ;;
+              guides-materials) path="/guides/materials/" ;;
+              catalog) path="/catalog/" ;;
+            esac
+            for mode in mobile desktop; do
+              if [ "$mode" = desktop ]; then preset="--preset=desktop"; else preset=""; fi
+              npx --yes lighthouse@13.5.0 "http://127.0.0.1:4173$path" --quiet --chrome-flags="--headless --no-sandbox --disable-gpu" --only-categories=performance,seo,accessibility --output=json --output-path="lighthouse-results/${route}-${mode}.json" $preset
+            done
+          done
+          node scripts/report-lighthouse.mjs lighthouse-results
+      - name: Upload full performance reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: masterwork-seo-lighthouse
+          path: app/lighthouse-results/
+          retention-days: 7
+          if-no-files-found: warn

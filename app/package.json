@@ -16,13 +16,15 @@
     "verify:knowledge": "node scripts/verify-knowledge.mjs",
     "test:domain": "node --experimental-strip-types scripts/verify-domain-math.mjs",
     "verify:release": "npm run verify:recipes && npm run verify:knowledge && npm run test:domain && npm run verify:journey && npm run verify:reference",
-    "build": "npm run verify:release && tsc -b && vite build",
+    "build": "npm run verify:release && tsc -b && vite build && node scripts/build-seo-pages.mjs",
     "preview": "vite preview",
     "test:e2e": "npm run build && playwright test",
     "test:e2e:update": "npm run build && playwright test --update-snapshots",
     "test:quality": "npm run test:e2e",
     "verify:journey": "node --experimental-strip-types scripts/verify-journey.mjs",
-    "verify:reference": "node --experimental-strip-types scripts/verify-profession-reference.mjs"
+    "verify:reference": "node --experimental-strip-types scripts/verify-profession-reference.mjs",
+    "verify:seo": "node scripts/verify-seo-pages.mjs && npm run audit:seo-links",
+    "audit:seo-links": "node scripts/audit-seo-links.mjs"
   },
   "dependencies": {
     "gsap": "3.15.0",

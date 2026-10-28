@@ -207,6 +207,7 @@ export function WorkspaceShell() {
         <details className="forge-desktop-tools">
           <summary>More tools <Menu size={14} aria-hidden="true"/></summary>
           <div className="forge-desktop-tools-panel">
+            <a href="/guides/"><BookOpen size={16} aria-hidden="true"/><span><strong>Crafting guides</strong><small>Recipes and material acquisition</small></span></a>
             {tools.map(({ view, label, detail, Icon }) => (
               <a href={'/' + view} key={view} aria-current={activeView === view ? 'page' : undefined}>
                 <Icon size={16} aria-hidden="true"/><span><strong>{label}</strong><small>{detail}</small></span>
@@ -250,6 +251,7 @@ export function WorkspaceShell() {
         >
           <summary aria-label="More workspace tools"><Menu size={20} aria-hidden="true" /></summary>
           <nav aria-label="Workspace tools">
+            <a href="/guides/"><BookOpen size={19} aria-hidden="true"/><span><strong>Crafting guides</strong><small>Public recipe and material references</small></span></a>
             {tools.map(({ view, label, detail, Icon }) => (
               <a href={`/${view}`} key={view} aria-current={activeView === view ? 'page' : undefined}>
                 <Icon size={19} aria-hidden="true" />
@@ -275,6 +277,7 @@ export function WorkspaceShell() {
           {workspaceButtons.slice(3)}
 
           <span className="mw-nav-group-label">TOOLS</span>
+          <a href="/guides/"><BookOpen size={19} aria-hidden="true"/><span>Crafting guides</span></a>
           {tools.map(({ view, label, Icon }) => (
             <a href={`/${view}`} className={activeView === view ? 'active' : ''} aria-current={activeView === view ? 'page' : undefined} key={view}>
               <Icon size={19} aria-hidden="true" /><span>{label}</span>

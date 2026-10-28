@@ -262,6 +262,9 @@ function MaterialDrilldown({ target, backLabel, onBack, onOpenCraftable }: { tar
   )
 }
 
+const guideSlug = (value: string) => value.toLowerCase().replace(/\+1/g, 'plus-1').replace(/[’']/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+const publicItemGuide = (item: ItemEntry) => '/guides/recipes/' + guideSlug(item.campaign || 'masterwork') + '/' + item.id.replace(/[^a-zA-Z0-9_-]/g, '-') + '/' + guideSlug(item.name) + '/'
+
 function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quantity: number; inPlan: boolean; togglePlan: () => void }) {
   const [variant, setVariant] = useState(Math.max(0, item.variants.length - 1))
   const [mode, setMode] = useState<'direct' | 'scratch'>('direct')
@@ -348,6 +351,7 @@ function Detail({ item, quantity, inPlan, togglePlan }: { item: ItemEntry; quant
         <div className="grow">
           <div className="pills"><Source value={item.sourceStatus} /><CampaignBadge value={item.campaign} /><span>{item.profession || item.kind}</span></div>
           <h2>{item.name}</h2>
+          {hasRecipe && <a className="forge-public-guide" href={publicItemGuide(item)}>Read recipe and material source guide</a>}
           <p>{classLabel} · {item.slot || item.kind}</p>
           {(item.artwork?.provenance === "reference-derived" || item.artwork?.provenance === "placeholder") && <span className="forge-artwork-note" title="Category illustration. Exact Neverwinter artwork has not been verified.">Representative item artwork</span>}
           <div className="mw-detail-requirement">
