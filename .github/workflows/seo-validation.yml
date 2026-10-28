@@ -21,6 +21,8 @@ jobs:
         with:
           node-version-file: app/.node-version
       - run: npm ci --no-fund
+      - name: Verify field Core Web Vitals error handling without API requests
+        run: node --test scripts/tests/field-cwv.test.mjs
       - name: Build content-backed HTML reference pages
         run: npm run build
       - name: Verify sitemap, canonicals and JSON-LD in generated HTML
