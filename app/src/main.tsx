@@ -38,9 +38,10 @@ import './forge-phase-a.css'
 import './forge-phase-bc.css'
 import './mobile-acquisition.css'
 import './seo-links.css'
-import { ForgeMotion } from './components/ForgeMotion'
+
 
 const App = lazy(() => import('./App'))
+const ForgeMotion = lazy(() => import('./components/ForgeMotion').then((module) => ({ default: module.ForgeMotion })))
 const CommandPalette = lazy(() => import('./components/CommandPalette').then((module) => ({ default: module.CommandPalette })))
 const WorkspaceShell = lazy(() => import('./components/WorkspaceShell').then((module) => ({ default: module.WorkspaceShell })))
 const RouteSync = lazy(() => import('./components/RouteSync').then((module) => ({ default: module.RouteSync })))
@@ -191,7 +192,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary name="The Masterwork Vault">
       <Suspense fallback={<PageLoading />}>
         <UXSystem />
-        <ForgeMotion />
+        <Suspense fallback={null}><ForgeMotion /></Suspense>
         <WorkspaceShell />
         <RouteContent />
         <DeveloperAttribution />
