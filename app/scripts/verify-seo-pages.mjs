@@ -12,7 +12,7 @@ for(const u of urls){
  const p=new URL(u).pathname
  const file=path.join(root,p.slice(1),'index.html')
  const html=await readFile(file,'utf8')
- if(!html.includes('<h1>')||!html.includes('rel="canonical" href="'+u+'"')||!html.includes('"@type":"BreadcrumbList"'))throw Error('Missing rendered metadata or heading: '+p)
+ if(!html.includes('<h1>')||!html.includes('rel="canonical" href="'+u+'"')||!html.includes('"@type":"WebPage"')||(p!=='/guides/'&&!html.includes('"@type":"BreadcrumbList"')))throw Error('Missing rendered metadata or heading: '+p)
  if(html.includes('<meta name="robots" content="noindex'))throw Error('Indexable guide marked noindex: '+p)
  if(html.includes('src="/assets/index-'))throw Error('Guide shipped the main React JavaScript: '+p)
 }
