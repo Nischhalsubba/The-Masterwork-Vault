@@ -37,6 +37,7 @@ import './forge-route-consistency.css'
 import './forge-phase-a.css'
 import './forge-phase-bc.css'
 import './mobile-acquisition.css'
+import './seo-links.css'
 import { ForgeMotion } from './components/ForgeMotion'
 
 const App = lazy(() => import('./App'))
