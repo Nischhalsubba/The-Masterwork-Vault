@@ -16,6 +16,8 @@ for(const u of urls){
  if(html.includes('<meta name="robots" content="noindex'))throw Error('Indexable guide marked noindex: '+p)
  if(html.includes('src="/assets/index-'))throw Error('Guide shipped the main React JavaScript: '+p)
 }
+const missingPage=await readFile(path.join(root,'404.html'),'utf8')
+if(!missingPage.includes('name="robots" content="noindex"')||!missingPage.includes('Page not found'))throw Error('Noindex 404 fallback missing')
 const guides=await readdir(path.join(root,'guides'))
 if(!guides.includes('guide.css')||!guides.includes('materials')||!guides.includes('recipes'))throw Error('SEO directory missing')
 for(const p of ['/guides/','/guides/recipes/','/guides/materials/']){
