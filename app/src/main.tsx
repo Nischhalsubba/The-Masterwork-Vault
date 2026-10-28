@@ -38,11 +38,11 @@ import './forge-phase-a.css'
 import './forge-phase-bc.css'
 import './mobile-acquisition.css'
 import './seo-links.css'
+import { ForgeMotion } from './components/ForgeMotion'
+import { CommandPalette } from './components/CommandPalette'
 
 
 const App = lazy(() => import('./App'))
-const ForgeMotion = lazy(() => import('./components/ForgeMotion').then((module) => ({ default: module.ForgeMotion })))
-const CommandPalette = lazy(() => import('./components/CommandPalette').then((module) => ({ default: module.CommandPalette })))
 const WorkspaceShell = lazy(() => import('./components/WorkspaceShell').then((module) => ({ default: module.WorkspaceShell })))
 const RouteSync = lazy(() => import('./components/RouteSync').then((module) => ({ default: module.RouteSync })))
 const QualitySystem = lazy(() => import('./components/QualitySystem').then((module) => ({ default: module.QualitySystem })))
@@ -192,12 +192,12 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary name="The Masterwork Vault">
       <Suspense fallback={<PageLoading />}>
         <UXSystem />
-        <Suspense fallback={null}><ForgeMotion /></Suspense>
+        <ForgeMotion />
         <WorkspaceShell />
         <RouteContent />
         <DeveloperAttribution />
         <Suspense fallback={null}><QualitySystem /></Suspense>
-        <Suspense fallback={null}><CommandPalette /></Suspense>
+        <CommandPalette />
         <UpdateBanner />
       </Suspense>
     </ErrorBoundary>
