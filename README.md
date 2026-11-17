@@ -46,12 +46,16 @@ flowchart TD
 
 ## Getting started
 
+The maintained React/Vite application and its package manifest are under [`app/`](./app). Use Node.js 24.x and the npm version declared in [`app/package.json`](./app/package.json):
+
 ```bash
-git clone <repository-url>
-cd The-Masterwork-Vault
+git clone https://github.com/Nischhalsubba/The-Masterwork-Vault.git
+cd The-Masterwork-Vault/app
+npm install
+npm run dev
 ```
 
-Use the manifests and lockfiles committed in the repository to determine the current runtime and commands.
+`npm run dev` invokes the catalog source-verification/precompile step before starting Vite. Run `npm run build` to verify a production bundle; the build also runs release checks. See the [app README](./app/README.md) for data provenance and product details.
 
 ## Data & design principles
 
