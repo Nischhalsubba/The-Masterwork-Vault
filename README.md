@@ -71,3 +71,7 @@ Use accurate terms such as **Neverwinter masterwork, masterwork crafting, Neverw
 flowchart LR
     SOURCE["New screenshot / source"] --> EXTRACT["Extract visible data"] --> VERIFY["Verify associations"] --> DATA["Update structured records / assets"] --> TEST["Check search / dependency views"] --> DOCS["Record uncertainty / version"] --> PR["Pull request"]
 ```
+
+## Change review and domain verification
+
+Use the [project-specific verification playbook](docs/RECIPE_EVIDENCE_QA.md) when reviewing sensitive workflows, source accuracy or release behavior.
